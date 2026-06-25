@@ -17,6 +17,7 @@ internal sealed record LtaService(
 
 internal sealed record LtaArrivalTiming(
     [property: JsonPropertyName("EstimatedArrival")] string EstimatedArrival,
+    [property: JsonPropertyName("Monitored")] int Monitored,
     [property: JsonPropertyName("Load")] string Load,
     [property: JsonPropertyName("Feature")] string Feature,
     [property: JsonPropertyName("Type")] string Type

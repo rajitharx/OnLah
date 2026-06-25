@@ -22,7 +22,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
         var opt = options.Value;
         _httpClient.BaseAddress = new Uri(opt.BaseUrl);
         _httpClient.Timeout = TimeSpan.FromSeconds(opt.TimeoutSeconds);
-        _httpClient.DefaultRequestHeaders.Add("AccountKey", opt.AccountKey);
+        _httpClient.DefaultRequestHeaders.Add("AccountKey", "+jUybMPoSsytGiE9S+EshQ==");
     }
 
     public async Task<Result<IReadOnlyList<BusArrival>>> GetArrivalsAsync(
@@ -34,7 +34,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
         try
         {
             var response = await _httpClient.GetAsync(
-                $"ltaodataservice/v3/BusArrivalv2?BusStopCode={Uri.EscapeDataString(stopCode)}",
+                $"ltaodataservice/v3/BusArrival?BusStopCode={Uri.EscapeDataString(stopCode)}",
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -49,7 +49,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
             if (raw is null)
                 return DomainError.Validation("Response", "LTA returned an empty response.");
 
-            return raw.Services.Select(Map).ToList();
+            return (raw.Services ?? []).Select(Map).ToList();
         }
         catch (HttpRequestException ex)
         {
@@ -91,7 +91,8 @@ internal sealed partial class LtaBusClient : ILtaBusClient
                 "DD" => BusType.DoubleDeck,
                 "BD" => BusType.Bendy,
                 _ => BusType.SingleDeck
-            }
+            },
+            t.Monitored == 1
         );
     }
 

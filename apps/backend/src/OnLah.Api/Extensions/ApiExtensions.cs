@@ -1,4 +1,7 @@
 using FluentValidation;
+using OnLah.Api.Endpoints.BusArrivals;
+using OnLah.Api.Endpoints.BusStops;
+using OnLah.Api.Endpoints.TrainAlerts;
 using OnLah.Api.Middleware;
 
 namespace OnLah.Api.Extensions;
@@ -12,7 +15,7 @@ internal static class ApiExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddOpenApi();
-        services.AddValidatorsFromAssemblyContaining<Program>();
+        services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
         services.AddCors(options =>
         {
@@ -45,8 +48,10 @@ internal static class ApiExtensions
 
     internal static WebApplication MapApiEndpoints(this WebApplication app)
     {
-        app.MapGroup("/api/v1");
-        // Register feature endpoint groups here as they are built
+        var v1 = app.MapGroup("/api/v1");
+        v1.MapBusArrivalEndpoints();
+        v1.MapBusStopEndpoints();
+        v1.MapTrainAlertEndpoints();
         return app;
     }
 }
