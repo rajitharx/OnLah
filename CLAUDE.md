@@ -16,7 +16,7 @@ Read this file at the start of every session before touching any code.
 | Mobile | React Native + TypeScript (Expo managed workflow) |
 | Navigation | React Navigation v6 |
 | State | Zustand |
-| Backend | .NET 8 C# Minimal API |
+| Backend | .NET 10 C# Minimal API |
 | Database | PostgreSQL |
 | Auth | None in v1 |
 
@@ -35,6 +35,7 @@ Docs/        → Guides and API references
 | Skill | When to use |
 |---|---|
 | `/ui` | Before building any screen, component, or layout — loads the full design system and component rules |
+| `/dotnet` | Before building any backend feature, endpoint, service, or test — loads .NET 10 architecture, TDD, security, and code style rules |
 
 ## Hard Rules (never violate without asking)
 
