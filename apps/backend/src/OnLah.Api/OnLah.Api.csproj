@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>OnLah.Api</RootNamespace>
+    <UserSecretsId>a3f7c2e1-84b0-4d29-9f61-2e5a0c8d3b17</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OnLah.Application\OnLah.Application.csproj" />
+    <ProjectReference Include="..\OnLah.Infrastructure\OnLah.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+</Project>
