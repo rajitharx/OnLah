@@ -52,7 +52,7 @@ Knows their regular stops. Doesn't need a map. Wants to glance at the app and kn
 - Live bus position on map
 - ETA reliability scoring / historical accuracy tracking
 - Multi-modal journey planning (bus + MRT combined routing)
-- Android support
+- Android store submission (codebase is shared; Android ships in v2)
 - User accounts / server-synced favourites
 - MRT crowd density (the Station Crowd Density API data is historical pattern, not truly real-time — defer)
 - Passenger volume statistics
@@ -61,65 +61,128 @@ Knows their regular stops. Doesn't need a map. Wants to glance at the app and kn
 
 ## Platform & Tech Stack
 
-### iOS App
+### Mobile App
 
-- **Language:** Swift 5.9+
-- **UI Framework:** SwiftUI
-- **Minimum iOS:** 16.0
-- **Architecture:** MVVM
-- **State management:** `@StateObject`, `@ObservableObject`, `@Published`
-- **Networking:** `URLSession` with async/await
-- **Location:** `CoreLocation` framework
-- **Local storage (favourites):** `UserDefaults` for v1; no backend auth required
+- **Framework:** React Native (Expo managed workflow)
+- **Language:** TypeScript (strict mode)
+- **Minimum iOS:** 16.0 | **Minimum Android:** API 29 (Android 10)
+- **Architecture:** Feature-based with custom hooks + Zustand stores
+- **State management:** Zustand (lightweight, no boilerplate)
+- **Navigation:** React Navigation v6 (bottom tabs + stack)
+- **Networking:** `fetch` via a shared `apiClient.ts` wrapper
+- **Location:** `expo-location`
+- **Local storage (favourites):** `AsyncStorage` for v1; no backend auth required
+- **Fonts:** JetBrains Mono (embedded via `expo-font`)
+- **Icons:** `@expo/vector-icons` (Feather set)
 
-### Backend (if needed for v1)
+> **Release strategy:** v1 ships iOS first via App Store. Android follows in v2 — the React Native codebase is shared, only store submission and platform testing differ.
 
-- **Framework:** .NET 8 Minimal API or ASP.NET Core
+### Backend
+
+- **Framework:** .NET 8 Minimal API (ASP.NET Core)
 - **Language:** C# 12
-- **Database:** PostgreSQL (preferred) or Azure SQL
+- **Database:** PostgreSQL
 - **Hosting options (in order of cost):** Railway → Render → Azure App Service
-- **Purpose in v1:** LTA API proxy (to avoid exposing AccountKey in client), caching layer for static datasets (BusStops, BusRoutes, BusServices)
+- **Purpose in v1:** LTA API proxy (keeps AccountKey off the mobile client), caching layer for static datasets (BusStops, BusRoutes, BusServices)
 
-> **Decision note:** If routing LTA calls directly from the iOS client, the AccountKey will be embedded in the app binary — acceptable for v1 prototype/TestFlight, but must be proxied before public App Store release.
+> **Security note:** The LTA AccountKey must NEVER be embedded in the mobile app bundle. All LTA DataMall calls are made server-side by the C# backend; the mobile app only calls the OnLah API.
 
 ---
 
-## Project Structure (iOS)
+## Project Structure
+
+Monorepo with two workspaces under `apps/`: `mobile/` (React Native) and `backend/` (C#).
 
 ```
 OnLah/
-├── App/
-│   └── OnLahApp.swift              # Entry point, @main
-├── Core/
-│   ├── Network/
-│   │   ├── LTAAPIClient.swift      # All LTA DataMall calls
-│   │   └── NetworkModels.swift     # Codable structs for all API responses
-│   ├── Location/
-│   │   └── LocationManager.swift   # CoreLocation wrapper
-│   └── Storage/
-│       └── FavouritesStore.swift   # UserDefaults persistence
-├── Features/
-│   ├── Arrivals/
-│   │   ├── ArrivalView.swift
-│   │   └── ArrivalViewModel.swift
-│   ├── NearbyStops/
-│   │   ├── NearbyView.swift
-│   │   └── NearbyViewModel.swift
-│   ├── Favourites/
-│   │   ├── FavouritesView.swift
-│   │   └── FavouritesViewModel.swift
-│   └── Disruptions/
-│       ├── DisruptionBannerView.swift
-│       └── DisruptionViewModel.swift
-├── Shared/
-│   ├── Components/
-│   │   ├── BusArrivalRow.swift     # Reusable arrival row tile
-│   │   ├── CrowdBadge.swift        # SEA/SDA/LSD colour pill
-│   │   └── ETADisplay.swift        # "3 min" / "Arr" display
-│   └── Extensions/
-│       └── Date+LTA.swift          # ETA parsing and rounding helpers
-└── Resources/
-    └── Info.plist                  # Location usage description required
+├── apps/
+│   ├── mobile/                          # React Native app (Expo)
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── index.tsx               # Entry point, providers
+│   │   │   ├── navigation/
+│   │   │   │   ├── RootNavigator.tsx
+│   │   │   │   └── TabNavigator.tsx
+│   │   │   └── providers/
+│   │   │       └── AppProviders.tsx    # Theme, store, location providers
+│   │   ├── features/
+│   │   │   ├── arrivals/
+│   │   │   │   ├── ArrivalScreen.tsx
+│   │   │   │   ├── useArrivals.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── nearby/
+│   │   │   │   ├── NearbyScreen.tsx
+│   │   │   │   └── useNearbyStops.ts
+│   │   │   ├── favourites/
+│   │   │   │   ├── FavouritesScreen.tsx
+│   │   │   │   └── useFavourites.ts
+│   │   │   └── disruptions/
+│   │   │       ├── DisruptionBanner.tsx
+│   │   │       └── useDisruptions.ts
+│   │   ├── shared/
+│   │   │   ├── components/
+│   │   │   │   ├── BusArrivalRow.tsx   # Reusable arrival row tile
+│   │   │   │   ├── CrowdBadge.tsx      # SEA/SDA/LSD colour pill
+│   │   │   │   ├── ETADisplay.tsx      # "3 min" / "Arr" display
+│   │   │   │   ├── StopCard.tsx        # Stop summary card
+│   │   │   │   └── index.ts            # Barrel export
+│   │   │   ├── hooks/
+│   │   │   │   ├── useLocation.ts
+│   │   │   │   └── useAutoRefresh.ts
+│   │   │   ├── services/
+│   │   │   │   ├── apiClient.ts        # Base fetch wrapper
+│   │   │   │   └── onlahApi.ts         # All OnLah backend calls
+│   │   │   ├── stores/
+│   │   │   │   ├── favouritesStore.ts  # Zustand — persisted to AsyncStorage
+│   │   │   │   └── disruptionStore.ts  # Zustand — in-memory
+│   │   │   ├── theme/
+│   │   │   │   ├── colors.ts
+│   │   │   │   ├── typography.ts
+│   │   │   │   ├── spacing.ts
+│   │   │   │   └── index.ts
+│   │   │   └── utils/
+│   │   │       ├── eta.ts              # ETA rounding, "Arr" logic
+│   │   │       ├── haversine.ts        # Distance calculation
+│   │   │       └── crowdLevel.ts       # Load → colour/label mapping
+│   │   └── types/
+│   │       ├── lta.ts                  # LTA API response shapes
+│   │       └── domain.ts               # App-level types (Stop, Route…)
+│   ├── assets/
+│   │   ├── fonts/                      # JetBrains Mono files
+│   │   └── icons/
+│   ├── __tests__/
+│   ├── app.json
+│   ├── tsconfig.json
+│   └── package.json
+│
+├── backend/                            # .NET 8 C# API
+│   ├── src/
+│   │   ├── OnLah.Api/
+│   │   │   ├── Endpoints/
+│   │   │   │   ├── BusArrivalEndpoints.cs
+│   │   │   │   ├── BusStopEndpoints.cs
+│   │   │   │   └── DisruptionEndpoints.cs
+│   │   │   ├── Program.cs
+│   │   │   └── appsettings.json
+│   │   ├── OnLah.Core/
+│   │   │   ├── Models/
+│   │   │   └── Interfaces/
+│   │   └── OnLah.Infrastructure/
+│   │       ├── LtaApiClient.cs
+│   │       ├── BusStopRepository.cs
+│   │       └── CacheService.cs
+│   └── tests/
+│       └── OnLah.Tests/
+│
+├── Docs/
+│   └── Claude/
+│       ├── ONLAH_APP_GUIDE.md
+│       └── LTA_DATAMALL_API.md
+│
+└── .claude/
+    ├── CLAUDE.md                       # Auto-loaded project context
+    └── commands/
+        └── ui.md                       # /ui skill — design system rules
 ```
 
 ---
@@ -367,4 +430,22 @@ Before submitting to the App Store:
 
 ---
 
-*OnLah v1 — Guide version: June 2026*
+---
+
+## Crowd Level Display (React Native)
+
+```ts
+type CrowdLevel = 'SEA' | 'SDA' | 'LSD' | ''
+
+const crowdConfig: Record<string, { color: string; label: string }> = {
+  SEA: { color: '#4CAF50', label: 'Seats' },
+  SDA: { color: '#FF9800', label: 'Standing' },
+  LSD: { color: '#F44336', label: 'Crowded' },
+}
+```
+
+Import colours from `mobile/src/shared/theme/colors.ts` — never hardcode hex values in components.
+
+---
+
+*OnLah v1 — Guide version: June 2026 — Stack: React Native + TypeScript + .NET 8 C#*
