@@ -1,0 +1,215 @@
+{
+  "info": {
+    "name": "LTA Data Mall",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Bus",
+      "item": [
+        {
+          "name": "BusStops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/BusStops",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "BusStops"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "BusArrival_BusStopCode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "AccountKey",
+                "value": "+jUybMPoSsytGiE9S+EshQ==",
+                "disabled": true,
+                "type": "default"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": true,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=67191",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "v3",
+                "BusArrival"
+              ],
+              "query": [
+                {
+                  "key": "BusStopCode",
+                  "value": "67191"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "BusArrival",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=67191&ServiceNo=27",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "v3",
+                "BusArrival"
+              ],
+              "query": [
+                {
+                  "key": "BusStopCode",
+                  "value": "67191"
+                },
+                {
+                  "key": "ServiceNo",
+                  "value": "27"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "BusServices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/BusServices",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "BusServices"
+              ],
+              "query": [
+                {
+                  "key": "ServiceNo",
+                  "value": "43E"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "BusRoutes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/BusRoutes",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "BusRoutes"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MRT",
+      "item": [
+        {
+          "name": "PCDRealTime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "https://datamall2.mytransport.sg/ltaodataservice/PCDRealTime?TrainLine=NEL",
+              "protocol": "https",
+              "host": [
+                "datamall2",
+                "mytransport",
+                "sg"
+              ],
+              "path": [
+                "ltaodataservice",
+                "PCDRealTime"
+              ],
+              "query": [
+                {
+                  "key": "TrainLine",
+                  "value": "NEL"
+                }
+              ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
