@@ -9,6 +9,7 @@ internal static class BusStopEndpoints
     internal static RouteGroupBuilder MapBusStopEndpoints(this RouteGroupBuilder group)
     {
         group.MapGet("bus-stops/nearby", GetNearbyAsync);
+        group.MapGet("bus-stops/search", SearchAsync);
         group.MapPost("admin/bus-stops/sync", TriggerSyncAsync);
         return group;
     }
@@ -28,6 +29,28 @@ internal static class BusStopEndpoints
                 statusCode: StatusCodes.Status422UnprocessableEntity);
 
         var result = await service.GetNearbyAsync(lat, lng, radiusMeters, cancellationToken);
+
+        if (result.IsFailure)
+            return TypedResults.Problem(
+                detail: result.Error.Description,
+                statusCode: StatusCodes.Status500InternalServerError);
+
+        return TypedResults.Ok(result.Value!);
+    }
+
+    private static async Task<Results<Ok<IReadOnlyList<BusStopDto>>, ProblemHttpResult>> SearchAsync(
+        string query,
+        SearchBusStopsService service,
+        IValidator<SearchBusStopsRequest> validator,
+        CancellationToken cancellationToken)
+    {
+        var validation = await validator.ValidateAsync(new SearchBusStopsRequest(query), cancellationToken);
+        if (!validation.IsValid)
+            return TypedResults.Problem(
+                detail: string.Join("; ", validation.Errors.Select(e => e.ErrorMessage)),
+                statusCode: StatusCodes.Status422UnprocessableEntity);
+
+        var result = await service.SearchAsync(query, cancellationToken);
 
         if (result.IsFailure)
             return TypedResults.Problem(
@@ -58,6 +81,19 @@ internal static class BusStopEndpoints
 internal sealed record GetNearbyStopsRequest(double Lat, double Lng, double RadiusMeters);
 
 internal sealed record BusStopSyncResponse(int StopsSynced);
+
+internal sealed record SearchBusStopsRequest(string Query);
+
+internal sealed class SearchBusStopsValidator : AbstractValidator<SearchBusStopsRequest>
+{
+    public SearchBusStopsValidator()
+    {
+        RuleFor(x => x.Query)
+            .NotEmpty().WithMessage("Query is required.")
+            .MinimumLength(2).WithMessage("Query must be at least 2 characters.")
+            .MaximumLength(50).WithMessage("Query must be 50 characters or fewer.");
+    }
+}
 
 internal sealed class GetNearbyStopsValidator : AbstractValidator<GetNearbyStopsRequest>
 {

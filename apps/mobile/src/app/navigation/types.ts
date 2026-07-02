@@ -18,6 +18,7 @@ export type NearbyStackParamList = {
 
 export type SearchStackParamList = {
   Search: undefined;
+  Arrivals: ArrivalsParams;
 };
 
 export type RootTabParamList = {

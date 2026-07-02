@@ -12,6 +12,18 @@ internal sealed class BusStopRepository : IBusStopRepository
     public async Task<IReadOnlyList<BusStop>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _context.BusStops.AsNoTracking().ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<BusStop>> SearchAsync(string query, int maxResults, CancellationToken cancellationToken = default)
+    {
+        var trimmed = query.Trim();
+        return await _context.BusStops
+            .AsNoTracking()
+            .Where(s => EF.Functions.ILike(s.BusStopCode, $"{trimmed}%")
+                     || EF.Functions.ILike(s.Description, $"%{trimmed}%"))
+            .OrderBy(s => s.BusStopCode)
+            .Take(maxResults)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task ReplaceAllAsync(IEnumerable<BusStop> stops, CancellationToken cancellationToken = default)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);

@@ -5,6 +5,7 @@ import React from 'react';
 import { ArrivalScreen } from '../../features/arrivals/ArrivalScreen';
 import { FavouritesScreen } from '../../features/favourites/FavouritesScreen';
 import { NearbyScreen } from '../../features/nearby/NearbyScreen';
+import { SearchScreen } from '../../features/search/SearchScreen';
 import { colors, spacing } from '../../shared/theme';
 import {
   HomeStackParamList,
@@ -12,35 +13,11 @@ import {
   RootTabParamList,
   SearchStackParamList,
 } from './types';
-import { Text, View, StyleSheet } from 'react-native';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const NearbyStack = createNativeStackNavigator<NearbyStackParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
-
-function SearchPlaceholder(): React.JSX.Element {
-  return (
-    <View style={placeholderStyles.container}>
-      <Feather name="search" size={32} color={colors.muted} />
-      <Text style={placeholderStyles.text}>Search coming soon</Text>
-    </View>
-  );
-}
-
-const placeholderStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-  },
-  text: {
-    fontSize: 14,
-    color: colors.muted,
-  },
-});
 
 function HomeNavigator(): React.JSX.Element {
   return (
@@ -63,7 +40,8 @@ function NearbyNavigator(): React.JSX.Element {
 function SearchNavigator(): React.JSX.Element {
   return (
     <SearchStack.Navigator screenOptions={{ headerShown: false }}>
-      <SearchStack.Screen name="Search" component={SearchPlaceholder} />
+      <SearchStack.Screen name="Search" component={SearchScreen} />
+      <SearchStack.Screen name="Arrivals" component={ArrivalScreen} />
     </SearchStack.Navigator>
   );
 }

@@ -20,3 +20,9 @@ export function getNearbyStops(
 export function getTrainAlerts(): Promise<TrainAlertsResponse> {
   return apiFetch<TrainAlertsResponse>('/api/v1/train-alerts');
 }
+
+export function searchBusStops(query: string): Promise<BusStop[]> {
+  return apiFetch<BusStop[]>(
+    `/api/v1/bus-stops/search?query=${encodeURIComponent(query)}`,
+  );
+}

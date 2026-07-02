@@ -33,6 +33,7 @@ public static class InfrastructureExtensions
 
         services.AddScoped<GetBusArrivalsService>();
         services.AddScoped<GetNearbyStopsService>();
+        services.AddScoped<SearchBusStopsService>();
         services.AddScoped<GetTrainAlertsService>();
         services.AddScoped<BusStopSyncService>();
 
