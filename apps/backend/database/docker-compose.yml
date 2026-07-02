@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: onlah_postgres
+    environment:
+      POSTGRES_DB: onlah
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      # Initialize database with schema on first run
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./extensions.sql:/docker-entrypoint-initdb.d/00-extensions.sql
+      - ./seed-data.sql:/docker-entrypoint-initdb.d/02-seed-data.sql
+      # Persist data across container restarts
+      - onlah_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - onlah_network
+
+  adminer:
+    image: adminer:latest
+    container_name: onlah_adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - onlah_network
+
+volumes:
+  onlah_postgres_data:
+    driver: local
+
+networks:
+  onlah_network:
+    driver: bridge

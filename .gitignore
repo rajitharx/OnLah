@@ -1,1 +1,12 @@
-/.DS_Store
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Claude Code worktrees and temp data
+apps/.claude/
+.claude/worktrees/
+
+# Design/export artifacts
+docs/Claude/files.zip
+docs/Claude/files/
+docs/OnLah UI.dc.html
