@@ -6,8 +6,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.0" />
-    <!-- Microsoft.EntityFrameworkCore.Design is a build-time tool; add it to OnLah.Api
-         with PrivateAssets=all when running dotnet ef migrations for the first time. -->
+    <!-- Build-time only: used by dotnet ef migrations. Referenced from OnLah.Api with PrivateAssets=all. -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup Label="API">
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />

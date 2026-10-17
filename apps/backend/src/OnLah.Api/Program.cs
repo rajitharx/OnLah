@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using OnLah.Api.Extensions;
 using OnLah.Infrastructure.Extensions;
 using OnLah.Infrastructure.Persistence;
@@ -9,12 +10,12 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Initialise DB schema. Replace EnsureCreated with MigrateAsync once migrations are added:
-//   dotnet ef migrations add InitialCreate --project src/OnLah.Infrastructure --startup-project src/OnLah.Api
+// Apply pending migrations. Add one with:
+//   dotnet ef migrations add <Name> --project src/OnLah.Infrastructure --startup-project src/OnLah.Api --output-dir Persistence/Migrations
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<OnLahDbContext>();
-    await db.Database.EnsureCreatedAsync();
+    await db.Database.MigrateAsync();
 }
 
 app.UseExceptionHandler();
