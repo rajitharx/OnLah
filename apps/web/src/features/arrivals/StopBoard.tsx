@@ -4,6 +4,7 @@ import { PinIcon, StarIcon } from '../../shared/components/Icons';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
 import type { ArrivalsState } from './arrivalsState';
 import { ServiceRow } from './ServiceRow';
+import { busAdvisories } from './busAdvisories';
 
 interface StopBoardProps {
   stop: BusStop;
@@ -55,7 +56,13 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
       )}
       {!data && !failed && <p className="caption">Loading bus times…</p>}
 
-      {data && (
+      {data && busAdvisories(data).map((advisory) => (
+        <p className="advisory" role="status" key={advisory.kind === 'service-no-buses' ? advisory.serviceNo : advisory.kind}>
+          {advisory.message}
+        </p>
+      ))}
+
+      {data && data.services.length > 0 && (
         <>
           <p className="label">Next departures</p>
           <ul className="service-list" aria-label="Bus services">

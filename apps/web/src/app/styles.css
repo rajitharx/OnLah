@@ -764,3 +764,13 @@ input {
     font-size: 24px;
   }
 }
+
+/* Inline bus advisory. Quieter than the MRT banner, and never a modal. */
+.advisory {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--ink);
+}
