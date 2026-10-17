@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using OnLah.Api.Middleware;
 using OnLah.Application.BusStops;
 
 namespace OnLah.Api.Endpoints.BusStops;
@@ -10,7 +11,7 @@ internal static class BusStopEndpoints
     {
         group.MapGet("bus-stops/nearby", GetNearbyAsync);
         group.MapGet("bus-stops/search", SearchAsync);
-        group.MapPost("admin/bus-stops/sync", TriggerSyncAsync);
+        group.MapPost("admin/bus-stops/sync", TriggerSyncAsync).AddEndpointFilter<AdminKeyFilter>();
         return group;
     }
 

@@ -3,6 +3,7 @@ using OnLah.Api.Endpoints.BusArrivals;
 using OnLah.Api.Endpoints.BusStops;
 using OnLah.Api.Endpoints.TrainAlerts;
 using OnLah.Api.Middleware;
+using OnLah.Application.Admin;
 
 namespace OnLah.Api.Extensions;
 
@@ -15,6 +16,7 @@ internal static class ApiExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddOpenApi();
+        services.AddSingleton(new AdminKeyValidator(configuration["Admin:ApiKey"]));
         services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
         services.AddCors(options =>
