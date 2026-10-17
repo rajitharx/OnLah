@@ -1,0 +1,109 @@
+using System.Net;
+using System.Text;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+using OnLah.Application.BusArrivals;
+using OnLah.Domain.Common;
+using OnLah.Infrastructure.Lta;
+using OnLah.IntegrationTests.Common;
+using Xunit;
+
+namespace OnLah.IntegrationTests.Lta;
+
+public sealed class LtaBusClientTests
+{
+    private const string ValidBody = """
+        {"BusStopCode":"83139","Services":[{"ServiceNo":"15","Operator":"GAS",
+        "NextBus":{"EstimatedArrival":"2026-10-17T10:05:00+08:00","Monitored":1,"Load":"SEA","Feature":"","Type":"SD"},
+        "NextBus2":{"EstimatedArrival":"","Monitored":0,"Load":"","Feature":"","Type":""},
+        "NextBus3":{"EstimatedArrival":"","Monitored":0,"Load":"","Feature":"","Type":""}}]}
+        """;
+
+    [Fact]
+    public async Task GetArrivalsAsync_ValidResponse_ReturnsMappedServices()
+    {
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, ValidBody)));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value!);
+        Assert.Equal("15", result.Value![0].ServiceNo);
+        Assert.Equal(CrowdLevel.SeatsAvailable, result.Value[0].NextBus!.Load);
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_AnyRequest_SendsConfiguredAccountKey()
+    {
+        var handler = new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, ValidBody));
+        var client = CreateClient(handler);
+
+        await client.GetArrivalsAsync("83139");
+
+        Assert.Equal("test-account-key", handler.Requests[0].Headers.GetValues("AccountKey").Single());
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_NonSuccessStatus_ReturnsUnavailable()
+    {
+        var client = CreateClient(new FakeHttpMessageHandler(_ =>
+            Respond(HttpStatusCode.InternalServerError, "")));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_TransportFailure_ReturnsUnavailable()
+    {
+        var client = CreateClient(new FakeHttpMessageHandler(_ =>
+            throw new HttpRequestException("connection refused")));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_MalformedJson_ReturnsUnavailable()
+    {
+        var client = CreateClient(new FakeHttpMessageHandler(_ =>
+            Respond(HttpStatusCode.OK, "{\"Services\":[")));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_EmptyBody_ReturnsNoServices()
+    {
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, "")));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(result.Value!);
+    }
+
+    private static LtaBusClient CreateClient(FakeHttpMessageHandler handler)
+    {
+        var options = Options.Create(new LtaOptions
+        {
+            AccountKey = "test-account-key",
+            BaseUrl = "https://lta.test/"
+        });
+
+        return new LtaBusClient(new HttpClient(handler), options, NullLogger<LtaBusClient>.Instance);
+    }
+
+    private static Task<HttpResponseMessage> Respond(HttpStatusCode status, string body) =>
+        Task.FromResult(new HttpResponseMessage(status)
+        {
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
+        });
+}

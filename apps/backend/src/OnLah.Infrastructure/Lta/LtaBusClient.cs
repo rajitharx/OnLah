@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OnLah.Application.BusArrivals;
@@ -40,27 +40,38 @@ internal sealed partial class LtaBusClient : ILtaBusClient
             if (!response.IsSuccessStatusCode)
             {
                 LogLtaStatusError(response.StatusCode, stopCode);
-                return DomainError.NotFound("BusStop");
+                return DomainError.Unavailable("BusArrival");
             }
 
-            var raw = await response.Content.ReadFromJsonAsync<LtaBusArrivalResponse>(
-                cancellationToken: cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            if (raw is null)
-                return DomainError.Validation("Response", "LTA returned an empty response.");
+            // An empty body means no service information, which the app shows as an advisory.
+            if (string.IsNullOrWhiteSpace(body))
+                return new List<BusArrival>();
 
-            return (raw.Services ?? []).Select(Map).ToList();
+            return ParseServices(body);
         }
         catch (HttpRequestException ex)
         {
             LogLtaRequestFailed(ex, stopCode);
-            return DomainError.Validation("LtaClient", "Unable to reach LTA DataMall.");
+            return DomainError.Unavailable("BusArrival");
         }
         catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             LogLtaTimeout(ex, stopCode);
-            return DomainError.Validation("LtaClient", "LTA DataMall request timed out.");
+            return DomainError.Unavailable("BusArrival");
         }
+        catch (Exception ex) when (ex is JsonException or FormatException)
+        {
+            LogLtaMalformedResponse(ex, stopCode);
+            return DomainError.Unavailable("BusArrival");
+        }
+    }
+
+    private static List<BusArrival> ParseServices(string body)
+    {
+        var raw = JsonSerializer.Deserialize<LtaBusArrivalResponse>(body, JsonSerializerOptions.Web);
+        return (raw?.Services ?? []).Select(Map).ToList();
     }
 
     private static BusArrival Map(LtaService s) => new(
@@ -107,4 +118,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "LTA request timed out for stop {StopCode}")]
     private partial void LogLtaTimeout(Exception exception, string stopCode);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "LTA returned a malformed response for stop {StopCode}")]
+    private partial void LogLtaMalformedResponse(Exception exception, string stopCode);
 }
