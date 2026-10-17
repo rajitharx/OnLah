@@ -513,6 +513,12 @@ input {
   color: var(--accent);
 }
 
+.service-operator-logo {
+  height: 16px;
+  width: auto;
+  max-width: 96px;
+}
+
 .service-operator {
   font-family: var(--font-mono);
   font-size: 11px;

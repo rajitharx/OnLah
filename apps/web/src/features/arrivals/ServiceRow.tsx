@@ -1,4 +1,5 @@
 import type { BusArrival } from '../../types/domain';
+import { OperatorLogo } from '../../shared/components/OperatorLogo';
 import { EtaTile } from './EtaTile';
 
 interface ServiceRowProps {
@@ -13,7 +14,7 @@ export function ServiceRow({ service, now }: ServiceRowProps) {
     <li className="service-row">
       <div className="service-head">
         <span className="service-badge">{service.serviceNo}</span>
-        <span className="service-operator">{service.operator}</span>
+        <OperatorLogo operator={service.operator} />
       </div>
       <div className="eta-grid">
         {timings.map((timing, index) => (
