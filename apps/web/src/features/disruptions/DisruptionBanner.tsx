@@ -4,7 +4,7 @@ import { AlertIcon } from '../../shared/components/Icons';
 import { Freshness } from '../../shared/components/Freshness';
 
 interface DisruptionBannerProps {
-  alerts: TrainAlertsResponse;
+  alerts: TrainAlertsResponse | null;
   now: number;
 }
 
@@ -13,6 +13,7 @@ interface DisruptionBannerProps {
 export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
 
+  if (alerts === null) return null;
   const { status, alerts: items } = alerts.data;
   if (status !== 1 || items.length === 0) return null;
 

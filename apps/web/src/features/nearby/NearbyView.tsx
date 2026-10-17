@@ -1,48 +1,35 @@
-import { useMemo, useState } from 'react';
-import { sampleStops } from '../../shared/services/sampleData';
-import { haversineMeters, type LatLng } from '../../shared/utils/geo';
+import { useState } from 'react';
+import type { BusStop } from '../../types/domain';
+import type { LatLng } from '../../shared/utils/geo';
 import { EmptyState } from '../../shared/components/EmptyState';
 import { PinIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
-
-const RADIUS_M = 5_000;
-// Raffles Place. Used until the visitor shares their location.
-const SAMPLE_LOCATION: LatLng = { latitude: 1.2841, longitude: 103.8513 };
+import { NEARBY_RADIUS_M, useNearbyStops } from './useNearbyStops';
 
 interface NearbyViewProps {
-  onOpen: (stopCode: string) => void;
+  onOpen: (stop: BusStop) => void;
 }
 
 export function NearbyView({ onOpen }: NearbyViewProps) {
   const [origin, setOrigin] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const center = origin ?? SAMPLE_LOCATION;
-
-  const nearby = useMemo(
-    () =>
-      sampleStops
-        .map((s) => ({ stop: s, distanceMeters: haversineMeters(center, s) }))
-        .filter((x) => x.distanceMeters <= RADIUS_M)
-        .sort((a, b) => a.distanceMeters - b.distanceMeters),
-    [center],
-  );
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const { stops, loading, failed } = useNearbyStops(origin);
 
   const locate = (): void => {
     if (!navigator.geolocation) {
-      setError('Location is not available in this browser.');
+      setLocationError('Location is not available in this browser.');
       return;
     }
     setLocating(true);
-    setError(null);
+    setLocationError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setOrigin({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
         setLocating(false);
       },
       () => {
-        setError('Location was not shared. Showing the sample location instead.');
+        setLocationError('Location was not shared. Nearby stops need your location.');
         setLocating(false);
       },
       { enableHighAccuracy: false, timeout: 10_000 },
@@ -58,18 +45,25 @@ export function NearbyView({ onOpen }: NearbyViewProps) {
           {locating ? 'Locating…' : 'Use my location'}
         </button>
         <span className="caption">
-          {origin ? `Within 5 km of you` : 'Sample location: Raffles Place'}
+          {origin ? `Within ${NEARBY_RADIUS_M / 1000} km of you` : 'Share your location to see stops nearby.'}
         </span>
       </div>
 
-      {error && <p className="error" role="alert">{error}</p>}
+      {locationError && <p className="error" role="alert">{locationError}</p>}
+      {failed && <p className="error" role="alert">Nearby stops are unavailable right now. Try again.</p>}
 
-      {nearby.length === 0 ? (
-        <EmptyState icon={<PinIcon size={24} />} message="No stops within 5 km." />
-      ) : (
+      {origin === null && (
+        <EmptyState icon={<PinIcon size={24} />} message="Nearby stops appear once you share your location." />
+      )}
+
+      {origin !== null && !loading && !failed && stops.length === 0 && (
+        <EmptyState icon={<PinIcon size={24} />} message={`No stops within ${NEARBY_RADIUS_M / 1000} km.`} />
+      )}
+
+      {stops.length > 0 && (
         <div className="stop-list">
-          {nearby.map(({ stop, distanceMeters }) => (
-            <StopCard key={stop.busStopCode} stop={stop} distanceMeters={distanceMeters} onOpen={onOpen} />
+          {stops.map((stop) => (
+            <StopCard key={stop.busStopCode} stop={stop} distanceMeters={stop.distanceMeters} onOpen={onOpen} />
           ))}
         </div>
       )}

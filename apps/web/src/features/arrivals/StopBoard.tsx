@@ -1,11 +1,13 @@
-import type { BusArrivalsResponse, BusStop } from '../../types/domain';
+import type { BusStop } from '../../types/domain';
 import { Freshness } from '../../shared/components/Freshness';
 import { PinIcon, StarIcon } from '../../shared/components/Icons';
+import { MAX_FAVOURITES } from '../favourites/favouritesStore';
+import type { ArrivalsState } from './arrivalsState';
 import { ServiceRow } from './ServiceRow';
 
 interface StopBoardProps {
   stop: BusStop;
-  arrivals: BusArrivalsResponse;
+  arrivals: ArrivalsState;
   now: number;
   isFavourite: boolean;
   favouritesFull: boolean;
@@ -14,6 +16,7 @@ interface StopBoardProps {
 
 export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, onToggleFavourite }: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
+  const { data, failed } = arrivals;
 
   return (
     <section className="board" aria-labelledby="stop-name">
@@ -39,16 +42,29 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
       </header>
 
       <div className="board-meta">
-        <Freshness fetchedAt={arrivals.fetchedAt} now={now} />
-        {saveDisabled && <span className="caption">Favourites are full (10)</span>}
+        {data && <Freshness fetchedAt={data.fetchedAt} now={now} />}
+        {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 
-      <p className="label">Next departures</p>
-      <ul className="service-list" aria-label="Bus services">
-        {arrivals.services.map((service) => (
-          <ServiceRow key={service.serviceNo} service={service} now={now} />
-        ))}
-      </ul>
+      {failed && (
+        <p className="error" role="alert">
+          {data
+            ? 'Refresh failed. Showing the last known times.'
+            : 'Bus times are unavailable right now. Retrying every 20 seconds.'}
+        </p>
+      )}
+      {!data && !failed && <p className="caption">Loading bus times…</p>}
+
+      {data && (
+        <>
+          <p className="label">Next departures</p>
+          <ul className="service-list" aria-label="Bus services">
+            {data.services.map((service) => (
+              <ServiceRow key={service.serviceNo} service={service} now={now} />
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   );
 }

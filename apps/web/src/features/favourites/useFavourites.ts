@@ -1,64 +1,56 @@
 import { useState } from 'react';
-import { SEED_FAVOURITES } from '../../shared/services/sampleData';
-
-const STORAGE_KEY = 'onlah-web.favourites';
-export const MAX_FAVOURITES = 10;
+import type { BusStop } from '../../types/domain';
+import { FAVOURITES_KEY, addFavourite, isFavouritesFull, parseFavourites, removeFavourite } from './favouritesStore';
 
 // localStorage can be blocked (private mode, disabled site data), so every access is guarded.
-function readFavourites(): string[] {
+function readFavourites(): BusStop[] {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw === null) return SEED_FAVOURITES;
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return SEED_FAVOURITES;
-    return parsed.filter((code): code is string => typeof code === 'string').slice(0, MAX_FAVOURITES);
+    return parseFavourites(window.localStorage.getItem(FAVOURITES_KEY));
   } catch {
-    return SEED_FAVOURITES;
+    return [];
   }
 }
 
-function writeFavourites(codes: string[]): void {
+function writeFavourites(list: BusStop[]): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
+    window.localStorage.setItem(FAVOURITES_KEY, JSON.stringify(list));
   } catch {
     // Storage unavailable: favourites still work for this visit.
   }
 }
 
 export interface Favourites {
-  codes: string[];
+  stops: BusStop[];
   isFull: boolean;
-  has: (code: string) => boolean;
+  has: (stopCode: string) => boolean;
   // Returns false when the list is full and the stop was not added.
-  toggle: (code: string) => boolean;
-  remove: (code: string) => void;
+  toggle: (stop: BusStop) => boolean;
+  remove: (stopCode: string) => void;
 }
 
 export function useFavourites(): Favourites {
-  const [codes, setCodes] = useState<string[]>(readFavourites);
+  const [stops, setStops] = useState<BusStop[]>(readFavourites);
 
-  const update = (next: string[]): void => {
-    setCodes(next);
+  const update = (next: BusStop[]): void => {
+    setStops(next);
     writeFavourites(next);
   };
 
-  const remove = (code: string): void => update(codes.filter((c) => c !== code));
-
-  const toggle = (code: string): boolean => {
-    if (codes.includes(code)) {
-      remove(code);
+  const toggle = (stop: BusStop): boolean => {
+    if (stops.some((s) => s.busStopCode === stop.busStopCode)) {
+      update(removeFavourite(stops, stop.busStopCode));
       return true;
     }
-    if (codes.length >= MAX_FAVOURITES) return false;
-    update([...codes, code]);
+    if (isFavouritesFull(stops)) return false;
+    update(addFavourite(stops, stop));
     return true;
   };
 
   return {
-    codes,
-    isFull: codes.length >= MAX_FAVOURITES,
-    has: (code) => codes.includes(code),
+    stops,
+    isFull: isFavouritesFull(stops),
+    has: (stopCode) => stops.some((s) => s.busStopCode === stopCode),
     toggle,
-    remove,
+    remove: (stopCode) => update(removeFavourite(stops, stopCode)),
   };
 }

@@ -1,4 +1,4 @@
-// Copied from apps/mobile/src/types/domain.ts so the web sample uses the same response shapes.
+// Copied from apps/mobile/src/types/domain.ts so the web app uses the same response shapes.
 // C# enum serialization: integers by default
 // CrowdLevel: 0=SeatsAvailable, 1=StandingAvailable, 2=LimitedStanding
 // BusType: 0=SingleDeck, 1=DoubleDeck, 2=Bendy

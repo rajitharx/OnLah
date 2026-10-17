@@ -5,7 +5,7 @@ import { formatDistance } from '../utils/geo';
 interface StopCardProps {
   stop: BusStop;
   distanceMeters?: number;
-  onOpen: (stopCode: string) => void;
+  onOpen: (stop: BusStop) => void;
   action?: ReactNode;
 }
 
@@ -15,7 +15,7 @@ export function StopCard({ stop, distanceMeters, onOpen, action }: StopCardProps
 
   return (
     <div className="stop-row">
-      <button type="button" className="stop-card" onClick={() => onOpen(stop.busStopCode)}>
+      <button type="button" className="stop-card" onClick={() => onOpen(stop)}>
         <span className="stop-code">{stop.busStopCode}</span>
         <span className="stop-card-text">
           <span className="stop-card-name">{stop.description}</span>

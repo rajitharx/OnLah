@@ -1,33 +1,17 @@
-import { useMemo, useState } from 'react';
-import { sampleStops } from '../../shared/services/sampleData';
+import { useState } from 'react';
+import type { BusStop } from '../../types/domain';
 import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
-
-const MAX_RESULTS = 20;
+import { useStopSearch } from './useStopSearch';
 
 interface SearchViewProps {
-  onOpen: (stopCode: string) => void;
+  onOpen: (stop: BusStop) => void;
 }
 
 export function SearchView({ onOpen }: SearchViewProps) {
   const [query, setQuery] = useState('');
-  const term = query.trim().toLowerCase();
-
-  const results = useMemo(() => {
-    if (term === '') return [];
-    return sampleStops
-      .filter(
-        (s) =>
-          s.busStopCode.startsWith(term) ||
-          s.description.toLowerCase().includes(term) ||
-          s.roadName.toLowerCase().includes(term),
-      )
-      .slice(0, MAX_RESULTS);
-  }, [term]);
-
-  // Stop codes are exactly 5 digits, so a longer numeric query is an input error.
-  const codeError = /^\d+$/.test(term) && term.length > 5 ? 'Stop codes are 5 digits.' : null;
+  const { check, results, loading, failed } = useStopSearch(query);
 
   return (
     <section className="view" aria-labelledby="search-title">
@@ -46,19 +30,21 @@ export function SearchView({ onOpen }: SearchViewProps) {
         />
       </label>
 
-      {codeError && <p className="error" role="alert">{codeError}</p>}
-
-      {term === '' && (
+      {check.kind === 'code-too-long' && <p className="error" role="alert">Stop codes are 5 digits.</p>}
+      {check.kind === 'too-short' && <p className="caption">Type at least 2 characters.</p>}
+      {check.kind === 'empty' && (
         <EmptyState icon={<SearchIcon size={24} />} message="Type a stop code or road to search." />
       )}
 
-      {term !== '' && results.length === 0 && !codeError && (
-        <EmptyState icon={<SearchIcon size={24} />} message={`No stops match "${query.trim()}".`} />
+      {failed && <p className="error" role="alert">Search is unavailable right now. Try again.</p>}
+
+      {check.kind === 'ok' && !loading && !failed && results.length === 0 && (
+        <EmptyState icon={<SearchIcon size={24} />} message={`No stops match "${check.term}".`} />
       )}
 
       {results.length > 0 && (
         <>
-          <p className="caption">{results.length} result{results.length === 1 ? '' : 's'} (max {MAX_RESULTS})</p>
+          <p className="caption">{results.length} result{results.length === 1 ? '' : 's'} (max 20)</p>
           <div className="stop-list">
             {results.map((stop) => (
               <StopCard key={stop.busStopCode} stop={stop} onOpen={onOpen} />
