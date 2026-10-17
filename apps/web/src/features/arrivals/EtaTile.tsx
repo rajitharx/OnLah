@@ -1,7 +1,7 @@
 import type { ArrivalTiming } from '../../types/domain';
 import { busTypeLabel, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
 import { CrowdBadge } from '../../shared/components/CrowdBadge';
-import { WheelchairIcon } from '../../shared/components/Icons';
+import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
 
 interface EtaTileProps {
   timing: ArrivalTiming | null;
@@ -31,7 +31,7 @@ export function EtaTile({ timing, now }: EtaTileProps) {
       {!arriving && <span className="eta-unit">min</span>}
       <CrowdBadge level={timing.load} />
       <span className="eta-foot">
-        {type}
+        <BusTypeMark type={timing.type} label={type} />
         {accessible && (
           <>
             <span aria-hidden="true"> · </span>
@@ -41,4 +41,11 @@ export function EtaTile({ timing, now }: EtaTileProps) {
       </span>
     </div>
   );
+}
+
+// Single and double deck show an icon. Bendy buses keep the text label.
+function BusTypeMark({ type, label }: { type: ArrivalTiming['type']; label: string }) {
+  if (type === 0) return <SingleDeckIcon size={14} />;
+  if (type === 1) return <DoubleDeckIcon size={14} />;
+  return <>{label}</>;
 }
