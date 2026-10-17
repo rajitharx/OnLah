@@ -79,7 +79,7 @@ Knows their regular stops. Doesn't need a map. Wants to glance at the app and kn
 
 ### Backend
 
-- **Framework:** .NET 8 Minimal API (ASP.NET Core)
+- **Framework:** .NET 10 Minimal API (ASP.NET Core)
 - **Language:** C# 12
 - **Database:** PostgreSQL
 - **Hosting options (in order of cost):** Railway → Render → Azure App Service
@@ -155,7 +155,7 @@ OnLah/
 │   ├── tsconfig.json
 │   └── package.json
 │
-├── backend/                            # .NET 8 C# API
+├── backend/                            # .NET 10 C# API
 │   ├── src/
 │   │   ├── OnLah.Api/
 │   │   │   ├── Endpoints/
@@ -448,4 +448,4 @@ Import colours from `mobile/src/shared/theme/colors.ts` — never hardcode hex v
 
 ---
 
-*OnLah v1 — Guide version: June 2026 — Stack: React Native + TypeScript + .NET 8 C#*
+*OnLah v1 — Guide version: June 2026 — Stack: React Native + TypeScript + .NET 10 C#*
