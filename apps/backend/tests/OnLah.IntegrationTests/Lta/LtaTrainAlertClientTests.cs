@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OnLah.Application.TrainAlerts;
+using OnLah.Domain.Common;
 using OnLah.Infrastructure.Lta;
 using OnLah.IntegrationTests.Common;
 using Xunit;
@@ -61,9 +62,20 @@ public sealed class LtaTrainAlertClientTests
         Assert.Empty(result.Value.Alerts);
     }
 
-    private static LtaTrainAlertClient CreateClient(string body)
+    [Fact]
+    public async Task GetAlertsAsync_LtaServerError_ReturnsUnavailable()
     {
-        var handler = new FakeHttpMessageHandler(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        var client = CreateClient(string.Empty, HttpStatusCode.InternalServerError);
+
+        var result = await client.GetAlertsAsync();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    private static LtaTrainAlertClient CreateClient(string body, HttpStatusCode status = HttpStatusCode.OK)
+    {
+        var handler = new FakeHttpMessageHandler(_ => Task.FromResult(new HttpResponseMessage(status)
         {
             Content = new StringContent(body, Encoding.UTF8, "application/json"),
         }));

@@ -33,24 +33,24 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
             if (!response.IsSuccessStatusCode)
             {
                 LogLtaStatusError(response.StatusCode);
-                return DomainError.Validation("TrainAlerts", "LTA returned an error response.");
+                return DomainError.Unavailable("TrainAlerts");
             }
 
             var raw = await response.Content.ReadFromJsonAsync<LtaTrainAlertResponse>(cancellationToken: cancellationToken);
             if (raw is null)
-                return DomainError.Validation("TrainAlerts", "LTA returned an empty response.");
+                return DomainError.Unavailable("TrainAlerts");
 
             return Map(raw);
         }
         catch (HttpRequestException ex)
         {
             LogRequestFailed(ex);
-            return DomainError.Validation("LtaClient", "Unable to reach LTA DataMall.");
+            return DomainError.Unavailable("TrainAlerts");
         }
         catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             LogTimeout(ex);
-            return DomainError.Validation("LtaClient", "LTA DataMall request timed out.");
+            return DomainError.Unavailable("TrainAlerts");
         }
     }
 
