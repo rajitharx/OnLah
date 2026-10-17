@@ -22,7 +22,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
         var opt = options.Value;
         _httpClient.BaseAddress = new Uri(opt.BaseUrl);
         _httpClient.Timeout = TimeSpan.FromSeconds(opt.TimeoutSeconds);
-        _httpClient.DefaultRequestHeaders.Add("AccountKey", "+jUybMPoSsytGiE9S+EshQ==");
+        _httpClient.DefaultRequestHeaders.Add("AccountKey", opt.AccountKey);
     }
 
     public async Task<Result<IReadOnlyList<BusArrival>>> GetArrivalsAsync(

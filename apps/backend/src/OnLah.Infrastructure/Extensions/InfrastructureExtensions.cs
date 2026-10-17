@@ -22,8 +22,11 @@ public static class InfrastructureExtensions
         services.AddDbContext<OnLahDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.Configure<LtaOptions>(options =>
-            configuration.GetSection(LtaOptions.SectionName).Bind(options));
+        services.AddOptions<LtaOptions>()
+            .Bind(configuration.GetSection(LtaOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.AccountKey),
+                "Lta:AccountKey is not configured. Set it with dotnet user-secrets or an environment variable.")
+            .ValidateOnStart();
 
         services.AddHttpClient<ILtaBusClient, LtaBusClient>();
         services.AddHttpClient<ILtaBusStopClient, LtaBusStopClient>();
