@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.BusStops;
 using OnLah.Application.Common.Interfaces;
@@ -28,7 +29,11 @@ public static class InfrastructureExtensions
                 "Lta:AccountKey is not configured. Set it with dotnet user-secrets or an environment variable.")
             .ValidateOnStart();
 
-        services.AddHttpClient<ILtaBusClient, LtaBusClient>();
+        services.AddHttpClient<LtaBusClient>();
+        services.AddSingleton<ILtaBusClient>(sp => new CachedBusArrivalClient(
+            sp.GetRequiredService<LtaBusClient>(),
+            sp.GetRequiredService<IClock>(),
+            TimeSpan.FromSeconds(sp.GetRequiredService<IOptions<LtaOptions>>().Value.ArrivalCacheSeconds)));
         services.AddHttpClient<ILtaBusStopClient, LtaBusStopClient>();
         services.AddHttpClient<ILtaTrainAlertClient, LtaTrainAlertClient>();
 
