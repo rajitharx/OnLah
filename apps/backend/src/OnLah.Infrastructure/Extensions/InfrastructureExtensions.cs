@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.BusStops;
 using OnLah.Application.Common.Interfaces;
@@ -22,10 +23,17 @@ public static class InfrastructureExtensions
         services.AddDbContext<OnLahDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.Configure<LtaOptions>(options =>
-            configuration.GetSection(LtaOptions.SectionName).Bind(options));
+        services.AddOptions<LtaOptions>()
+            .Bind(configuration.GetSection(LtaOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.AccountKey),
+                "Lta:AccountKey is not configured. Set it with dotnet user-secrets or an environment variable.")
+            .ValidateOnStart();
 
-        services.AddHttpClient<ILtaBusClient, LtaBusClient>();
+        services.AddHttpClient<LtaBusClient>();
+        services.AddSingleton<ILtaBusClient>(sp => new CachedBusArrivalClient(
+            sp.GetRequiredService<LtaBusClient>(),
+            sp.GetRequiredService<IClock>(),
+            TimeSpan.FromSeconds(sp.GetRequiredService<IOptions<LtaOptions>>().Value.ArrivalCacheSeconds)));
         services.AddHttpClient<ILtaBusStopClient, LtaBusStopClient>();
         services.AddHttpClient<ILtaTrainAlertClient, LtaTrainAlertClient>();
 
@@ -33,6 +41,7 @@ public static class InfrastructureExtensions
 
         services.AddScoped<GetBusArrivalsService>();
         services.AddScoped<GetNearbyStopsService>();
+        services.AddScoped<SearchBusStopsService>();
         services.AddScoped<GetTrainAlertsService>();
         services.AddScoped<BusStopSyncService>();
 

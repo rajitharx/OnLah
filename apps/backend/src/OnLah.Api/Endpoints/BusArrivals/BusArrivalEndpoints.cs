@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.Common.Interfaces;
+using OnLah.Domain.Common;
 
 namespace OnLah.Api.Endpoints.BusArrivals;
 
@@ -31,10 +32,17 @@ internal static class BusArrivalEndpoints
         if (result.IsFailure)
             return TypedResults.Problem(
                 detail: result.Error.Description,
-                statusCode: StatusCodes.Status404NotFound);
+                statusCode: StatusFor(result.Error.Kind));
 
         return TypedResults.Ok(new BusArrivalsResponse(stopCode, clock.UtcNow, result.Value!));
     }
+
+    private static int StatusFor(ErrorKind kind) => kind switch
+    {
+        ErrorKind.NotFound => StatusCodes.Status404NotFound,
+        ErrorKind.Unavailable => StatusCodes.Status502BadGateway,
+        _ => StatusCodes.Status500InternalServerError
+    };
 }
 
 internal sealed record GetBusArrivalsRequest(string StopCode);
