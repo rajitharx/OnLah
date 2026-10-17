@@ -56,27 +56,30 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
 
     private static TrainAlertsResult Map(LtaTrainAlertResponse raw)
     {
-        var disrupted = raw.Value.Where(c => c.Status == 2).ToList();
-        var status = disrupted.Count > 0 ? TrainServiceStatus.Disrupted : TrainServiceStatus.Normal;
-        var alerts = disrupted
-            .Select(c =>
-            {
-                var msg = c.Message.Count > 0 ? c.Message[0] : null;
-                return new TrainAlertDetail(
-                    c.Line,
-                    c.Direction,
-                    c.Stations.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
-                    msg?.Content ?? string.Empty,
-                    ParseCreatedDate(msg?.CreatedDate));
-            })
+        var feed = raw.Value;
+        if (feed.Status != 2)
+            return new TrainAlertsResult(TrainServiceStatus.Normal, []);
+
+        var message = feed.Message.Count > 0 ? feed.Message[0] : null;
+        var createdAt = ParseCreatedDate(message?.CreatedDate);
+        var alerts = feed.AffectedSegments
+            .Select(s => new TrainAlertDetail(
+                s.Line,
+                s.Direction,
+                s.Stations.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                message?.Content ?? string.Empty,
+                createdAt))
             .ToList();
-        return new TrainAlertsResult(status, alerts);
+        return new TrainAlertsResult(TrainServiceStatus.Disrupted, alerts);
     }
+
+    // LTA publishes timestamps in Singapore time (GMT+8) without an offset.
+    private static readonly TimeSpan SingaporeOffset = TimeSpan.FromHours(8);
 
     private static DateTimeOffset ParseCreatedDate(string? raw)
     {
-        if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture, out var parsed))
-            return parsed;
+        if (DateTime.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+            return new DateTimeOffset(DateTime.SpecifyKind(parsed, DateTimeKind.Unspecified), SingaporeOffset);
         return DateTimeOffset.MinValue;
     }
 
