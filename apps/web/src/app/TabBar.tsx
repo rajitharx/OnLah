@@ -1,10 +1,10 @@
 export type View = 'board' | 'search' | 'nearby' | 'favourites';
 
 const tabs: { view: View; label: string }[] = [
+  { view: 'favourites', label: 'Saved' },
   { view: 'board', label: 'Board' },
   { view: 'search', label: 'Search' },
   { view: 'nearby', label: 'Nearby' },
-  { view: 'favourites', label: 'Saved' },
 ];
 
 interface TabBarProps {
