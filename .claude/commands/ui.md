@@ -1,5 +1,7 @@
 # OnLah UI Skill
 
+> **Scope.** These rules cover `apps/mobile` (React Native, Expo). They do not apply to `apps/web` (Vite and React). The web app uses plain CSS in `apps/web/src/app/styles.css`, with palette tokens mirrored from `apps/mobile/src/shared/theme/colors.ts`. Its conventions are in `apps/web/README.md`.
+
 You are building UI for the OnLah app. Apply every rule below without exception. If a rule conflicts with a user request, flag the conflict before proceeding.
 
 ---
