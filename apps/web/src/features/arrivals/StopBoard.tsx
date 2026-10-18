@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { BusStop } from '../../types/domain';
+import { ServiceSheet } from '../services/ServiceSheet';
 import { Freshness } from '../../shared/components/Freshness';
 import { PinIcon, StarIcon } from '../../shared/components/Icons';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
@@ -18,6 +20,7 @@ interface StopBoardProps {
 export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, onToggleFavourite }: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
   const { data, failed } = arrivals;
+  const [openService, setOpenService] = useState<string | null>(null);
 
   return (
     <section className="board" aria-labelledby="stop-name">
@@ -67,10 +70,13 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
           <p className="label">Next departures</p>
           <ul className="service-list" aria-label="Bus services">
             {data.services.map((service) => (
-              <ServiceRow key={service.serviceNo} service={service} now={now} />
+              <ServiceRow key={service.serviceNo} service={service} now={now} onOpenService={setOpenService} />
             ))}
           </ul>
         </>
+      )}
+      {openService !== null && (
+        <ServiceSheet serviceNo={openService} arrivals={data} onClose={() => setOpenService(null)} />
       )}
     </section>
   );

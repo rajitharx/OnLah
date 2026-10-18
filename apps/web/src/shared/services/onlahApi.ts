@@ -1,4 +1,5 @@
 import type { BusArrivalsResponse, BusStop, TrainAlertsResponse } from '../../types/domain';
+import type { BusServiceDetails } from '../../types/busService';
 
 export type FetchLike = (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
 
@@ -18,6 +19,7 @@ export interface OnlahApi {
   searchBusStops(query: string, signal?: AbortSignal): Promise<BusStop[]>;
   getNearbyStops(latitude: number, longitude: number, radiusMeters: number, signal?: AbortSignal): Promise<BusStop[]>;
   getTrainAlerts(signal?: AbortSignal): Promise<TrainAlertsResponse>;
+  getBusService(serviceNo: string, signal?: AbortSignal): Promise<BusServiceDetails>;
 }
 
 const defaultFetch: FetchLike = (url, init) => fetch(url, init);
@@ -40,6 +42,8 @@ export function createOnlahApi(baseUrl: string, fetchImpl: FetchLike = defaultFe
         signal,
       ),
     getTrainAlerts: (signal) => get<TrainAlertsResponse>('/api/v1/train-alerts', signal),
+    getBusService: (serviceNo, signal) =>
+      get<BusServiceDetails>(`/api/v1/bus-services/${encodeURIComponent(serviceNo)}`, signal),
   };
 }
 

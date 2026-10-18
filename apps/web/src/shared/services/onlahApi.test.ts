@@ -71,6 +71,15 @@ describe('createOnlahApi', () => {
     expect(calls).toEqual([`${BASE}/api/v1/bus-stops/nearby?lat=1.2841&lng=103.8513&radiusMeters=5000`]);
   });
 
+  it('getBusService requests the service by number, encoded in the path', async () => {
+    const calls: string[] = [];
+    const api = createOnlahApi(BASE, fakeFetch(() => json({ serviceNo: '102M', operators: [], directions: [] }), calls));
+
+    await api.getBusService('102M');
+
+    expect(calls).toEqual([`${BASE}/api/v1/bus-services/102M`]);
+  });
+
   it('getTrainAlerts returns the parsed body', async () => {
     const body = { data: { status: 1, alerts: [] }, fetchedAt: '2026-10-17T10:00:00Z' };
     const api = createOnlahApi(BASE, fakeFetch(() => json(body)));
