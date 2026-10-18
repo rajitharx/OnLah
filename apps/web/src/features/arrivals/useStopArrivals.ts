@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { BusStop } from '../../types/domain';
 import { api } from '../../shared/services/onlahApi';
-import { EMPTY_ARRIVALS, applyArrivalsResult, markSlowLoad, type ArrivalsState } from './arrivalsState';
-
-// The free-tier backend sleeps when idle, so a first call can take well over a few seconds.
-const SLOW_LOAD_MS = 3_000;
+import { EMPTY_ARRIVALS, SLOW_LOAD_MS, applyArrivalsResult, markSlowLoad, type ArrivalsState } from './arrivalsState';
 
 // Silent refresh: the data swaps in place with no loading state. A failed refresh keeps the last good times.
 export function useStopArrivals(stop: BusStop | null, refreshMs = 20_000): ArrivalsState {
