@@ -1,3 +1,4 @@
+import { resolveApiBaseUrl } from './apiBaseUrl';
 import type { BusArrivalsResponse, BusStop, TrainAlertsResponse } from '../../types/domain';
 import type { BusServiceDetails } from '../../types/busService';
 
@@ -53,6 +54,6 @@ async function toApiError(response: Response): Promise<ApiError> {
   return new ApiError(response.status, detail ?? `Request failed with status ${response.status}.`);
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5050';
+const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export const api: OnlahApi = createOnlahApi(API_BASE_URL);
