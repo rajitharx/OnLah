@@ -67,7 +67,7 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
 
       {data && data.services.length > 0 && (
         <>
-          <p className="label">Next departures</p>
+          <p className="label">Next departures · minutes</p>
           <ul className="service-list" aria-label="Bus services">
             {data.services.map((service) => (
               <ServiceRow key={service.serviceNo} service={service} now={now} onOpenService={setOpenService} />

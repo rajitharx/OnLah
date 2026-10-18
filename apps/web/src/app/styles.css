@@ -846,3 +846,90 @@ input {
   padding: 4px 0;
   font-size: 13px;
 }
+
+/* Phone: compact board. More departures fit on one screen, and the tiles stay readable. */
+@media (max-width: 719px) {
+  .stop-name {
+    font-size: 28px;
+  }
+
+  .app-header {
+    padding: var(--space-md) var(--space-md) var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
+
+  .wordmark {
+    font-size: 18px;
+  }
+
+  .board {
+    gap: var(--space-sm);
+  }
+
+  .stop-road {
+    font-size: 13px;
+  }
+
+  .service-list {
+    gap: 8px;
+  }
+
+  .service-row {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .service-head {
+    gap: 8px;
+  }
+
+  .service-badge {
+    min-width: 0;
+    padding: 2px 8px;
+    font-size: 13px;
+  }
+
+  .service-operator {
+    font-size: 10px;
+  }
+
+  .eta-grid {
+    gap: 6px;
+  }
+
+  .eta-tile {
+    gap: 2px;
+    padding: 6px 4px;
+    border-radius: 10px;
+  }
+
+  .eta-value {
+    padding: 2px 0;
+    font-size: 20px;
+  }
+
+  /* The unit is named once in the section label, not under every number. */
+  .eta-unit {
+    display: none;
+  }
+
+  .eta-foot {
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .eta-foot svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .crowd-badge {
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .crowd-bar {
+    width: 5px;
+    height: 5px;
+  }
+}
