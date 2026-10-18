@@ -1,6 +1,5 @@
 import type { ArrivalTiming } from '../../types/domain';
-import { busTypeLabel, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
-import { CrowdBadge } from '../../shared/components/CrowdBadge';
+import { busTypeLabel, crowdClass, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
 import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
 
 interface EtaTileProps {
@@ -26,10 +25,9 @@ export function EtaTile({ timing, now }: EtaTileProps) {
   const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}`;
 
   return (
-    <div className="eta-tile" role="group" aria-label={spoken}>
+    <div className={`eta-tile ${crowdClass(timing.load)}`} role="group" aria-label={spoken}>
       <span className="eta-value">{arriving ? 'Arr' : minutes}</span>
       {!arriving && <span className="eta-unit">min</span>}
-      <CrowdBadge level={timing.load} />
       <span className="eta-foot">
         <BusTypeMark type={timing.type} label={type} />
         {accessible && (

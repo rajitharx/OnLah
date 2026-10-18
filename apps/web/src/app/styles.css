@@ -502,12 +502,12 @@ input {
 }
 
 .service-badge {
-  min-width: 56px;
-  padding: var(--space-xs) var(--space-sm);
+  min-width: 76px;
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   background: var(--ink);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 22px;
   font-weight: 700;
   text-align: center;
   color: var(--accent);
@@ -541,9 +541,19 @@ input {
   gap: var(--space-xs);
   min-width: 0;
   padding: var(--space-sm);
-  border: 1px solid var(--surface);
+  border: 1px solid var(--crowd, var(--surface));
   border-radius: var(--radius-md);
-  background: var(--background);
+  background: var(--crowd, var(--background));
+}
+
+/* Colour carries the crowd level, so the footer text switches to dark ink. */
+.eta-tile .eta-foot,
+.eta-tile .eta-unit {
+  color: var(--background);
+}
+
+.eta-tile-empty .eta-foot {
+  color: var(--muted);
 }
 
 .eta-value {
@@ -607,28 +617,6 @@ input {
 
 .crowd-crowded {
   --crowd: var(--crowd-red);
-}
-
-.crowd-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  min-width: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--crowd);
-  white-space: nowrap;
-}
-
-/* A dot, not a bar: the same dot language as the status light. */
-.crowd-bar {
-  flex: 0 0 auto;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--crowd);
 }
 
 /* ---------- Stop lists ---------- */
@@ -734,7 +722,11 @@ input {
   }
 
   .eta-value {
-    font-size: 40px;
+    font-size: 26px;
+  }
+
+  .eta-tile {
+    padding: 2px;
   }
 
   .eta-grid {
@@ -871,12 +863,12 @@ input {
   }
 
   .service-list {
-    gap: 8px;
+    gap: 6px;
   }
 
   .service-row {
-    gap: 8px;
-    padding: 10px;
+    gap: 6px;
+    padding: 8px;
   }
 
   .service-head {
@@ -885,8 +877,8 @@ input {
 
   .service-badge {
     min-width: 0;
-    padding: 2px 8px;
-    font-size: 13px;
+    padding: 4px 12px;
+    font-size: 19px;
   }
 
   .service-operator {
@@ -894,18 +886,18 @@ input {
   }
 
   .eta-grid {
-    gap: 6px;
+    gap: 5px;
   }
 
   .eta-tile {
-    gap: 2px;
-    padding: 6px 4px;
-    border-radius: 10px;
+    gap: 1px;
+    padding: 2px;
+    border-radius: 8px;
   }
 
   .eta-value {
-    padding: 2px 0;
-    font-size: 20px;
+    padding: 1px 0;
+    font-size: 15px;
   }
 
   /* The unit is named once in the section label, not under every number. */
@@ -919,17 +911,9 @@ input {
   }
 
   .eta-foot svg {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
   }
 
-  .crowd-badge {
-    gap: 4px;
-    font-size: 9px;
-  }
 
-  .crowd-bar {
-    width: 5px;
-    height: 5px;
-  }
 }
