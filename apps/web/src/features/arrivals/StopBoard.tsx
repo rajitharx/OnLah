@@ -57,7 +57,11 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
             : 'Bus times are unavailable right now. Retrying every 20 seconds.'}
         </p>
       )}
-      {!data && !failed && <p className="caption">Loading bus times…</p>}
+      {!data && !failed && (
+        <p className="caption" role="status">
+          {arrivals.slow ? 'Waking up the server… the first load can take up to a minute.' : 'Loading bus times…'}
+        </p>
+      )}
 
       {data && busAdvisories(data).map((advisory) => (
         <p className="advisory" role="status" key={advisory.kind === 'service-no-buses' ? advisory.serviceNo : advisory.kind}>
