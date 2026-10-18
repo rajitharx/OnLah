@@ -1,14 +1,18 @@
 import type { BusArrival } from '../../types/domain';
 import { OperatorLogo } from '../../shared/components/OperatorLogo';
+import { StarIcon } from '../../shared/components/Icons';
 import { EtaTile } from './EtaTile';
 
 interface ServiceRowProps {
   service: BusArrival;
   now: number;
   onOpenService: (serviceNo: string) => void;
+  isSaved: boolean;
+  saveDisabled: boolean;
+  onToggleSave: () => void;
 }
 
-export function ServiceRow({ service, now, onOpenService }: ServiceRowProps) {
+export function ServiceRow({ service, now, onOpenService, isSaved, saveDisabled, onToggleSave }: ServiceRowProps) {
   const timings = [service.nextBus, service.nextBus2, service.nextBus3];
 
   return (
@@ -23,6 +27,16 @@ export function ServiceRow({ service, now, onOpenService }: ServiceRowProps) {
           {service.serviceNo}
         </button>
         <OperatorLogo operator={service.operator} />
+        <button
+          type="button"
+          className="icon-btn"
+          aria-pressed={isSaved}
+          aria-label={isSaved ? `Remove bus ${service.serviceNo} from saved buses` : `Save bus ${service.serviceNo}`}
+          disabled={saveDisabled}
+          onClick={onToggleSave}
+        >
+          <StarIcon size={16} filled={isSaved} />
+        </button>
       </div>
       <div className="eta-grid">
         {timings.map((timing, index) => (

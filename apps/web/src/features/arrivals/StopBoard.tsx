@@ -15,9 +15,22 @@ interface StopBoardProps {
   isFavourite: boolean;
   favouritesFull: boolean;
   onToggleFavourite: () => void;
+  isBusSaved: (serviceNo: string) => boolean;
+  savedBusesFull: boolean;
+  onToggleBus: (serviceNo: string) => void;
 }
 
-export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, onToggleFavourite }: StopBoardProps) {
+export function StopBoard({
+  stop,
+  arrivals,
+  now,
+  isFavourite,
+  favouritesFull,
+  onToggleFavourite,
+  isBusSaved,
+  savedBusesFull,
+  onToggleBus,
+}: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
   const { data, failed } = arrivals;
   const [openService, setOpenService] = useState<string | null>(null);
@@ -74,7 +87,15 @@ export function StopBoard({ stop, arrivals, now, isFavourite, favouritesFull, on
           <p className="label">Next departures · minutes</p>
           <ul className="service-list" aria-label="Bus services">
             {data.services.map((service) => (
-              <ServiceRow key={service.serviceNo} service={service} now={now} onOpenService={setOpenService} />
+              <ServiceRow
+                key={service.serviceNo}
+                service={service}
+                now={now}
+                onOpenService={setOpenService}
+                isSaved={isBusSaved(service.serviceNo)}
+                saveDisabled={!isBusSaved(service.serviceNo) && savedBusesFull}
+                onToggleSave={() => onToggleBus(service.serviceNo)}
+              />
             ))}
           </ul>
         </>

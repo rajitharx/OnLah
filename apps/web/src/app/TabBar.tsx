@@ -1,10 +1,11 @@
-export type View = 'board' | 'search' | 'nearby' | 'favourites';
+export type View = 'saved' | 'search' | 'nearby' | 'board';
 
+// The landing tab is first. Board is last because it shows a stop picked from one of the others.
 const tabs: { view: View; label: string }[] = [
-  { view: 'favourites', label: 'Saved' },
-  { view: 'board', label: 'Board' },
+  { view: 'saved', label: 'Saved' },
   { view: 'search', label: 'Search' },
   { view: 'nearby', label: 'Nearby' },
+  { view: 'board', label: 'Board' },
 ];
 
 interface TabBarProps {

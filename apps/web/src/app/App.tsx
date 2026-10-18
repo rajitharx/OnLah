@@ -2,8 +2,11 @@ import { useState } from 'react';
 import type { BusStop } from '../types/domain';
 import { DisruptionBanner } from '../features/disruptions/DisruptionBanner';
 import { useTrainAlerts } from '../features/disruptions/useTrainAlerts';
-import { FavouritesView } from '../features/favourites/FavouritesView';
 import { useFavourites } from '../features/favourites/useFavourites';
+import { SavedView } from '../features/saved-buses/SavedView';
+import { groupByStop } from '../features/saved-buses/savedBusView';
+import { useSavedArrivals } from '../features/saved-buses/useSavedArrivals';
+import { useSavedBuses } from '../features/saved-buses/useSavedBuses';
 import { NearbyView } from '../features/nearby/NearbyView';
 import { SearchView } from '../features/search/SearchView';
 import { StopBoard } from '../features/arrivals/StopBoard';
@@ -15,15 +18,29 @@ import { TabBar, type View } from './TabBar';
 
 export default function App() {
   const favourites = useFavourites();
-  const [view, setView] = useState<View>('board');
+  const savedBuses = useSavedBuses();
+  const [view, setView] = useState<View>('saved');
   const [stop, setStop] = useState<BusStop | null>(() => favourites.stops[0] ?? null);
   const now = useNow();
   const alerts = useTrainAlerts();
   const arrivals = useStopArrivals(stop);
+  const savedArrivals = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
   const openStop = (next: BusStop): void => {
     setStop(next);
     setView('board');
+  };
+
+  const toggleBus = (serviceNo: string): void => {
+    if (stop === null) return;
+    savedBuses.toggle({
+      stopCode: stop.busStopCode,
+      serviceNo,
+      stopName: stop.description,
+      roadName: stop.roadName,
+      latitude: stop.latitude,
+      longitude: stop.longitude,
+    });
   };
 
   return (
@@ -54,15 +71,22 @@ export default function App() {
             isFavourite={favourites.has(stop.busStopCode)}
             favouritesFull={favourites.isFull}
             onToggleFavourite={() => favourites.toggle(stop)}
+            isBusSaved={(serviceNo) => savedBuses.has(stop.busStopCode, serviceNo)}
+            savedBusesFull={savedBuses.isFull}
+            onToggleBus={toggleBus}
           />
         )}
         {view === 'search' && <SearchView onOpen={openStop} />}
         {view === 'nearby' && <NearbyView onOpen={openStop} />}
-        {view === 'favourites' && (
-          <FavouritesView
+        {view === 'saved' && (
+          <SavedView
+            buses={savedBuses.buses}
+            arrivals={savedArrivals}
+            now={now}
             stops={favourites.stops}
-            onOpen={openStop}
-            onRemove={favourites.remove}
+            onOpenStop={openStop}
+            onRemoveBus={savedBuses.remove}
+            onRemoveStop={favourites.remove}
           />
         )}
       </main>
