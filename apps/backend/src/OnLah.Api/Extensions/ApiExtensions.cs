@@ -1,8 +1,11 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using OnLah.Api.Endpoints.BusArrivals;
 using OnLah.Api.Endpoints.BusServices;
 using OnLah.Api.Endpoints.BusStops;
 using OnLah.Api.Endpoints.TrainAlerts;
+using OnLah.Api.Health;
 using OnLah.Api.Middleware;
 using OnLah.Application.Admin;
 
@@ -19,14 +22,22 @@ internal static class ApiExtensions
         services.AddOpenApi();
         services.AddSingleton(new AdminKeyValidator(configuration["Admin:ApiKey"]));
         services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
+        services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database");
+
+        // Render's proxy is not loopback, so the default trusted-proxy list would ignore its headers.
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownProxies.Clear();
+            options.KnownIPNetworks.Clear();
+        });
 
         services.AddCors(options =>
         {
             options.AddPolicy("AllowedOrigins", policy =>
             {
-                var origins = configuration
-                    .GetSection("Cors:AllowedOrigins")
-                    .Get<string[]>() ?? [];
+                var origins = (configuration["Cors:AllowedOrigins"] ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
                 policy.WithOrigins(origins)
                       .AllowAnyHeader()
@@ -56,6 +67,7 @@ internal static class ApiExtensions
         v1.MapBusStopEndpoints();
         v1.MapTrainAlertEndpoints();
         v1.MapBusServiceEndpoints();
+        app.MapHealthChecks("/health");
         return app;
     }
 }

@@ -20,4 +20,17 @@ public sealed class CorsTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         Assert.Equal(origin, response.Headers.GetValues("Access-Control-Allow-Origin").Single());
     }
+
+    [Fact]
+    public async Task Preflight_UnlistedOrigin_DoesNotAllowOrigin()
+    {
+        using var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Options, "/api/v1/bus-arrivals?stopCode=01012");
+        request.Headers.Add("Origin", "https://example.com");
+        request.Headers.Add("Access-Control-Request-Method", "GET");
+
+        var response = await client.SendAsync(request);
+
+        Assert.False(response.Headers.Contains("Access-Control-Allow-Origin"));
+    }
 }

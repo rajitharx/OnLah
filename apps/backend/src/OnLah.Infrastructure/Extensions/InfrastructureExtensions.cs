@@ -22,8 +22,13 @@ public static class InfrastructureExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                "ConnectionStrings:DefaultConnection is not configured. Set ConnectionStrings__DefaultConnection.");
+
         services.AddDbContext<OnLahDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(connectionString, OnLahNpgsqlOptions.Configure));
 
         services.AddOptions<LtaOptions>()
             .Bind(configuration.GetSection(LtaOptions.SectionName))
