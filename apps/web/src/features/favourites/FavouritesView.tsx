@@ -12,8 +12,8 @@ interface FavouritesViewProps {
 
 export function FavouritesView({ stops, onOpen, onRemove }: FavouritesViewProps) {
   return (
-    <section className="view" aria-labelledby="favourites-title">
-      <h1 id="favourites-title" className="view-title">Saved stops</h1>
+    <section className="saved-stops" aria-labelledby="saved-stops-title">
+      <h2 id="saved-stops-title" className="label">Saved stops</h2>
       <p className="caption">{stops.length} of {MAX_FAVOURITES} saved on this device</p>
 
       {stops.length === 0 ? (

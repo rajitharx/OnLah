@@ -917,3 +917,40 @@ input {
 
 
 }
+
+/* Saved buses: one card per stop, with that stop's saved services. */
+.saved-stop {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.saved-stop-open {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.saved-stop-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.saved-stops {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+/* Bus save stars sit beside a small service badge, so they stay smaller than the page-level icon buttons. */
+.service-head .icon-btn {
+  width: 32px;
+  height: 32px;
+}

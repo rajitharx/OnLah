@@ -10,6 +10,9 @@ export interface ArrivalsState {
 
 export type ArrivalsResult = { ok: true; value: BusArrivalsResponse } | { ok: false };
 
+// The free-tier backend sleeps when idle, so a first call can take well over a few seconds.
+export const SLOW_LOAD_MS = 3_000;
+
 export const EMPTY_ARRIVALS: ArrivalsState = { data: null, failed: false, slow: false };
 
 export function applyArrivalsResult(previous: ArrivalsState, result: ArrivalsResult): ArrivalsState {
