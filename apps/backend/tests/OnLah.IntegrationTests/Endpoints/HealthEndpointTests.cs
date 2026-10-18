@@ -34,4 +34,15 @@ public sealed class HealthEndpointUnavailableDatabaseTests : IClassFixture<Unrea
 
         Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
     }
+
+    [Fact]
+    public async Task GetHealth_DatabaseUnreachable_RespondsWithinDeadline()
+    {
+        using var client = _factory.CreateClient();
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        await client.GetAsync("/health");
+
+        Assert.True(stopwatch.Elapsed < TimeSpan.FromSeconds(10), $"Took {stopwatch.Elapsed}.");
+    }
 }
