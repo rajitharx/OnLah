@@ -27,12 +27,23 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public ILtaBusNetworkClient LtaBusNetworkClient { get; } = Substitute.For<ILtaBusNetworkClient>();
 
-    public async Task InitializeAsync() => await _postgres.StartAsync();
+    public async Task InitializeAsync()
+    {
+        await _postgres.StartAsync();
+
+        var options = new DbContextOptionsBuilder<OnLahDbContext>()
+            .UseNpgsql(_postgres.GetConnectionString(), OnLahNpgsqlOptions.Configure)
+            .Options;
+
+        await using var db = new OnLahDbContext(options);
+        await db.Database.MigrateAsync();
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("Lta:AccountKey", "test-account-key");
         builder.UseSetting("Admin:ApiKey", AdminKey);
+        builder.UseSetting("ConnectionStrings:DefaultConnection", _postgres.GetConnectionString());
 
         builder.ConfigureServices(services =>
         {
@@ -43,7 +54,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
                 services.Remove(descriptor);
 
             services.AddDbContext<OnLahDbContext>(options =>
-                options.UseNpgsql(_postgres.GetConnectionString()));
+                options.UseNpgsql(_postgres.GetConnectionString(), OnLahNpgsqlOptions.Configure));
 
             services.RemoveAll<ILtaBusClient>();
             services.AddSingleton(LtaBusClient);

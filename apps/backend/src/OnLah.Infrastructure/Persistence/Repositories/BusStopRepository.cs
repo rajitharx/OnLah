@@ -26,11 +26,14 @@ internal sealed class BusStopRepository : IBusStopRepository
 
     public async Task ReplaceAllAsync(IEnumerable<BusStop> stops, CancellationToken cancellationToken = default)
     {
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        await _context.BusStops.ExecuteDeleteAsync(cancellationToken);
-        await _context.BusStops.AddRangeAsync(stops, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        await _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+            await _context.BusStops.ExecuteDeleteAsync(ct);
+            await _context.BusStops.AddRangeAsync(stops, ct);
+            await _context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+        }, cancellationToken);
     }
 
     public async Task<IReadOnlyList<BusStop>> GetByCodesAsync(IEnumerable<string> busStopCodes, CancellationToken cancellationToken = default)
