@@ -16,6 +16,7 @@ Read this file at the start of every session before touching any code.
 | Mobile | React Native + TypeScript (Expo managed workflow) |
 | Navigation | React Navigation v6 |
 | State | Zustand |
+| Web | Vite + React + TypeScript (no UI component library) |
 | Backend | .NET 10 C# Minimal API |
 | Database | PostgreSQL |
 | Auth | None in v1 |
@@ -26,6 +27,7 @@ Read this file at the start of every session before touching any code.
 apps/
   mobile/    → React Native app
   backend/   → C# .NET API
+  web/       → Vite + React bus board website (design sample; reads the backend, never LTA)
 Docs/        → Guides and API references
 .claude/     → Claude skills and config
 ```

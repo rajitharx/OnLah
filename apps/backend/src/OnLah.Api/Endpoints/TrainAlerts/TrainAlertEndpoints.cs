@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Application.TrainAlerts;
+using OnLah.Domain.Common;
 
 namespace OnLah.Api.Endpoints.TrainAlerts;
 
@@ -22,7 +23,9 @@ internal static class TrainAlertEndpoints
         if (result.IsFailure)
             return TypedResults.Problem(
                 detail: result.Error.Description,
-                statusCode: StatusCodes.Status503ServiceUnavailable);
+                statusCode: result.Error.Kind == ErrorKind.Unavailable
+                    ? StatusCodes.Status502BadGateway
+                    : StatusCodes.Status500InternalServerError);
 
         return TypedResults.Ok(new TrainAlertsResponse(result.Value!, clock.UtcNow));
     }

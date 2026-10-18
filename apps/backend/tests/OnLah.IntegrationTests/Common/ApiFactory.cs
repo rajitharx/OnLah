@@ -23,6 +23,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public ILtaBusStopClient LtaBusStopClient { get; } = Substitute.For<ILtaBusStopClient>();
 
+    public ILtaTrainAlertClient LtaTrainAlertClient { get; } = Substitute.For<ILtaTrainAlertClient>();
+
+    public ILtaBusNetworkClient LtaBusNetworkClient { get; } = Substitute.For<ILtaBusNetworkClient>();
+
     public async Task InitializeAsync() => await _postgres.StartAsync();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -46,6 +50,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
             services.RemoveAll<ILtaBusStopClient>();
             services.AddSingleton(LtaBusStopClient);
+
+            services.RemoveAll<ILtaTrainAlertClient>();
+            services.AddSingleton(LtaTrainAlertClient);
+
+            services.RemoveAll<ILtaBusNetworkClient>();
+            services.AddSingleton(LtaBusNetworkClient);
         });
     }
 
