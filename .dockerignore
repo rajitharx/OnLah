@@ -1,0 +1,13 @@
+.git
+**/bin
+**/obj
+**/node_modules
+**/.idea
+**/.vs
+apps/web
+apps/mobile
+apps/backend/tests
+apps/backend/database
+Docs
+docs
+.claude
