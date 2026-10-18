@@ -45,11 +45,9 @@ Health check path: `/health`. It returns 503 when the database cannot be reached
 | Build output directory | `dist` |
 | Node version | 22 (set `NODE_VERSION=22` if the build picks an older default) |
 
-| Variable | Value |
-|---|---|
-| `VITE_API_BASE_URL` | Render API URL, for example `https://onlah-api.onrender.com` |
+The production URL is committed in `apps/web/.env.production`, so the build works without any dashboard variable. To point a build somewhere else, set `VITE_API_BASE_URL` in the Pages build environment. Process variables override the file.
 
-The production build fails when `VITE_API_BASE_URL` is missing, so a deploy cannot ship pointing at localhost. Vite bakes the value in at build time. Changing it needs a new build.
+Vite bakes the value in at build time. Changing it needs a new build. The build fails if neither the file nor the variable provides a URL, so a deploy cannot ship pointing at localhost.
 
 ## Running migrations
 
