@@ -14,7 +14,7 @@ Requires `ASPNETCORE_ENVIRONMENT=Development` (set automatically by the script) 
 
 ```bash
 cd src/OnLah.Api
-dotnet user-secrets set "Lta__AccountKey" "your-lta-key"
+dotnet user-secrets set "Lta:AccountKey" "your-lta-key"
 ```
 
 The PostgreSQL connection string lives in `src/OnLah.Api/appsettings.Development.json`.
