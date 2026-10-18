@@ -33,6 +33,14 @@ internal sealed class BusStopRepository : IBusStopRepository
         await transaction.CommitAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<BusStop>> GetByCodesAsync(IEnumerable<string> busStopCodes, CancellationToken cancellationToken = default)
+    {
+        var codes = busStopCodes.ToList();
+        return await _context.BusStops.AsNoTracking()
+            .Where(s => codes.Contains(s.BusStopCode))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<int> CountAsync(CancellationToken cancellationToken = default) =>
         _context.BusStops.CountAsync(cancellationToken);
 }
