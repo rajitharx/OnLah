@@ -293,9 +293,32 @@ input {
   letter-spacing: 0.04em;
 }
 
+/* One style whether the field is empty or filled. Focus thickens the underline instead of filling it. */
 .search-input:focus {
   outline: none;
-  background: var(--card);
+  border-bottom-width: 2px;
+}
+
+/* The browser's own clear icon is blue and off-palette. The Clear button in the field replaces it. */
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.search-field .search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.match {
+  font-weight: 700;
 }
 
 .search-input::placeholder {

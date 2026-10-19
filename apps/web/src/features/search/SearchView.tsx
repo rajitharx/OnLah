@@ -22,16 +22,23 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
       <h1 id="search-title" className="view-title">Search stops</h1>
       <label className="field">
         <span className="caption">Stop code or road name</span>
-        <input
-          className="search-input"
-          type="search"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="e.g. 01012 or Victoria"
-          autoComplete="off"
-          autoCapitalize="none"
-          spellCheck={false}
-        />
+        <span className="search-field">
+          <input
+            className="search-input"
+            type="search"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="e.g. 01012 or Victoria"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+          {query !== '' && (
+            <button type="button" className="btn btn-quiet" onClick={() => onQueryChange('')} aria-label="Clear search">
+              Clear
+            </button>
+          )}
+        </span>
       </label>
 
       {status !== null && <p className="caption" role="status">{status}</p>}
@@ -49,10 +56,10 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
 
       {results.length > 0 && (
         <>
-          <p className="caption">{results.length} result{results.length === 1 ? '' : 's'} (max 20)</p>
+          <p className="caption">{results.length} result{results.length === 1 ? '' : 's'}</p>
           <div className="stop-list">
             {results.map((stop) => (
-              <StopCard key={stop.busStopCode} stop={stop} onOpen={onOpen} />
+              <StopCard key={stop.busStopCode} stop={stop} onOpen={onOpen} highlight={check.kind === 'ok' ? check.term : ''} />
             ))}
           </div>
         </>
