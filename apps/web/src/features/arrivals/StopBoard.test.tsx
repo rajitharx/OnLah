@@ -54,6 +54,16 @@ describe('StopBoard', () => {
     expect(render([])).toContain('← Back');
   });
 
+  it('labels the stop button as saving the stop, not a bus', () => {
+    const html = render([]);
+    expect(html).toContain('Save stop');
+    expect(html).not.toContain('>Save<');
+  });
+
+  it('links to the stop in a map app', () => {
+    expect(render([])).toContain('href="https://www.google.com/maps/search/?api=1&amp;query=1.3,103.8"');
+  });
+
   it('offers a manual refresh', () => {
     expect(render([])).toContain('>Refresh<');
   });

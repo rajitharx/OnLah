@@ -2,6 +2,7 @@ import type { BusStop } from '../../types/domain';
 import { ServiceSheet } from '../services/ServiceSheet';
 import { Freshness } from '../../shared/components/Freshness';
 import { PinIcon, StarIcon } from '../../shared/components/Icons';
+import { mapsUrl } from '../../shared/utils/geo';
 import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
 import type { ArrivalsState } from './arrivalsState';
@@ -68,13 +69,16 @@ export function StopBoard({
           onClick={onToggleFavourite}
         >
           <StarIcon size={14} filled={isFavourite} />
-          {isFavourite ? 'Saved' : 'Save'}
+          {isFavourite ? 'Saved stop' : 'Save stop'}
         </button>
       </header>
 
       <div className="board-meta">
         {data && <Freshness fetchedAt={data.fetchedAt} now={now} />}
         <button type="button" className="btn btn-quiet" onClick={onRefresh}>Refresh</button>
+        <a className="btn btn-quiet" href={mapsUrl(stop.latitude, stop.longitude)} target="_blank" rel="noopener noreferrer">
+          Open in Maps
+        </a>
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 

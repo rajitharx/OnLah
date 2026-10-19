@@ -459,6 +459,12 @@ input {
   color: var(--muted);
 }
 
+/* The stop code is plain text on the board. It was styled like a button and read as one. */
+.board-title .stop-code {
+  padding: 0;
+  border: 0;
+}
+
 .stop-name {
   font-size: 36px;
   overflow-wrap: anywhere;
@@ -798,10 +804,6 @@ input {
 @media (max-width: 380px) {
   .app {
     padding: var(--space-md);
-  }
-
-  .board-head {
-    flex-direction: column;
   }
 
   .stop-name {
