@@ -1,16 +1,14 @@
-import type { ArrivalTiming, BusType } from '../../types/domain';
+import type { ArrivalTiming } from '../../types/domain';
 import { busTypeLabel, crowdClass, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
-import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
+import { WheelchairIcon } from '../../shared/components/Icons';
 
 interface EtaTileProps {
   timing: ArrivalTiming | null;
   now: number;
-  // The first tile is the next bus, so it is drawn larger.
-  next: boolean;
 }
 
 // One split-flap tile: the ETA in minutes, then crowd bars, bus type and wheelchair access.
-export function EtaTile({ timing, now, next }: EtaTileProps) {
+export function EtaTile({ timing, now }: EtaTileProps) {
   if (timing === null) {
     return (
       <div className="eta-tile eta-tile-empty" role="group" aria-label="No bus due">
@@ -25,23 +23,16 @@ export function EtaTile({ timing, now, next }: EtaTileProps) {
   const type = busTypeLabel(timing.type);
   const accessible = timing.isWheelchairAccessible;
   const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}`;
-  const tileClass = ['eta-tile', crowdClass(timing.load), next ? 'eta-tile-next' : ''].filter(Boolean).join(' ');
+  const tileClass = `eta-tile ${crowdClass(timing.load)}`;
 
   return (
     <div className={tileClass} role="group" aria-label={spoken}>
       <span className="eta-value">{arriving ? 'Arr' : minutes}</span>
       {!arriving && <span className="eta-unit">min</span>}
       <span className="eta-foot">
-        <BusTypeMark type={timing.type} label={type} />
+        <span className="eta-type">{type}</span>
         {accessible && <WheelchairIcon size={12} />}
       </span>
     </div>
   );
-}
-
-// Single and double deck show an icon and their label, so the two never look alike. Bendy keeps the text label.
-function BusTypeMark({ type, label }: { type: BusType; label: string }) {
-  if (type === 0) return <span className="eta-type"><SingleDeckIcon size={12} />{label}</span>;
-  if (type === 1) return <span className="eta-type"><DoubleDeckIcon size={12} />{label}</span>;
-  return <span className="eta-type">{label}</span>;
 }

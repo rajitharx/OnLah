@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { busTypeName } from './arrival';
+import { busTypeLabel } from './arrival';
 
-describe('busTypeName', () => {
-  it('spells out the deck type so SD and DD are not left to an icon', () => {
-    expect([0, 1, 2].map((type) => busTypeName(type as 0 | 1 | 2))).toEqual(['single deck', 'double deck', 'bendy']);
+describe('busTypeLabel', () => {
+  it('spells out the deck type, so no icon is needed to tell buses apart', () => {
+    expect([0, 1, 2].map((type) => busTypeLabel(type as 0 | 1 | 2))).toEqual(['Single', 'Double', 'Bendy']);
   });
 });

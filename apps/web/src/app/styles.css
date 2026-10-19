@@ -142,6 +142,14 @@ input {
   vertical-align: middle;
 }
 
+.app-version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .wordmark-sub {
   margin-left: var(--space-xs);
   font-family: var(--font-display);
@@ -612,10 +620,6 @@ input {
   overflow: hidden;
 }
 
-/* The next bus is the one that matters, so its figure is the largest on the row. */
-.eta-tile-next .eta-value {
-  font-size: 34px;
-}
 
 .eta-unit {
   font-family: var(--font-mono);
@@ -992,41 +996,28 @@ input {
     font-size: 15px;
   }
 
-  .eta-tile-next .eta-value {
-    font-size: 24px;
-  }
-
-  /* The unit shows under the next bus only. The later rows are named by the section label. */
-  .eta-tile:not(.eta-tile-next) .eta-unit {
-    display: none;
-  }
 
   .eta-foot {
     font-size: 9px;
     gap: 3px;
   }
 
-  .eta-foot svg {
-    width: 9px;
-    height: 9px;
-  }
 
 
 }
 
-/* Phones: the tabs move to the bottom edge, within one-handed reach. */
+/* Phones: the tabs float above the bottom edge, within one-handed reach and clear of the screen edge. */
 @media (max-width: 719px) {
   .tabbar {
     position: fixed;
     top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    right: var(--space-lg);
+    bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+    left: var(--space-lg);
     margin: 0;
-    padding: var(--space-xs) var(--space-md) calc(var(--space-xs) + env(safe-area-inset-bottom));
-    border: 0;
-    border-top: 1px solid var(--card-border);
-    border-radius: 0;
+    padding: 3px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-pill);
     background: var(--card);
   }
 

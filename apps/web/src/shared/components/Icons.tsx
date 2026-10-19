@@ -24,30 +24,6 @@ function Icon({ size = 16, filled = false, children }: IconProps & { filled?: bo
   );
 }
 
-// Side view of a single-deck bus: one level of windows over a row of wheels.
-export function SingleDeckIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <rect x="3" y="6" width="18" height="11" rx="2" />
-      <path d="M3 11h18M8 6v5M14 6v5" />
-      <circle cx="7.5" cy="17.5" r="1.5" />
-      <circle cx="16.5" cy="17.5" r="1.5" />
-    </Icon>
-  );
-}
-
-// Side view of a double-deck bus: a tall body with a deck line and an upper row of windows.
-export function DoubleDeckIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <rect x="4" y="2" width="16" height="17" rx="2" />
-      <path d="M4 10h16M9 2v8M15 2v8" />
-      <circle cx="8" cy="20.5" r="1.5" />
-      <circle cx="16" cy="20.5" r="1.5" />
-    </Icon>
-  );
-}
-
 export function WheelchairIcon(props: IconProps) {
   return (
     <Icon {...props}>
