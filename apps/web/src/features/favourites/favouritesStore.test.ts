@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BusStop } from '../../types/domain';
-import { MAX_FAVOURITES, addFavourite, isFavouritesFull, parseFavourites, removeFavourite } from './favouritesStore';
+import { MAX_FAVOURITES, addFavourite, isFavouritesFull, moveFavourite, parseFavourites, removeFavourite } from './favouritesStore';
 
 const stop = (code: string): BusStop => ({
   busStopCode: code,
@@ -74,5 +74,12 @@ describe('isFavouritesFull', () => {
 
     expect(isFavouritesFull(full.slice(1))).toBe(false);
     expect(isFavouritesFull(full)).toBe(true);
+  });
+});
+
+describe('moveFavourite', () => {
+  it('moves a saved stop down one place', () => {
+    const list = [stop('01012'), stop('01013')];
+    expect(moveFavourite(list, '01012', 1)).toEqual([stop('01013'), stop('01012')]);
   });
 });

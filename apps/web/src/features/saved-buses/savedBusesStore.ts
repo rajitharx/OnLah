@@ -1,5 +1,7 @@
 // A saved bus is one service at one stop. The same service number at another stop is a different bus.
 // Names are stored with the bus so the saved list can show them without a lookup.
+import { moveItem } from '../../shared/utils/listOrder';
+
 export const SAVED_BUSES_KEY = 'onlah-web.saved-buses.v1';
 export const MAX_SAVED_BUSES = 20;
 
@@ -47,6 +49,13 @@ export function hasSavedBus(list: SavedBus[], stopCode: string, serviceNo: strin
 export function addSavedBus(list: SavedBus[], bus: SavedBus): SavedBus[] {
   if (hasSavedBus(list, bus.stopCode, bus.serviceNo) || isSavedBusesFull(list)) return list;
   return [...list, bus];
+}
+
+// Moves a bus up or down the list. It only swaps with another bus at the same stop, so each stop keeps its own order.
+export function moveSavedBus(list: SavedBus[], stopCode: string, serviceNo: string, delta: -1 | 1): SavedBus[] {
+  const index = list.findIndex((bus) => bus.stopCode === stopCode && bus.serviceNo === serviceNo);
+  if (index === -1) return list;
+  return moveItem(list, index, delta, (a, b) => a.stopCode === b.stopCode);
 }
 
 export function removeSavedBus(list: SavedBus[], stopCode: string, serviceNo: string): SavedBus[] {

@@ -111,6 +111,9 @@ export default function App() {
             onOpenStop={openStop}
             onRemoveBus={savedBuses.remove}
             onRemoveStop={favourites.remove}
+            onMoveBus={savedBuses.move}
+            onMoveStop={favourites.move}
+            onNavigate={(next) => push({ view: next })}
           />
         )}
       </main>
