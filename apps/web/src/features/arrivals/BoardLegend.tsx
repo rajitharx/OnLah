@@ -1,6 +1,5 @@
 import type { BusType, CrowdLevel } from '../../types/domain';
-import { busTypeLabel, busTypeName, crowdLabel } from '../../shared/utils/arrival';
-import { CrowdBars } from '../../shared/components/CrowdBars';
+import { busTypeLabel, busTypeName, crowdClass, crowdLabel } from '../../shared/utils/arrival';
 import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
 
 const CROWD_LEVELS: CrowdLevel[] = [0, 1, 2];
@@ -12,7 +11,7 @@ export function BoardLegend() {
     <ul className="legend" aria-label="How to read the times">
       {CROWD_LEVELS.map((level) => (
         <li key={level} className="legend-item">
-          <CrowdBars level={level} />
+          <span className={`legend-swatch ${crowdClass(level)}`} aria-hidden="true" />
           {crowdLabel(level)}
         </li>
       ))}

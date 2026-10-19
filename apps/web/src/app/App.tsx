@@ -36,7 +36,7 @@ export default function App() {
 
   const board = useBoardStop(route.view === 'board' ? route.stopCode : null, knownStop);
   const arrivals = useStopArrivals(board.stop);
-  const savedArrivals = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
+  const saved = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
   const hasSaved = savedBuses.buses.length > 0 || favourites.stops.length > 0;
   const view: TabView | 'board' = route.view === 'home' ? defaultView(hasSaved) : route.view;
@@ -49,6 +49,11 @@ export default function App() {
   const goBack = (): void => {
     if (cameFromInApp()) window.history.back();
     else push({ view: defaultView(hasSaved) });
+  };
+
+  const openService = (next: BusStop, serviceNo: string): void => {
+    setKnownStop(next);
+    push({ view: 'board', stopCode: next.busStopCode, serviceNo });
   };
 
   const toggleBus = (serviceNo: string): void => {
@@ -104,14 +109,14 @@ export default function App() {
         {view === 'saved' && (
           <SavedView
             buses={savedBuses.buses}
-            arrivals={savedArrivals}
+            arrivals={saved.states}
             now={now}
             stops={favourites.stops}
             onOpenStop={openStop}
             onRemoveBus={savedBuses.remove}
             onRemoveStop={favourites.remove}
-            onMoveBus={savedBuses.move}
-            onMoveStop={favourites.move}
+            onOpenService={openService}
+            onResync={saved.resync}
             onNavigate={(next) => push({ view: next })}
           />
         )}

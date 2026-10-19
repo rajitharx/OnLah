@@ -4,7 +4,6 @@ import {
   FAVOURITES_KEY,
   addFavourite,
   isFavouritesFull,
-  moveFavourite,
   parseFavourites,
   removeFavourite,
 } from './favouritesStore';
@@ -33,7 +32,6 @@ export interface Favourites {
   // Returns false when the list is full and the stop was not added.
   toggle: (stop: BusStop) => boolean;
   remove: (stopCode: string) => void;
-  move: (stopCode: string, delta: -1 | 1) => void;
 }
 
 export function useFavourites(): Favourites {
@@ -60,6 +58,5 @@ export function useFavourites(): Favourites {
     has: (stopCode) => stops.some((s) => s.busStopCode === stopCode),
     toggle,
     remove: (stopCode) => update(removeFavourite(stops, stopCode)),
-    move: (stopCode, delta) => update(moveFavourite(stops, stopCode, delta)),
   };
 }

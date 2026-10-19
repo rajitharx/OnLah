@@ -1,6 +1,5 @@
 import type { ArrivalTiming, BusType } from '../../types/domain';
 import { busTypeLabel, crowdClass, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
-import { CrowdBars } from '../../shared/components/CrowdBars';
 import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
 
 interface EtaTileProps {
@@ -33,7 +32,6 @@ export function EtaTile({ timing, now, next }: EtaTileProps) {
       <span className="eta-value">{arriving ? 'Arr' : minutes}</span>
       {!arriving && <span className="eta-unit">min</span>}
       <span className="eta-foot">
-        <CrowdBars level={timing.load} />
         <BusTypeMark type={timing.type} label={type} />
         {accessible && <WheelchairIcon size={12} />}
       </span>

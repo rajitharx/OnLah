@@ -187,7 +187,7 @@ input {
   top: var(--space-sm);
   z-index: 10;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   padding: 3px;
   border: 1px solid var(--card-border);
@@ -260,8 +260,7 @@ input {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
+  border: 0;
   background: transparent;
   color: var(--ink);
   cursor: pointer;
@@ -588,15 +587,6 @@ input {
   color: var(--background);
 }
 
-/* On a coloured tile the bars switch to dark ink. */
-.eta-tile .crowd-bar {
-  border-color: var(--background);
-}
-
-.eta-tile .crowd-bar-on {
-  background: var(--background);
-}
-
 .eta-tile-empty .eta-foot {
   color: var(--muted);
 }
@@ -658,31 +648,11 @@ input {
   gap: 2px;
 }
 
-/* Crowd meter: one to three bars in the crowd colour. Unlit bars are outlines. */
-.crowd-bars {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 12px;
-}
-
-.crowd-bar {
-  width: 3px;
-  height: 6px;
-  border: 1px solid var(--muted);
-  border-radius: 1px;
-}
-
-.crowd-bar:nth-child(2) {
-  height: 9px;
-}
-
-.crowd-bar:nth-child(3) {
-  height: 12px;
-}
-
-.crowd-bar-on {
-  border-color: var(--crowd);
+/* The crowd colour swatch in the legend. The tiles themselves carry the same colour. */
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   background: var(--crowd);
 }
 
@@ -1101,25 +1071,18 @@ input {
   white-space: nowrap;
 }
 
+/* A saved stop's name and its Re-sync button share one row. */
+.saved-stop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
 .saved-buses {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-}
-
-.move-buttons {
-  display: inline-flex;
-  gap: var(--space-xs);
-}
-
-.move-btn {
-  font-family: var(--font-mono);
-  font-size: 16px;
-}
-
-.move-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
 }
 
 .empty-actions {

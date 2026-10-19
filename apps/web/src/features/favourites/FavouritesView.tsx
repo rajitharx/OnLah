@@ -3,7 +3,6 @@ import { EmptyState } from '../../shared/components/EmptyState';
 import { FindStopActions } from '../../shared/components/FindStopActions';
 import { StarIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
-import { MoveButtons } from '../../shared/components/MoveButtons';
 import { isNearLimit } from '../../shared/utils/limits';
 import { MAX_FAVOURITES } from './favouritesStore';
 
@@ -11,11 +10,10 @@ interface FavouritesViewProps {
   stops: BusStop[];
   onOpen: (stop: BusStop) => void;
   onRemove: (stopCode: string) => void;
-  onMove: (stopCode: string, delta: -1 | 1) => void;
   onNavigate: (view: 'search' | 'nearby') => void;
 }
 
-export function FavouritesView({ stops, onOpen, onRemove, onMove, onNavigate }: FavouritesViewProps) {
+export function FavouritesView({ stops, onOpen, onRemove, onNavigate }: FavouritesViewProps) {
   return (
     <section className="saved-stops" aria-labelledby="saved-stops-title">
       <h2 id="saved-stops-title" className="label">Saved stops</h2>
@@ -31,28 +29,20 @@ export function FavouritesView({ stops, onOpen, onRemove, onMove, onNavigate }: 
         />
       ) : (
         <div className="stop-list">
-          {stops.map((stop, index) => (
+          {stops.map((stop) => (
             <StopCard
               key={stop.busStopCode}
               stop={stop}
               onOpen={onOpen}
               action={
-                <>
-                  <MoveButtons
-                    label={stop.description}
-                    canMoveUp={index > 0}
-                    canMoveDown={index < stops.length - 1}
-                    onMove={(delta) => onMove(stop.busStopCode, delta)}
-                  />
-                  <button
-                    type="button"
-                    className="icon-btn"
-                    onClick={() => onRemove(stop.busStopCode)}
-                    aria-label={`Remove ${stop.description} from saved stops`}
-                  >
-                    <StarIcon size={16} filled />
-                  </button>
-                </>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => onRemove(stop.busStopCode)}
+                  aria-label={`Remove ${stop.description} from saved stops`}
+                >
+                  <StarIcon size={16} filled />
+                </button>
               }
             />
           ))}

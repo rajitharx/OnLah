@@ -24,3 +24,12 @@ export function markSlowLoad(previous: ArrivalsState): ArrivalsState {
   if (previous.data) return previous;
   return { ...previous, slow: true };
 }
+
+// Stores one stop's result beside the others. Used by the first load, the refresh timer, and a manual re-sync.
+export function setStopState(
+  states: Record<string, ArrivalsState>,
+  stopCode: string,
+  result: ArrivalsResult,
+): Record<string, ArrivalsState> {
+  return { ...states, [stopCode]: applyArrivalsResult(states[stopCode] ?? EMPTY_ARRIVALS, result) };
+}

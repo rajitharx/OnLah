@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BusArrivalsResponse } from '../../types/domain';
-import { EMPTY_ARRIVALS, applyArrivalsResult, markSlowLoad } from './arrivalsState';
+import { EMPTY_ARRIVALS, applyArrivalsResult, markSlowLoad, setStopState } from './arrivalsState';
 
 const first: BusArrivalsResponse = { stopCode: '01012', fetchedAt: '2026-10-17T10:00:00Z', services: [] };
 const second: BusArrivalsResponse = { stopCode: '01012', fetchedAt: '2026-10-17T10:00:20Z', services: [] };
@@ -46,5 +46,22 @@ describe('markSlowLoad', () => {
     const slow = markSlowLoad(EMPTY_ARRIVALS);
 
     expect(applyArrivalsResult(slow, { ok: true, value: first })).toEqual({ data: first, failed: false, slow: false });
+  });
+});
+
+describe('setStopState', () => {
+  const response = { stopCode: '01012', fetchedAt: '2026-10-19T10:00:00Z', services: [] };
+
+  it('stores a fresh result under its stop code, leaving other stops alone', () => {
+    const next = setStopState({ '01013': EMPTY_ARRIVALS }, '01012', { ok: true, value: response });
+    expect(next['01012']).toEqual({ data: response, failed: false, slow: false });
+    expect(next['01013']).toBe(EMPTY_ARRIVALS);
+  });
+
+  it('keeps the last good times when a re-sync fails', () => {
+    const good = setStopState({}, '01012', { ok: true, value: response });
+    const next = setStopState(good, '01012', { ok: false });
+    expect(next['01012'].data).toEqual(response);
+    expect(next['01012'].failed).toBe(true);
   });
 });
