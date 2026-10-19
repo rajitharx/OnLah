@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ArrivalTiming, BusArrivalsResponse } from '../../types/domain';
-import { collectDeckTypes, formatFrequency, formatHours, summarizeDeckTypes } from './serviceDetails';
+import { collectDeckTypes, formatFrequency, formatHours, frequencyRows, hoursRows, summarizeDeckTypes } from './serviceDetails';
 
 describe('formatHours', () => {
   it('shows a published range as two times', () => {
@@ -77,5 +77,29 @@ describe('collectDeckTypes', () => {
 
   it('returns nothing for a service that is not in the arrivals', () => {
     expect(collectDeckTypes(arrivals, '999')).toEqual([]);
+  });
+});
+
+describe('hoursRows', () => {
+  it('leaves out days LTA does not publish', () => {
+    const rows = hoursRows({
+      weekday: { first: '05:30', last: '23:30' },
+      saturday: null,
+      sunday: { first: '06:00', last: '23:00' },
+    });
+    expect(rows).toEqual([
+      { label: 'Weekday', value: '05:30 to 23:30' },
+      { label: 'Sunday', value: '06:00 to 23:00' },
+    ]);
+  });
+});
+
+describe('frequencyRows', () => {
+  it('shows published peaks in plain minutes and leaves out the rest', () => {
+    const rows = frequencyRows({ amPeak: '09-13', amOffPeak: null, pmPeak: '05-07', pmOffPeak: null });
+    expect(rows).toEqual([
+      { label: 'Morning peak', value: '9 to 13 min' },
+      { label: 'Evening peak', value: '5 to 7 min' },
+    ]);
   });
 });

@@ -1,9 +1,10 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode, type TouchEvent } from 'react';
 import type { BusArrivalsResponse } from '../../types/domain';
 import type { ServiceDirection, StopReference } from '../../types/busService';
 import { operatorName } from '../../shared/utils/operators';
 import { useBusServiceDetails } from './useBusServiceDetails';
-import { collectDeckTypes, formatFrequency, formatHours, summarizeDeckTypes } from './serviceDetails';
+import { collectDeckTypes, frequencyRows, hoursRows, summarizeDeckTypes } from './serviceDetails';
+import { isSwipeDismiss } from './sheetGesture';
 
 interface ServiceSheetProps {
   serviceNo: string;
@@ -14,6 +15,7 @@ interface ServiceSheetProps {
 // A bottom sheet for one bus service. Opened from the service number on the board.
 export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps) {
   const { details, loading, failed } = useBusServiceDetails(serviceNo);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
@@ -25,6 +27,16 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
 
   const deckSummary = summarizeDeckTypes(collectDeckTypes(arrivals, serviceNo));
 
+  const onTouchStart = (event: TouchEvent<HTMLElement>): void => {
+    touchStartY.current = event.touches[0]?.clientY ?? null;
+  };
+  const onTouchEnd = (event: TouchEvent<HTMLElement>): void => {
+    const startY = touchStartY.current;
+    touchStartY.current = null;
+    const endY = event.changedTouches[0]?.clientY;
+    if (startY !== null && endY !== undefined && isSwipeDismiss(startY, endY)) onClose();
+  };
+
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <section
@@ -34,7 +46,8 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
         aria-labelledby="sheet-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="sheet-head">
+        <header className="sheet-head" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <span className="sheet-handle" aria-hidden="true" />
           <h2 id="sheet-title" className="sheet-title">
             <span className="service-badge">{serviceNo}</span>
             Service details
@@ -51,14 +64,11 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
           <>
             <p className="sheet-meta">
               {details.operators.map(operatorName).join(', ')}
-              {' · '}Deck: {deckSummary}
+              {' · '}Deck (buses due now): {deckSummary}
             </p>
             {details.directions.map((direction) => (
               <DirectionBlock key={direction.direction} direction={direction} />
             ))}
-            <p className="caption">
-              Weekday frequency only. LTA does not publish a weekend frequency. Deck type comes from the buses due at this stop now.
-            </p>
           </>
         )}
       </section>
@@ -67,6 +77,9 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
 }
 
 function DirectionBlock({ direction }: { direction: ServiceDirection }) {
+  const hours = hoursRows(direction.hours);
+  const frequency = frequencyRows(direction.frequency);
+
   return (
     <div className="sheet-block">
       <p className="label">{direction.isLoop ? 'Loop route' : `Direction ${direction.direction}`}</p>
@@ -75,19 +88,19 @@ function DirectionBlock({ direction }: { direction: ServiceDirection }) {
         {direction.stopCount} stops · {direction.category.toLowerCase()} service
       </p>
 
-      <Row label="Weekday">{formatHours(direction.hours.weekday)}</Row>
-      <Row label="Saturday">{formatHours(direction.hours.saturday)}</Row>
-      <Row label="Sunday">{formatHours(direction.hours.sunday)}</Row>
+      {hours.map((row) => (
+        <SheetRow key={row.label} label={row.label}>{row.value}</SheetRow>
+      ))}
 
-      <Row label="Morning peak">{formatFrequency(direction.frequency.amPeak)}</Row>
-      <Row label="Morning off-peak">{formatFrequency(direction.frequency.amOffPeak)}</Row>
-      <Row label="Evening peak">{formatFrequency(direction.frequency.pmPeak)}</Row>
-      <Row label="Evening off-peak">{formatFrequency(direction.frequency.pmOffPeak)}</Row>
+      {frequency.length > 0 && <p className="label sheet-subhead">Weekday frequency</p>}
+      {frequency.map((row) => (
+        <SheetRow key={row.label} label={row.label}>{row.value}</SheetRow>
+      ))}
     </div>
   );
 }
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+function SheetRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="sheet-row">
       <span className="caption">{label}</span>
