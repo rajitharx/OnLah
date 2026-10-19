@@ -21,6 +21,14 @@ const favourite: BusStop = {
   distanceMeters: 0,
 };
 
+const withData: Record<string, ArrivalsState> = {
+  '01012': {
+    data: { stopCode: '01012', fetchedAt: '2026-10-19T10:00:00Z', services: [] },
+    failed: false,
+    slow: false,
+  },
+};
+
 function render(buses: SavedBus[], arrivals: Record<string, ArrivalsState> = {}, stops: BusStop[] = []): string {
   return renderToStaticMarkup(
     <SavedView
@@ -29,10 +37,10 @@ function render(buses: SavedBus[], arrivals: Record<string, ArrivalsState> = {},
       now={now}
       stops={stops}
       onOpenStop={noop}
+      onOpenService={noop}
       onRemoveBus={noop}
       onRemoveStop={noop}
-      onMoveBus={noop}
-      onMoveStop={noop}
+      onResync={noop}
       onNavigate={noop}
     />,
   );
@@ -54,8 +62,7 @@ describe('SavedView', () => {
   });
 
   it('does not show the cap while there is plenty of room', () => {
-    const html = render([bus('12'), bus('2')]);
-    expect(html).not.toContain('of 20');
+    expect(render([bus('12'), bus('2')])).not.toContain('of 20');
   });
 
   it('shows the cap once the list is nearly full', () => {
@@ -64,26 +71,23 @@ describe('SavedView', () => {
   });
 
   it('shows when a stop\'s times were last updated', () => {
-    const arrivals = {
-      '01012': {
-        data: { stopCode: '01012', fetchedAt: '2026-10-19T10:00:00Z', services: [] },
-        failed: false,
-        slow: false,
-      },
-    };
-    expect(render([bus('12')], arrivals)).toContain('Updated 5s ago');
+    expect(render([bus('12')], withData)).toContain('Updated 5s ago');
   });
 
-  it('lets each saved bus move up or down, with the first and last ones held in place', () => {
-    const html = render([bus('12'), bus('2')], {
-      '01012': { data: { stopCode: '01012', fetchedAt: '2026-10-19T10:00:00Z', services: [] }, failed: false, slow: false },
-    });
-    expect(buttonTag(html, 'Move bus 12 up')).toContain('disabled');
-    expect(buttonTag(html, 'Move bus 2 down')).toContain('disabled');
-    expect(buttonTag(html, 'Move bus 12 down')).not.toContain('disabled');
+  it('opens the bus details from the bus number, as a button', () => {
+    expect(buttonTag(render([bus('12')], withData), 'Bus 12 details')).toContain('type="button"');
   });
 
-  it('lets saved stops move too', () => {
-    expect(render([], {}, [favourite])).toContain('Move Hotel Grand down');
+  it('re-syncs a saved stop from its card', () => {
+    expect(buttonTag(render([bus('12')], withData), 'Re-sync Victoria Lane')).not.toBe('');
+  });
+
+  it('re-syncs from each saved bus, next to its star', () => {
+    expect(buttonTag(render([bus('12')], withData), 'Re-sync bus 12')).not.toBe('');
+  });
+
+  it('no longer offers up and down moves', () => {
+    const html = render([bus('12'), bus('2')], withData, [favourite]);
+    expect(html).not.toContain('Move ');
   });
 });

@@ -15,10 +15,10 @@ interface SavedViewProps {
   now: number;
   stops: BusStop[];
   onOpenStop: (stop: BusStop) => void;
+  onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
   onRemoveStop: (stopCode: string) => void;
-  onMoveBus: (stopCode: string, serviceNo: string, delta: -1 | 1) => void;
-  onMoveStop: (stopCode: string, delta: -1 | 1) => void;
+  onResync: (stopCode: string) => void;
   onNavigate: (view: 'search' | 'nearby') => void;
 }
 
@@ -29,10 +29,10 @@ export function SavedView({
   now,
   stops,
   onOpenStop,
+  onOpenService,
   onRemoveBus,
   onRemoveStop,
-  onMoveBus,
-  onMoveStop,
+  onResync,
   onNavigate,
 }: SavedViewProps) {
   const groups = groupByStop(buses);
@@ -61,20 +61,15 @@ export function SavedView({
               state={arrivals[group.stopCode]}
               now={now}
               onOpenStop={onOpenStop}
+              onOpenService={onOpenService}
               onRemoveBus={onRemoveBus}
-              onMoveBus={onMoveBus}
+              onResync={onResync}
             />
           ))
         )}
       </section>
 
-      <FavouritesView
-        stops={stops}
-        onOpen={onOpenStop}
-        onRemove={onRemoveStop}
-        onMove={onMoveStop}
-        onNavigate={onNavigate}
-      />
+      <FavouritesView stops={stops} onOpen={onOpenStop} onRemove={onRemoveStop} onNavigate={onNavigate} />
     </section>
   );
 }

@@ -1,7 +1,6 @@
 import type { BusStop } from '../../types/domain';
 import { Freshness } from '../../shared/components/Freshness';
 import { OperatorLogo } from '../../shared/components/OperatorLogo';
-import { MoveButtons } from '../../shared/components/MoveButtons';
 import { StarIcon } from '../../shared/components/Icons';
 import { EtaTile } from '../arrivals/EtaTile';
 import { EMPTY_ARRIVALS, type ArrivalsState } from '../arrivals/arrivalsState';
@@ -12,21 +11,33 @@ interface SavedStopCardProps {
   state: ArrivalsState | undefined;
   now: number;
   onOpenStop: (stop: BusStop) => void;
+  onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
-  onMoveBus: (stopCode: string, serviceNo: string, delta: -1 | 1) => void;
+  onResync: (stopCode: string) => void;
 }
 
-export function SavedStopCard({ group, state, now, onOpenStop, onRemoveBus, onMoveBus }: SavedStopCardProps) {
+export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, onRemoveBus, onResync }: SavedStopCardProps) {
   const current = state ?? EMPTY_ARRIVALS;
   const rows = pickSavedServices(current.data, group.serviceNos);
+  const stop = toBusStop(group);
 
   return (
     <article className="saved-stop" aria-label={`Saved buses at ${group.stopName}`}>
-      <button type="button" className="saved-stop-open" onClick={() => onOpenStop(toBusStop(group))}>
-        <span className="stop-code">{group.stopCode}</span>
-        <span className="saved-stop-name">{group.stopName}</span>
-        <span className="saved-stop-hint" aria-hidden="true">Open board ›</span>
-      </button>
+      <div className="saved-stop-head">
+        <button type="button" className="saved-stop-open" onClick={() => onOpenStop(stop)}>
+          <span className="stop-code">{group.stopCode}</span>
+          <span className="saved-stop-name">{group.stopName}</span>
+          <span className="saved-stop-hint" aria-hidden="true">Open board ›</span>
+        </button>
+        <button
+          type="button"
+          className="btn btn-quiet"
+          onClick={() => onResync(group.stopCode)}
+          aria-label={`Re-sync ${group.stopName}`}
+        >
+          Re-sync
+        </button>
+      </div>
       <p className="caption">{group.roadName}</p>
       {current.data !== null && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
 
@@ -40,16 +51,15 @@ export function SavedStopCard({ group, state, now, onOpenStop, onRemoveBus, onMo
       )}
       {current.data !== null && (
         <ul className="service-list" aria-label={`Saved bus services at ${group.stopName}`}>
-          {rows.map((row, index) => (
+          {rows.map((row) => (
             <SavedBusRow
               key={row.serviceNo}
               row={row}
               now={now}
-              stopCode={group.stopCode}
-              canMoveUp={index > 0}
-              canMoveDown={index < rows.length - 1}
+              stop={stop}
+              onOpenService={onOpenService}
               onRemove={onRemoveBus}
-              onMove={onMoveBus}
+              onResync={onResync}
             />
           ))}
         </ul>
@@ -61,31 +71,39 @@ export function SavedStopCard({ group, state, now, onOpenStop, onRemoveBus, onMo
 interface SavedBusRowProps {
   row: SavedServiceRow;
   now: number;
-  stopCode: string;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
+  stop: BusStop;
+  onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemove: (stopCode: string, serviceNo: string) => void;
-  onMove: (stopCode: string, serviceNo: string, delta: -1 | 1) => void;
+  onResync: (stopCode: string) => void;
 }
 
-function SavedBusRow({ row, now, stopCode, canMoveUp, canMoveDown, onRemove, onMove }: SavedBusRowProps) {
+function SavedBusRow({ row, now, stop, onOpenService, onRemove, onResync }: SavedBusRowProps) {
   const { serviceNo, service } = row;
 
   return (
     <li className="service-row">
       <div className="service-head">
-        <span className="service-badge">{serviceNo}</span>
+        <button
+          type="button"
+          className="service-badge service-badge-button"
+          onClick={() => onOpenService(stop, serviceNo)}
+          aria-label={`Bus ${serviceNo} details`}
+        >
+          {serviceNo}
+        </button>
         {service && <OperatorLogo operator={service.operator} />}
-        <MoveButtons
-          label={`bus ${serviceNo}`}
-          canMoveUp={canMoveUp}
-          canMoveDown={canMoveDown}
-          onMove={(delta) => onMove(stopCode, serviceNo, delta)}
-        />
+        <button
+          type="button"
+          className="btn btn-quiet"
+          onClick={() => onResync(stop.busStopCode)}
+          aria-label={`Re-sync bus ${serviceNo}`}
+        >
+          Re-sync
+        </button>
         <button
           type="button"
           className="icon-btn"
-          onClick={() => onRemove(stopCode, serviceNo)}
+          onClick={() => onRemove(stop.busStopCode, serviceNo)}
           aria-label={`Remove bus ${serviceNo} from saved buses`}
         >
           <StarIcon size={16} filled />
