@@ -67,8 +67,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="wordmark">
-          OnLah
-          <span className="wordmark-sub">Bus board</span>
+          OnLah <span className="wordmark-sub">Bus board</span>
         </div>
       </header>
 
@@ -117,8 +116,6 @@ export default function App() {
           />
         )}
       </main>
-
-      <footer className="footnote">Live times from LTA DataMall, refreshed every 20 seconds.</footer>
     </div>
   );
 }

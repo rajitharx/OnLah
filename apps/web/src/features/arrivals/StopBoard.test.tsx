@@ -64,6 +64,10 @@ describe('StopBoard', () => {
     expect(render([])).toContain('href="https://www.google.com/maps/search/?api=1&amp;query=1.3,103.8"');
   });
 
+  it('says where the times come from, in place of a footer', () => {
+    expect(render([])).toContain('LTA DataMall');
+  });
+
   it('offers a manual refresh', () => {
     expect(render([])).toContain('>Refresh<');
   });

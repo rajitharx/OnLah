@@ -21,6 +21,7 @@
   --page: var(--accent);
   --card: var(--white);
   --ink: var(--background);
+  --on-ink: var(--accent);
   --card-border: color-mix(in srgb, var(--ink) 14%, transparent);
 
   /* Derived from the palette, not new colours. */
@@ -30,7 +31,7 @@
   --focus-ring: var(--ink);
 
   --font-serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --space-xs: 4px;
@@ -43,6 +44,19 @@
   --radius-sm: 6px;
   --radius-md: 14px;
   --radius-pill: 999px;
+}
+
+/* Dark mode follows the device setting. It swaps the semantic roles, and the palette hues stay the same. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: var(--background);
+    --card: var(--surface);
+    --ink: var(--accent);
+    --on-ink: var(--background);
+    --muted: color-mix(in srgb, var(--accent) 60%, var(--background));
+    --card-border: color-mix(in srgb, var(--ink) 18%, transparent);
+  }
 }
 
 *,
@@ -130,8 +144,7 @@ input {
 }
 
 .wordmark-sub {
-  display: block;
-  margin-top: var(--space-xs);
+  margin-left: var(--space-xs);
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 12px;
@@ -140,31 +153,10 @@ input {
   color: var(--muted);
 }
 
-/* A red dot, the Nothing "live" signal, next to the wordmark. */
-.wordmark::after {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: var(--space-sm);
-  border-radius: 50%;
-  background: var(--crowd-red);
-  vertical-align: middle;
-}
 
 .app-main {
   padding-top: var(--space-sm);
   min-width: 0;
-}
-
-.footnote {
-  margin-top: var(--space-xxl);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--hairline);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
 }
 
 .view {
@@ -185,6 +177,7 @@ input {
 }
 
 .view-title {
+  margin-top: var(--space-md);
   font-size: 32px;
 }
 
@@ -205,6 +198,7 @@ input {
 
 .tab {
   min-width: 0;
+  min-height: 44px;
   padding: var(--space-sm) var(--space-xs);
   border: 0;
   border-radius: var(--radius-pill);
@@ -219,7 +213,7 @@ input {
 
 .tab[aria-current="page"] {
   background: var(--ink);
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 /* ---------- Buttons and fields ---------- */
@@ -243,7 +237,7 @@ input {
 
 .btn[aria-pressed="true"] {
   background: var(--ink);
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 .btn:disabled {
@@ -553,7 +547,7 @@ input {
   font-size: 22px;
   font-weight: 700;
   text-align: center;
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 .service-operator-logo {
@@ -801,7 +795,13 @@ input {
 
 @media (min-width: 720px) {
   .app {
+    max-width: 960px;
     padding: var(--space-xl) var(--space-lg);
+  }
+
+  .service-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .app-header {
@@ -1028,6 +1028,27 @@ input {
   }
 
 
+}
+
+/* Phones: the tabs move to the bottom edge, within one-handed reach. */
+@media (max-width: 719px) {
+  .tabbar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: var(--space-xs) var(--space-md) calc(var(--space-xs) + env(safe-area-inset-bottom));
+    border: 0;
+    border-top: 1px solid var(--card-border);
+    border-radius: 0;
+    background: var(--card);
+  }
+
+  .app {
+    padding-bottom: 96px;
+  }
 }
 
 /* Saved buses: one card per stop, with that stop's saved services. */

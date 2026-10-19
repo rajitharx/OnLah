@@ -75,6 +75,7 @@ export function StopBoard({
 
       <div className="board-meta">
         {data && <Freshness fetchedAt={data.fetchedAt} now={now} />}
+        <span className="caption">LTA DataMall · every 20s</span>
         <button type="button" className="btn btn-quiet" onClick={onRefresh}>Refresh</button>
         <a className="btn btn-quiet" href={mapsUrl(stop.latitude, stop.longitude)} target="_blank" rel="noopener noreferrer">
           Open in Maps
