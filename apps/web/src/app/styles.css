@@ -124,7 +124,7 @@ input {
 .wordmark {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 22px;
+  font-size: 26px;
   letter-spacing: 0.14em;
   color: var(--ink);
   text-transform: uppercase;
@@ -947,7 +947,7 @@ input {
   }
 
   .wordmark {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .board {
@@ -1027,14 +1027,21 @@ input {
 }
 
 /* Saved buses: one card per stop, with that stop's saved services. */
+/* A saved stop is a card, framed like a bus card and as wide as the list. */
 .saved-stop {
   display: grid;
   gap: var(--space-xs);
-  padding: var(--space-md) 0;
-  border-top: 1px solid var(--hairline);
+  width: 100%;
+  padding: var(--space-md);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  min-width: 0;
 }
 
 .saved-stop-open {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
