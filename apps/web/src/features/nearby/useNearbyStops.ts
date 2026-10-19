@@ -3,7 +3,7 @@ import type { BusStop } from '../../types/domain';
 import { api } from '../../shared/services/onlahApi';
 import type { LatLng } from '../../shared/utils/geo';
 
-export const NEARBY_RADIUS_M = 5_000;
+export const NEARBY_RADIUS_M = 1_000;
 
 export interface NearbyState {
   stops: BusStop[];

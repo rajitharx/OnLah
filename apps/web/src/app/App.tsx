@@ -101,7 +101,7 @@ export default function App() {
         {view === 'search' && (
           <SearchView query={searchQuery} onQueryChange={setSearchQuery} onOpen={openStop} />
         )}
-        {view === 'nearby' && <NearbyView onOpen={openStop} />}
+        {view === 'nearby' && <NearbyView onOpen={openStop} onNavigate={(next) => push({ view: next })} />}
         {view === 'saved' && (
           <SavedView
             buses={savedBuses.buses}

@@ -24,3 +24,8 @@ export function formatDistance(meters: number): string {
 export function mapsUrl(latitude: number, longitude: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 }
+
+// Nearest first. The list is short, so a copy keeps the caller's order intact.
+export function sortByDistance<T extends { distanceMeters: number }>(stops: T[]): T[] {
+  return [...stops].sort((a, b) => a.distanceMeters - b.distanceMeters);
+}
