@@ -57,7 +57,7 @@ src/
 
 - Palette tokens are copied from `apps/mobile/src/shared/theme/colors.ts` into `src/shared/theme/colors.ts` and `:root` in `src/app/styles.css`. Keep them in sync.
 - No third-party UI library. Icons are inline SVG.
-- Cream on light devices, and the same palette in dark mode (`prefers-color-scheme`). Split-flap style ETA tiles stay dark in both.
+- Light cream page, as before. Split-flap ETA tiles take the crowd colour.
 - Two typefaces: Newsreader for headings and Space Mono for labels. Body text uses the system UI font.
 - The home-screen icon and manifest are in `public/`. `apple-touch-icon.png` is a generated 180px PNG of `icon.svg`.
 - Response shapes come from `apps/mobile/src/types/domain.ts` (copied, not imported). Enums arrive as integers because the backend uses default C# enum serialization.
