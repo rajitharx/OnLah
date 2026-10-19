@@ -82,6 +82,12 @@ describe('SavedView', () => {
     expect(buttonTag(render([bus('12')], withData), 'Re-sync Victoria Lane')).not.toBe('');
   });
 
+  it('shows the re-sync control as an icon, not as text', () => {
+    const html = render([bus('12')], withData);
+    expect(html).not.toContain('>Re-sync<');
+    expect(buttonTag(html, 'Re-sync bus 12')).toContain('class="icon-btn resync-btn"');
+  });
+
   it('re-syncs from each saved bus, next to its star', () => {
     expect(buttonTag(render([bus('12')], withData), 'Re-sync bus 12')).not.toBe('');
   });

@@ -2,6 +2,7 @@ import type { BusStop } from '../../types/domain';
 import { Freshness } from '../../shared/components/Freshness';
 import { OperatorLogo } from '../../shared/components/OperatorLogo';
 import { StarIcon } from '../../shared/components/Icons';
+import { ResyncButton } from '../../shared/components/ResyncButton';
 import { EtaTile } from '../arrivals/EtaTile';
 import { EMPTY_ARRIVALS, type ArrivalsState } from '../arrivals/arrivalsState';
 import { hasBusesDue, pickSavedServices, toBusStop, type SavedStopGroup, type SavedServiceRow } from './savedBusView';
@@ -29,14 +30,7 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
           <span className="saved-stop-name">{group.stopName}</span>
           <span className="saved-stop-hint" aria-hidden="true">Open board ›</span>
         </button>
-        <button
-          type="button"
-          className="btn btn-quiet"
-          onClick={() => onResync(group.stopCode)}
-          aria-label={`Re-sync ${group.stopName}`}
-        >
-          Re-sync
-        </button>
+        <ResyncButton label={`Re-sync ${group.stopName}`} onClick={() => onResync(group.stopCode)} />
       </div>
       <p className="caption">{group.roadName}</p>
       {current.data !== null && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
@@ -92,14 +86,7 @@ function SavedBusRow({ row, now, stop, onOpenService, onRemove, onResync }: Save
           {serviceNo}
         </button>
         {service && <OperatorLogo operator={service.operator} />}
-        <button
-          type="button"
-          className="btn btn-quiet"
-          onClick={() => onResync(stop.busStopCode)}
-          aria-label={`Re-sync bus ${serviceNo}`}
-        >
-          Re-sync
-        </button>
+        <ResyncButton label={`Re-sync bus ${serviceNo}`} onClick={() => onResync(stop.busStopCode)} />
         <button
           type="button"
           className="icon-btn"
