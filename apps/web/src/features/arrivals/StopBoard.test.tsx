@@ -72,11 +72,10 @@ describe('StopBoard', () => {
     expect(render([])).toContain('>Refresh<');
   });
 
-  it('explains the crowd bars, deck types and wheelchair mark', () => {
+  it('explains the crowd colours and the wheelchair mark', () => {
     const html = render([service('12')]);
     expect(html).toContain('How to read the times');
     expect(html).toContain('Standing');
-    expect(html).toContain('double deck');
     expect(html).toContain('Wheelchair accessible');
   });
 });

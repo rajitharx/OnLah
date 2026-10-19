@@ -112,7 +112,7 @@ function SavedBusRow({ row, now, stop, onOpenService, onRemove, onResync }: Save
       {hasBusesDue(service) && service ? (
         <div className="eta-grid">
           {[service.nextBus, service.nextBus2, service.nextBus3].map((timing, index) => (
-            <EtaTile key={index} timing={timing} now={now} next={index === 0} />
+            <EtaTile key={index} timing={timing} now={now} />
           ))}
         </div>
       ) : (

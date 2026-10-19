@@ -40,7 +40,7 @@ export function ServiceRow({ service, now, onOpenService, isSaved, saveDisabled,
       </div>
       <div className="eta-grid">
         {timings.map((timing, index) => (
-          <EtaTile key={index} timing={timing} now={now} next={index === 0} />
+          <EtaTile key={index} timing={timing} now={now} />
         ))}
       </div>
     </li>

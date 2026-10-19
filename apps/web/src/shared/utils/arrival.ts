@@ -6,7 +6,7 @@ const crowdClasses: Record<CrowdLevel, string> = {
   1: 'crowd-standing',
   2: 'crowd-crowded',
 };
-const busTypeLabels: Record<BusType, string> = { 0: 'SD', 1: 'DD', 2: 'BD' };
+const busTypeLabels: Record<BusType, string> = { 0: 'Single', 1: 'Double', 2: 'Bendy' };
 
 export function crowdLabel(level: CrowdLevel): string {
   return crowdLabels[level];
@@ -26,10 +26,4 @@ export function minutesUntil(iso: string, now: number): number {
 
 export function secondsSince(iso: string, now: number): number {
   return Math.max(0, Math.floor((now - Date.parse(iso)) / 1_000));
-}
-
-const busTypeNames: Record<BusType, string> = { 0: 'single deck', 1: 'double deck', 2: 'bendy' };
-
-export function busTypeName(type: BusType): string {
-  return busTypeNames[type];
 }

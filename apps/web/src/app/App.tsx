@@ -15,6 +15,7 @@ import { useStopArrivals } from '../features/arrivals/useStopArrivals';
 import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
 import { useNow } from '../shared/hooks/useNow';
+import { APP_VERSION, betaLabel } from '../shared/version';
 import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
 import { defaultView, type TabView } from './routes';
@@ -74,6 +75,7 @@ export default function App() {
         <div className="wordmark">
           OnLah <span className="wordmark-sub">Bus board</span>
         </div>
+        <span className="app-version">{betaLabel(APP_VERSION)}</span>
       </header>
 
       <DisruptionBanner alerts={alerts} now={now} />
