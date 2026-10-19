@@ -1,5 +1,5 @@
 import type { ArrivalTiming, BusType } from '../../types/domain';
-import { busTypeLabel, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
+import { busTypeLabel, crowdClass, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
 import { CrowdBars } from '../../shared/components/CrowdBars';
 import { DoubleDeckIcon, SingleDeckIcon, WheelchairIcon } from '../../shared/components/Icons';
 
@@ -26,7 +26,7 @@ export function EtaTile({ timing, now, next }: EtaTileProps) {
   const type = busTypeLabel(timing.type);
   const accessible = timing.isWheelchairAccessible;
   const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}`;
-  const tileClass = next ? 'eta-tile eta-tile-next' : 'eta-tile';
+  const tileClass = ['eta-tile', crowdClass(timing.load), next ? 'eta-tile-next' : ''].filter(Boolean).join(' ');
 
   return (
     <div className={tileClass} role="group" aria-label={spoken}>
