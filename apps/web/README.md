@@ -25,6 +25,7 @@ npm run build   # type check and production build
 
 ## What it does
 
+- **Routes**: each screen has a path (`/search`, `/nearby`, `/saved`, `/stop/01121`, `/stop/01121/bus/197`). Refresh, back and bookmarks keep the place. Vite serves the app for any path in dev. Cloudflare Pages uses `public/_redirects` to do the same in production.
 - **Board**: stop name and road, then one row per service with three ETA tiles (minutes, crowd level, bus type, wheelchair access). Refreshes every 20 seconds. A failed refresh keeps the last known times and says so.
 - **Search**: by stop code or road name. Backend limits apply: 2 to 50 characters, max 20 results.
 - **Nearby**: uses the browser's location, within 5 km, sorted by distance. Nothing is shown until the visitor shares a location.
@@ -63,4 +64,4 @@ src/
 ## Known gaps
 
 - Saved stops store the name at the time they were saved. A renamed stop shows the old name until it is saved again.
-- A stop opened from a bare code is not supported. The board only opens from search, nearby, or saved stops, because the backend has no single-stop lookup.
+- A stop opened from a bare code (for example `/stop/01121`) is found with a search for that code. The backend has no single-stop lookup, so this relies on exact code matches sorting first. A code with no exact match shows "not found".

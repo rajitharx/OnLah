@@ -191,6 +191,9 @@ input {
 /* ---------- Tab bar (segmented control) ---------- */
 
 .tabbar {
+  position: sticky;
+  top: var(--space-sm);
+  z-index: 10;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
@@ -424,6 +427,10 @@ input {
   flex-direction: column;
   gap: var(--space-md);
   min-width: 0;
+}
+
+.board-back {
+  align-self: flex-start;
 }
 
 .board-head {

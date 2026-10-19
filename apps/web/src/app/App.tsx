@@ -10,36 +10,56 @@ import { useSavedBuses } from '../features/saved-buses/useSavedBuses';
 import { NearbyView } from '../features/nearby/NearbyView';
 import { SearchView } from '../features/search/SearchView';
 import { StopBoard } from '../features/arrivals/StopBoard';
+import { useBoardStop, type BoardStopStatus } from '../features/arrivals/useBoardStop';
 import { useStopArrivals } from '../features/arrivals/useStopArrivals';
 import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
 import { useNow } from '../shared/hooks/useNow';
-import { TabBar, type View } from './TabBar';
+import { TabBar } from './TabBar';
+import { cameFromInApp, useRoute } from './useRoute';
+import { defaultView, type TabView } from './routes';
+
+const BOARD_MESSAGES: Record<Exclude<BoardStopStatus, 'idle' | 'ready'>, string> = {
+  loading: 'Loading stop…',
+  'not-found': 'That stop was not found.',
+  failed: 'The stop is unavailable right now. Try again.',
+};
 
 export default function App() {
   const favourites = useFavourites();
   const savedBuses = useSavedBuses();
-  const [view, setView] = useState<View>('saved');
-  const [stop, setStop] = useState<BusStop | null>(() => favourites.stops[0] ?? null);
+  const { route, push, replace } = useRoute();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [knownStop, setKnownStop] = useState<BusStop | null>(null);
   const now = useNow();
   const alerts = useTrainAlerts();
-  const arrivals = useStopArrivals(stop);
+
+  const board = useBoardStop(route.view === 'board' ? route.stopCode : null, knownStop);
+  const arrivals = useStopArrivals(board.stop);
   const savedArrivals = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
+  const hasSaved = savedBuses.buses.length > 0 || favourites.stops.length > 0;
+  const view: TabView | 'board' = route.view === 'home' ? defaultView(hasSaved) : route.view;
+
   const openStop = (next: BusStop): void => {
-    setStop(next);
-    setView('board');
+    setKnownStop(next);
+    push({ view: 'board', stopCode: next.busStopCode, serviceNo: null });
+  };
+
+  const goBack = (): void => {
+    if (cameFromInApp()) window.history.back();
+    else push({ view: defaultView(hasSaved) });
   };
 
   const toggleBus = (serviceNo: string): void => {
-    if (stop === null) return;
+    if (board.stop === null) return;
     savedBuses.toggle({
-      stopCode: stop.busStopCode,
+      stopCode: board.stop.busStopCode,
       serviceNo,
-      stopName: stop.description,
-      roadName: stop.roadName,
-      latitude: stop.latitude,
-      longitude: stop.longitude,
+      stopName: board.stop.description,
+      roadName: board.stop.roadName,
+      latitude: board.stop.latitude,
+      longitude: board.stop.longitude,
     });
   };
 
@@ -54,29 +74,32 @@ export default function App() {
 
       <DisruptionBanner alerts={alerts} now={now} />
 
-      <TabBar view={view} onChange={setView} />
+      <TabBar view={view} onChange={(next) => push({ view: next })} />
 
       <main className="app-main">
-        {view === 'board' && stop === null && (
-          <EmptyState
-            icon={<SearchIcon size={24} />}
-            message="Search for a stop, or open Nearby, to see its bus times."
-          />
-        )}
-        {view === 'board' && stop !== null && (
+        {route.view === 'board' && board.stop !== null && (
           <StopBoard
-            stop={stop}
+            stop={board.stop}
             arrivals={arrivals}
             now={now}
-            isFavourite={favourites.has(stop.busStopCode)}
+            isFavourite={favourites.has(board.stop.busStopCode)}
             favouritesFull={favourites.isFull}
-            onToggleFavourite={() => favourites.toggle(stop)}
-            isBusSaved={(serviceNo) => savedBuses.has(stop.busStopCode, serviceNo)}
+            onToggleFavourite={() => favourites.toggle(board.stop!)}
+            isBusSaved={(serviceNo) => savedBuses.has(board.stop!.busStopCode, serviceNo)}
             savedBusesFull={savedBuses.isFull}
             onToggleBus={toggleBus}
+            openService={route.serviceNo}
+            onOpenService={(serviceNo) => push({ view: 'board', stopCode: route.stopCode, serviceNo })}
+            onCloseService={() => replace({ view: 'board', stopCode: route.stopCode, serviceNo: null })}
+            onBack={goBack}
           />
         )}
-        {view === 'search' && <SearchView onOpen={openStop} />}
+        {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
+          <EmptyState icon={<SearchIcon size={24} />} message={BOARD_MESSAGES[board.status]} />
+        )}
+        {view === 'search' && (
+          <SearchView query={searchQuery} onQueryChange={setSearchQuery} onOpen={openStop} />
+        )}
         {view === 'nearby' && <NearbyView onOpen={openStop} />}
         {view === 'saved' && (
           <SavedView

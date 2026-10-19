@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import type { BusStop } from '../../types/domain';
 import { ServiceSheet } from '../services/ServiceSheet';
 import { Freshness } from '../../shared/components/Freshness';
 import { PinIcon, StarIcon } from '../../shared/components/Icons';
+import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
 import type { ArrivalsState } from './arrivalsState';
 import { ServiceRow } from './ServiceRow';
@@ -18,6 +18,11 @@ interface StopBoardProps {
   isBusSaved: (serviceNo: string) => boolean;
   savedBusesFull: boolean;
   onToggleBus: (serviceNo: string) => void;
+  // The open service lives in the URL, so the back button closes the sheet first.
+  openService: string | null;
+  onOpenService: (serviceNo: string) => void;
+  onCloseService: () => void;
+  onBack: () => void;
 }
 
 export function StopBoard({
@@ -30,13 +35,19 @@ export function StopBoard({
   isBusSaved,
   savedBusesFull,
   onToggleBus,
+  openService,
+  onOpenService,
+  onCloseService,
+  onBack,
 }: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
   const { data, failed } = arrivals;
-  const [openService, setOpenService] = useState<string | null>(null);
 
   return (
     <section className="board" aria-labelledby="stop-name">
+      <button type="button" className="btn btn-quiet board-back" onClick={onBack}>
+        ← Back
+      </button>
       <header className="board-head">
         <div className="board-title">
           <span className="stop-code">{stop.busStopCode}</span>
@@ -86,12 +97,12 @@ export function StopBoard({
         <>
           <p className="label">Next departures · minutes</p>
           <ul className="service-list" aria-label="Bus services">
-            {data.services.map((service) => (
+            {sortByServiceNo(data.services).map((service) => (
               <ServiceRow
                 key={service.serviceNo}
                 service={service}
                 now={now}
-                onOpenService={setOpenService}
+                onOpenService={onOpenService}
                 isSaved={isBusSaved(service.serviceNo)}
                 saveDisabled={!isBusSaved(service.serviceNo) && savedBusesFull}
                 onToggleSave={() => onToggleBus(service.serviceNo)}
@@ -101,7 +112,7 @@ export function StopBoard({
         </>
       )}
       {openService !== null && (
-        <ServiceSheet serviceNo={openService} arrivals={data} onClose={() => setOpenService(null)} />
+        <ServiceSheet serviceNo={openService} arrivals={data} onClose={onCloseService} />
       )}
     </section>
   );
