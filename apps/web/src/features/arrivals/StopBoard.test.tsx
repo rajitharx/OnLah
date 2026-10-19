@@ -68,8 +68,19 @@ describe('StopBoard', () => {
     expect(render([])).toContain('LTA DataMall');
   });
 
-  it('offers a manual refresh', () => {
-    expect(render([])).toContain('>Refresh<');
+  it('offers a manual refresh as a recycle icon, with a label for screen readers', () => {
+    const html = render([]);
+    expect(html).toContain('aria-label="Refresh bus times"');
+    expect(html).not.toContain('>Refresh<');
+  });
+
+  it('puts the map link under the address, not in the controls row', () => {
+    const html = render([]);
+    const address = html.indexOf('class="stop-road"');
+    const link = html.indexOf('Show in Maps');
+    expect(address).toBeGreaterThan(-1);
+    expect(link).toBeGreaterThan(address);
+    expect(html).not.toContain('Open in Maps');
   });
 
   it('explains the crowd colours and the wheelchair mark', () => {

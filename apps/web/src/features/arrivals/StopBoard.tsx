@@ -1,7 +1,8 @@
 import type { BusStop } from '../../types/domain';
 import { ServiceSheet } from '../services/ServiceSheet';
 import { Freshness } from '../../shared/components/Freshness';
-import { PinIcon, StarIcon } from '../../shared/components/Icons';
+import { MapIcon, PinIcon, StarIcon } from '../../shared/components/Icons';
+import { ResyncButton } from '../../shared/components/ResyncButton';
 import { mapsUrl } from '../../shared/utils/geo';
 import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
@@ -60,6 +61,10 @@ export function StopBoard({
             <PinIcon size={14} />
             {stop.roadName}
           </p>
+          <a className="map-link" href={mapsUrl(stop.latitude, stop.longitude)} target="_blank" rel="noopener noreferrer">
+            <MapIcon size={14} />
+            Show in Maps
+          </a>
         </div>
         <button
           type="button"
@@ -76,10 +81,7 @@ export function StopBoard({
       <div className="board-meta">
         {data && <Freshness fetchedAt={data.fetchedAt} now={now} />}
         <span className="caption">LTA DataMall · every 20s</span>
-        <button type="button" className="btn btn-quiet" onClick={onRefresh}>Refresh</button>
-        <a className="btn btn-quiet" href={mapsUrl(stop.latitude, stop.longitude)} target="_blank" rel="noopener noreferrer">
-          Open in Maps
-        </a>
+        <ResyncButton label="Refresh bus times" onClick={onRefresh} />
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 

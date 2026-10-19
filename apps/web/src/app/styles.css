@@ -506,7 +506,7 @@ input {
   gap: var(--space-xs);
   margin: 0;
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 20px;
   color: var(--muted);
 }
 
@@ -955,7 +955,7 @@ input {
   }
 
   .stop-road {
-    font-size: 13px;
+    font-size: 20px;
   }
 
   .service-list {
@@ -1069,6 +1069,20 @@ input {
   white-space: nowrap;
 }
 
+/* The map link sits under the address. It is smaller than the address, so the address reads first. */
+.map-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* A saved stop's name and its Re-sync button share one row. */
 .saved-stop-head {
   display: flex;
@@ -1097,6 +1111,6 @@ input {
 }
 
 /* The bus star keeps the 44px touch target and sits at the right edge of the row. */
-.service-head .icon-btn {
+.service-head .resync-btn {
   margin-left: auto;
 }
