@@ -6,6 +6,7 @@ import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
 import type { ArrivalsState } from './arrivalsState';
 import { ServiceRow } from './ServiceRow';
+import { BoardLegend } from './BoardLegend';
 import { busAdvisories } from './busAdvisories';
 
 interface StopBoardProps {
@@ -23,6 +24,7 @@ interface StopBoardProps {
   onOpenService: (serviceNo: string) => void;
   onCloseService: () => void;
   onBack: () => void;
+  onRefresh: () => void;
 }
 
 export function StopBoard({
@@ -39,6 +41,7 @@ export function StopBoard({
   onOpenService,
   onCloseService,
   onBack,
+  onRefresh,
 }: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
   const { data, failed } = arrivals;
@@ -71,6 +74,7 @@ export function StopBoard({
 
       <div className="board-meta">
         {data && <Freshness fetchedAt={data.fetchedAt} now={now} />}
+        <button type="button" className="btn btn-quiet" onClick={onRefresh}>Refresh</button>
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 
@@ -96,6 +100,7 @@ export function StopBoard({
       {data && data.services.length > 0 && (
         <>
           <p className="label">Next departures · minutes</p>
+          <BoardLegend />
           <ul className="service-list" aria-label="Bus services">
             {sortByServiceNo(data.services).map((service) => (
               <ServiceRow

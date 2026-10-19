@@ -77,7 +77,7 @@ function SavedBusRow({ row, now, stopCode, onRemove }: SavedBusRowProps) {
       {hasBusesDue(service) && service ? (
         <div className="eta-grid">
           {[service.nextBus, service.nextBus2, service.nextBus3].map((timing, index) => (
-            <EtaTile key={index} timing={timing} now={now} />
+            <EtaTile key={index} timing={timing} now={now} next={index === 0} />
           ))}
         </div>
       ) : (

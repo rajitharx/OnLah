@@ -27,3 +27,15 @@ export function minutesUntil(iso: string, now: number): number {
 export function secondsSince(iso: string, now: number): number {
   return Math.max(0, Math.floor((now - Date.parse(iso)) / 1_000));
 }
+
+const crowdBarCounts: Record<CrowdLevel, number> = { 0: 1, 1: 2, 2: 3 };
+const busTypeNames: Record<BusType, string> = { 0: 'single deck', 1: 'double deck', 2: 'bendy' };
+
+// A three-bar meter: one bar for seats, up to three when crowded.
+export function crowdBarCount(level: CrowdLevel): number {
+  return crowdBarCounts[level];
+}
+
+export function busTypeName(type: BusType): string {
+  return busTypeNames[type];
+}

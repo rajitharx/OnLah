@@ -36,6 +36,7 @@ function render(services: BusArrival[]): string {
       onOpenService={() => undefined}
       onCloseService={() => undefined}
       onBack={() => undefined}
+      onRefresh={() => undefined}
     />,
   );
 }
@@ -51,5 +52,17 @@ describe('StopBoard', () => {
 
   it('offers a back control that does not depend on the tabs', () => {
     expect(render([])).toContain('← Back');
+  });
+
+  it('offers a manual refresh', () => {
+    expect(render([])).toContain('>Refresh<');
+  });
+
+  it('explains the crowd bars, deck types and wheelchair mark', () => {
+    const html = render([service('12')]);
+    expect(html).toContain('How to read the times');
+    expect(html).toContain('Standing');
+    expect(html).toContain('double deck');
+    expect(html).toContain('Wheelchair accessible');
   });
 });

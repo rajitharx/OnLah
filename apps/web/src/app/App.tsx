@@ -92,6 +92,7 @@ export default function App() {
             onOpenService={(serviceNo) => push({ view: 'board', stopCode: route.stopCode, serviceNo })}
             onCloseService={() => replace({ view: 'board', stopCode: route.stopCode, serviceNo: null })}
             onBack={goBack}
+            onRefresh={arrivals.refresh}
           />
         )}
         {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { operatorName } from '../utils/operators';
 
-// Logo files live in apps/web/public/operators/. Until a file exists, the operator code shows as text.
+// Logo files live in apps/web/public/operators/. Until a file exists, the operator's name shows as text.
 const LOGOS: Record<string, string> = {
   GAS: '/operators/go-ahead.svg',
   SBST: '/operators/sbs-transit.svg',
@@ -18,7 +18,7 @@ export function OperatorLogo({ operator }: OperatorLogoProps) {
   const logo = LOGOS[operator];
 
   if (logo === undefined || failed) {
-    return <span className="service-operator">{operator}</span>;
+    return <span className="service-operator">{operatorName(operator)}</span>;
   }
 
   return (
