@@ -4,6 +4,7 @@ import {
   addSavedBus,
   hasSavedBus,
   isSavedBusesFull,
+  moveSavedBus,
   parseSavedBuses,
   removeSavedBus,
   type SavedBus,
@@ -83,5 +84,12 @@ describe('hasSavedBus and isSavedBusesFull', () => {
 
     expect(isSavedBusesFull(list)).toBe(true);
     expect(isSavedBusesFull(list.slice(1))).toBe(false);
+  });
+});
+
+describe('moveSavedBus', () => {
+  it('moves a bus up past the next bus at the same stop, not past a bus at another stop', () => {
+    const list = [bus('01012', '12'), bus('99999', '2'), bus('01012', '197')];
+    expect(moveSavedBus(list, '01012', '197', -1)).toEqual([bus('01012', '197'), bus('99999', '2'), bus('01012', '12')]);
   });
 });

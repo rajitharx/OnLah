@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest';
+import { searchStatusMessage } from './searchStatus';
+
+const searching = { check: { kind: 'ok', term: 'Victoria' } as const, failed: false, slow: false };
+
+describe('searchStatusMessage', () => {
+  it('says it is searching while a query is in flight', () => {
+    expect(searchStatusMessage({ ...searching, loading: true })).toBe('Searching…');
+  });
+
+  it('explains a slow first call, which is usually the backend waking up', () => {
+    expect(searchStatusMessage({ ...searching, loading: true, slow: true })).toBe(
+      'Waking up the server… the first search can take up to a minute.',
+    );
+  });
+
+  it('says nothing once the search has finished', () => {
+    expect(searchStatusMessage({ ...searching, loading: false })).toBeNull();
+  });
+
+  it('says nothing when there is no valid query to search for', () => {
+    expect(searchStatusMessage({ check: { kind: 'empty' }, loading: true, failed: false, slow: true })).toBeNull();
+  });
+});

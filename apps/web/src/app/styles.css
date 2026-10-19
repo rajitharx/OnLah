@@ -21,6 +21,7 @@
   --page: var(--accent);
   --card: var(--white);
   --ink: var(--background);
+  --on-ink: var(--accent);
   --card-border: color-mix(in srgb, var(--ink) 14%, transparent);
 
   /* Derived from the palette, not new colours. */
@@ -30,7 +31,7 @@
   --focus-ring: var(--ink);
 
   --font-serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --space-xs: 4px;
@@ -43,6 +44,19 @@
   --radius-sm: 6px;
   --radius-md: 14px;
   --radius-pill: 999px;
+}
+
+/* Dark mode follows the device setting. It swaps the semantic roles, and the palette hues stay the same. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: var(--background);
+    --card: var(--surface);
+    --ink: var(--accent);
+    --on-ink: var(--background);
+    --muted: color-mix(in srgb, var(--accent) 60%, var(--background));
+    --card-border: color-mix(in srgb, var(--ink) 18%, transparent);
+  }
 }
 
 *,
@@ -130,8 +144,7 @@ input {
 }
 
 .wordmark-sub {
-  display: block;
-  margin-top: var(--space-xs);
+  margin-left: var(--space-xs);
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 12px;
@@ -140,31 +153,10 @@ input {
   color: var(--muted);
 }
 
-/* A red dot, the Nothing "live" signal, next to the wordmark. */
-.wordmark::after {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: var(--space-sm);
-  border-radius: 50%;
-  background: var(--crowd-red);
-  vertical-align: middle;
-}
 
 .app-main {
   padding-top: var(--space-sm);
   min-width: 0;
-}
-
-.footnote {
-  margin-top: var(--space-xxl);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--hairline);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
 }
 
 .view {
@@ -185,12 +177,16 @@ input {
 }
 
 .view-title {
+  margin-top: var(--space-md);
   font-size: 32px;
 }
 
 /* ---------- Tab bar (segmented control) ---------- */
 
 .tabbar {
+  position: sticky;
+  top: var(--space-sm);
+  z-index: 10;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
@@ -202,6 +198,7 @@ input {
 
 .tab {
   min-width: 0;
+  min-height: 44px;
   padding: var(--space-sm) var(--space-xs);
   border: 0;
   border-radius: var(--radius-pill);
@@ -216,7 +213,7 @@ input {
 
 .tab[aria-current="page"] {
   background: var(--ink);
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 /* ---------- Buttons and fields ---------- */
@@ -240,7 +237,7 @@ input {
 
 .btn[aria-pressed="true"] {
   background: var(--ink);
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 .btn:disabled {
@@ -290,13 +287,43 @@ input {
   letter-spacing: 0.04em;
 }
 
+/* One style whether the field is empty or filled. Focus thickens the underline instead of filling it. */
 .search-input:focus {
   outline: none;
-  background: var(--card);
+  border-bottom-width: 2px;
+}
+
+/* The browser's own clear icon is blue and off-palette. The Clear button in the field replaces it. */
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.search-field .search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.match {
+  font-weight: 700;
 }
 
 .search-input::placeholder {
   color: var(--muted);
+}
+
+.nearby-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
 }
 
 .nearby-actions {
@@ -426,6 +453,10 @@ input {
   min-width: 0;
 }
 
+.board-back {
+  align-self: flex-start;
+}
+
 .board-head {
   display: flex;
   align-items: flex-start;
@@ -450,6 +481,12 @@ input {
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--muted);
+}
+
+/* The stop code is plain text on the board. It was styled like a button and read as one. */
+.board-title .stop-code {
+  padding: 0;
+  border: 0;
 }
 
 .stop-name {
@@ -510,7 +547,7 @@ input {
   font-size: 22px;
   font-weight: 700;
   text-align: center;
-  color: var(--accent);
+  color: var(--on-ink);
 }
 
 .service-operator-logo {
@@ -533,7 +570,7 @@ input {
   gap: var(--space-sm);
 }
 
-/* Split-flap tile: stays dark, like the departure board. */
+/* Split-flap tile: stays dark, like the departure board. Crowd is shown by the bars, not the tile colour. */
 .eta-tile {
   display: flex;
   flex-direction: column;
@@ -541,15 +578,9 @@ input {
   gap: var(--space-xs);
   min-width: 0;
   padding: var(--space-sm);
-  border: 1px solid var(--crowd, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--crowd, var(--background));
-}
-
-/* Colour carries the crowd level, so the footer text switches to dark ink. */
-.eta-tile .eta-foot,
-.eta-tile .eta-unit {
-  color: var(--background);
+  background: var(--surface);
 }
 
 .eta-tile-empty .eta-foot {
@@ -568,13 +599,18 @@ input {
     var(--surface) 51% 100%
   );
   font-family: var(--font-mono);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.1;
   text-align: center;
   color: var(--accent);
   white-space: nowrap;
   overflow: hidden;
+}
+
+/* The next bus is the one that matters, so its figure is the largest on the row. */
+.eta-tile-next .eta-value {
+  font-size: 34px;
 }
 
 .eta-unit {
@@ -594,11 +630,65 @@ input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  flex-wrap: wrap;
+  gap: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.06em;
   color: var(--muted);
+}
+
+.eta-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Crowd meter: one to three bars in the crowd colour. Unlit bars are outlines. */
+.crowd-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.crowd-bar {
+  width: 3px;
+  height: 6px;
+  border: 1px solid var(--muted);
+  border-radius: 1px;
+}
+
+.crowd-bar:nth-child(2) {
+  height: 9px;
+}
+
+.crowd-bar:nth-child(3) {
+  height: 12px;
+}
+
+.crowd-bar-on {
+  border-color: var(--crowd);
+  background: var(--crowd);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .eta-tile-empty .eta-foot {
@@ -705,7 +795,13 @@ input {
 
 @media (min-width: 720px) {
   .app {
+    max-width: 960px;
     padding: var(--space-xl) var(--space-lg);
+  }
+
+  .service-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .app-header {
@@ -719,10 +815,6 @@ input {
 
   .stop-name {
     font-size: 48px;
-  }
-
-  .eta-value {
-    font-size: 26px;
   }
 
   .eta-tile {
@@ -744,16 +836,8 @@ input {
     padding: var(--space-md);
   }
 
-  .board-head {
-    flex-direction: column;
-  }
-
   .stop-name {
     font-size: 30px;
-  }
-
-  .eta-value {
-    font-size: 24px;
   }
 }
 
@@ -771,7 +855,6 @@ input {
 .service-badge-button {
   border: 0;
   cursor: pointer;
-  font: inherit;
 }
 
 .service-badge-button:focus-visible {
@@ -790,6 +873,7 @@ input {
 }
 
 .sheet {
+  position: relative;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
@@ -805,6 +889,12 @@ input {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  padding-top: 8px;
+}
+
+/* A 44px tap target for Close, the only button on the sheet. */
+.sheet-head .btn {
+  min-height: 44px;
 }
 
 .sheet-title {
@@ -812,8 +902,26 @@ input {
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-size: 18px;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+/* Grab handle: a visual cue that the sheet can be dragged down to close. */
+.sheet-handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  margin-left: -20px;
+  border-radius: var(--radius-pill);
+  background: var(--muted);
+}
+
+.sheet-subhead {
+  margin-top: var(--space-sm);
 }
 
 .sheet-meta {
@@ -900,8 +1008,12 @@ input {
     font-size: 15px;
   }
 
-  /* The unit is named once in the section label, not under every number. */
-  .eta-unit {
+  .eta-tile-next .eta-value {
+    font-size: 24px;
+  }
+
+  /* The unit shows under the next bus only. The later rows are named by the section label. */
+  .eta-tile:not(.eta-tile-next) .eta-unit {
     display: none;
   }
 
@@ -916,6 +1028,27 @@ input {
   }
 
 
+}
+
+/* Phones: the tabs move to the bottom edge, within one-handed reach. */
+@media (max-width: 719px) {
+  .tabbar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: var(--space-xs) var(--space-md) calc(var(--space-xs) + env(safe-area-inset-bottom));
+    border: 0;
+    border-top: 1px solid var(--card-border);
+    border-radius: 0;
+    background: var(--card);
+  }
+
+  .app {
+    padding-bottom: 96px;
+  }
 }
 
 /* Saved buses: one card per stop, with that stop's saved services. */
@@ -939,8 +1072,47 @@ input {
 }
 
 .saved-stop-name {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+/* A plain-language cue, so it is clear that tapping the name opens the stop's board. */
+.saved-stop-hint {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.saved-buses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.move-buttons {
+  display: inline-flex;
+  gap: var(--space-xs);
+}
+
+.move-btn {
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+
+.move-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
 }
 
 .saved-stops {
@@ -949,8 +1121,7 @@ input {
   margin-top: var(--space-lg);
 }
 
-/* Bus save stars sit beside a small service badge, so they stay smaller than the page-level icon buttons. */
+/* The bus star keeps the 44px touch target and sits at the right edge of the row. */
 .service-head .icon-btn {
-  width: 32px;
-  height: 32px;
+  margin-left: auto;
 }

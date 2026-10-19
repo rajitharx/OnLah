@@ -4,6 +4,7 @@ import {
   addSavedBus,
   hasSavedBus,
   isSavedBusesFull,
+  moveSavedBus,
   parseSavedBuses,
   removeSavedBus,
   type SavedBus,
@@ -33,6 +34,7 @@ export interface SavedBuses {
   // Saves the bus, or removes it when already saved. Returns false when the list is full and the bus was not added.
   toggle: (bus: SavedBus) => boolean;
   remove: (stopCode: string, serviceNo: string) => void;
+  move: (stopCode: string, serviceNo: string, delta: -1 | 1) => void;
 }
 
 export function useSavedBuses(): SavedBuses {
@@ -59,5 +61,6 @@ export function useSavedBuses(): SavedBuses {
     has: (stopCode, serviceNo) => hasSavedBus(buses, stopCode, serviceNo),
     toggle,
     remove: (stopCode, serviceNo) => update(removeSavedBus(buses, stopCode, serviceNo)),
+    move: (stopCode, serviceNo, delta) => update(moveSavedBus(buses, stopCode, serviceNo, delta)),
   };
 }

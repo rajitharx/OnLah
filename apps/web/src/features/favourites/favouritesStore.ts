@@ -1,4 +1,5 @@
 import type { BusStop } from '../../types/domain';
+import { moveItem } from '../../shared/utils/listOrder';
 
 // The v2 key stores full stop snapshots, so the list can show names without a lookup.
 // The v1 key held bare codes and is ignored.
@@ -29,6 +30,12 @@ export function isFavouritesFull(list: BusStop[]): boolean {
 export function addFavourite(list: BusStop[], stop: BusStop): BusStop[] {
   if (list.some((s) => s.busStopCode === stop.busStopCode) || isFavouritesFull(list)) return list;
   return [...list, stop];
+}
+
+export function moveFavourite(list: BusStop[], stopCode: string, delta: -1 | 1): BusStop[] {
+  const index = list.findIndex((stop) => stop.busStopCode === stopCode);
+  if (index === -1) return list;
+  return moveItem(list, index, delta);
 }
 
 export function removeFavourite(list: BusStop[], stopCode: string): BusStop[] {

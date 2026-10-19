@@ -1,5 +1,5 @@
 import type { ArrivalTiming, BusArrivalsResponse, BusType } from '../../types/domain';
-import type { HoursRange } from '../../types/busService';
+import type { HoursRange, OperatingHours, ServiceFrequency } from '../../types/busService';
 
 const NOT_PUBLISHED = 'Not published';
 
@@ -35,4 +35,30 @@ export function collectDeckTypes(arrivals: BusArrivalsResponse | null, serviceNo
   const timings: (ArrivalTiming | null)[] = [service.nextBus, service.nextBus2, service.nextBus3];
   const types = timings.flatMap((timing) => (timing === null ? [] : [timing.type]));
   return [...new Set(types)].sort((a, b) => a - b) as BusType[];
+}
+
+export interface DetailRow {
+  label: string;
+  value: string;
+}
+
+// Only the days LTA publishes. A missing day is left out rather than shown as "Not published".
+export function hoursRows(hours: OperatingHours): DetailRow[] {
+  const days: [string, HoursRange | null][] = [
+    ['Weekday', hours.weekday],
+    ['Saturday', hours.saturday],
+    ['Sunday', hours.sunday],
+  ];
+  return days.flatMap(([label, range]) => (range === null ? [] : [{ label, value: formatHours(range) }]));
+}
+
+// The same rule for the peak and off-peak minutes. Missing values are left out.
+export function frequencyRows(frequency: ServiceFrequency): DetailRow[] {
+  const periods: [string, string | null][] = [
+    ['Morning peak', frequency.amPeak],
+    ['Morning off-peak', frequency.amOffPeak],
+    ['Evening peak', frequency.pmPeak],
+    ['Evening off-peak', frequency.pmOffPeak],
+  ];
+  return periods.flatMap(([label, value]) => (value === null ? [] : [{ label, value: formatFrequency(value) }]));
 }

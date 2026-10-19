@@ -1,16 +1,15 @@
-export type View = 'saved' | 'search' | 'nearby' | 'board';
+import type { TabView } from './routes';
 
-// The landing tab is first. Board is last because it shows a stop picked from one of the others.
-const tabs: { view: View; label: string }[] = [
+// The stop board is not a tab. It opens from a stop, and its back arrow returns to the tab it came from.
+const tabs: { view: TabView; label: string }[] = [
   { view: 'saved', label: 'Saved' },
   { view: 'search', label: 'Search' },
   { view: 'nearby', label: 'Nearby' },
-  { view: 'board', label: 'Board' },
 ];
 
 interface TabBarProps {
-  view: View;
-  onChange: (view: View) => void;
+  view: TabView | 'board';
+  onChange: (view: TabView) => void;
 }
 
 export function TabBar({ view, onChange }: TabBarProps) {
