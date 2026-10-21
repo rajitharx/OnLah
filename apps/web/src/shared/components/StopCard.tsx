@@ -12,7 +12,7 @@ interface StopCardProps {
   highlight?: string;
 }
 
-// A stop row. The main button opens the board; `action` sits beside it, for example a remove button.
+// A stop row. The main button opens the board; `action` sits inside the same card, at the right edge, for example the saved-stop star.
 export function StopCard({ stop, distanceMeters, onOpen, action, highlight = '' }: StopCardProps) {
   const road = distanceMeters === undefined ? stop.roadName : `${stop.roadName} · ${formatDistance(distanceMeters)}`;
 

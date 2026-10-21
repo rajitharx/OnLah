@@ -22,4 +22,11 @@ describe('StopCard', () => {
   it('shows no bold when there is no search term', () => {
     expect(renderToStaticMarkup(<StopCard stop={stop} onOpen={() => undefined} />)).not.toContain('class="match"');
   });
+
+  it('renders the action inside the card container, after the open button', () => {
+    const html = renderToStaticMarkup(
+      <StopCard stop={stop} onOpen={() => undefined} action={<button type="button">Star</button>} />,
+    );
+    expect(html).toMatch(/^<div class="stop-row">.*<\/button><button type="button">Star<\/button><\/div>$/);
+  });
 });
