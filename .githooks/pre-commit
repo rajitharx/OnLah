@@ -1,0 +1,5 @@
+#!/bin/sh
+# Every commit raises the web app's minor version by one, and the bump goes into the same commit.
+set -e
+node apps/web/scripts/bump-version.mjs minor
+git add apps/web/package.json
