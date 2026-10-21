@@ -21,6 +21,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     public ILtaBusClient LtaBusClient { get; } = Substitute.For<ILtaBusClient>();
 
+    public ILtaLiveArrivalClient LtaLiveArrivalClient { get; } = Substitute.For<ILtaLiveArrivalClient>();
+
     public ILtaBusStopClient LtaBusStopClient { get; } = Substitute.For<ILtaBusStopClient>();
 
     public ILtaTrainAlertClient LtaTrainAlertClient { get; } = Substitute.For<ILtaTrainAlertClient>();
@@ -58,6 +60,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
             services.RemoveAll<ILtaBusClient>();
             services.AddSingleton(LtaBusClient);
+
+            services.RemoveAll<ILtaLiveArrivalClient>();
+            services.AddSingleton(LtaLiveArrivalClient);
 
             services.RemoveAll<ILtaBusStopClient>();
             services.AddSingleton(LtaBusStopClient);

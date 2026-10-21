@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using OnLah.Api.Endpoints.BusArrivals;
 using OnLah.Api.Endpoints.BusServices;
 using OnLah.Api.Endpoints.BusStops;
+using OnLah.Api.Endpoints.RouteTracker;
 using OnLah.Api.Endpoints.TrainAlerts;
 using OnLah.Api.Health;
 using OnLah.Api.Middleware;
@@ -67,6 +68,7 @@ internal static class ApiExtensions
         v1.MapBusStopEndpoints();
         v1.MapTrainAlertEndpoints();
         v1.MapBusServiceEndpoints();
+        v1.MapRouteTrackerEndpoints();
         app.MapHealthChecks("/health");
         return app;
     }

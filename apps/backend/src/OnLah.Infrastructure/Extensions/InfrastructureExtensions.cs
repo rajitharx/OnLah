@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.BusServices;
 using OnLah.Application.BusStops;
+using OnLah.Application.RouteTracker;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Application.TrainAlerts;
 using OnLah.Domain.BusNetwork;
@@ -41,6 +42,7 @@ public static class InfrastructureExtensions
             sp.GetRequiredService<LtaBusClient>(),
             sp.GetRequiredService<IClock>(),
             TimeSpan.FromSeconds(sp.GetRequiredService<IOptions<LtaOptions>>().Value.ArrivalCacheSeconds)));
+        services.AddTransient<ILtaLiveArrivalClient>(sp => sp.GetRequiredService<LtaBusClient>());
         services.AddHttpClient<ILtaBusStopClient, LtaBusStopClient>();
         services.AddHttpClient<ILtaBusNetworkClient, LtaBusNetworkClient>();
         services.AddHttpClient<ILtaTrainAlertClient, LtaTrainAlertClient>();
@@ -55,6 +57,8 @@ public static class InfrastructureExtensions
         services.AddScoped<BusStopSyncService>();
         services.AddScoped<GetBusServiceDetailsService>();
         services.AddScoped<BusNetworkSyncService>();
+        services.AddScoped<RouteTrackerService>();
+        services.AddSingleton<StopsAwayCalculator>();
 
         services.AddSingleton<IClock, SystemClock>();
 

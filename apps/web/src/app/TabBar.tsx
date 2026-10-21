@@ -8,7 +8,7 @@ const tabs: { view: TabView; label: string }[] = [
 ];
 
 interface TabBarProps {
-  view: TabView | 'board';
+  view: TabView | 'board' | 'track';
   onChange: (view: TabView) => void;
 }
 

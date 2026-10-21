@@ -20,6 +20,18 @@ describe('parseRoute', () => {
     expect(parseRoute('/stop/01121/bus/197')).toEqual({ view: 'board', stopCode: '01121', serviceNo: '197' });
   });
 
+  it('reads the stop and service from a track path', () => {
+    expect(parseRoute('/track/67009/161')).toEqual({ view: 'track', stopCode: '67009', serviceNo: '161' });
+  });
+
+  it('keeps a lowercase service number in a track path as it is', () => {
+    expect(parseRoute('/track/67009/10e')).toEqual({ view: 'track', stopCode: '67009', serviceNo: '10e' });
+  });
+
+  it('falls back to home for a track path with a bad stop code', () => {
+    expect(parseRoute('/track/6700/161')).toEqual({ view: 'home' });
+  });
+
   it('falls back to home for a stop code that is not five digits', () => {
     expect(parseRoute('/stop/12')).toEqual({ view: 'home' });
   });
@@ -31,7 +43,7 @@ describe('parseRoute', () => {
 
 describe('formatRoute', () => {
   it('round-trips every stop and bus path', () => {
-    for (const path of ['/search', '/stop/01121', '/stop/01121/bus/197']) {
+    for (const path of ['/search', '/stop/01121', '/stop/01121/bus/197', '/track/67009/10e']) {
       expect(formatRoute(parseRoute(path))).toBe(path);
     }
   });

@@ -3,8 +3,10 @@ export type TabView = 'saved' | 'search' | 'nearby';
 export type Route =
   | { view: 'home' }
   | { view: TabView }
-  | { view: 'board'; stopCode: string; serviceNo: string | null };
+  | { view: 'board'; stopCode: string; serviceNo: string | null }
+  | { view: 'track'; stopCode: string; serviceNo: string };
 
+const TRACK_PATH = /^\/track\/(\d{5})\/([^/]+)\/?$/;
 const STOP_PATH = /^\/stop\/(\d{5})(?:\/bus\/([^/]+))?\/?$/;
 const TAB_PATHS: Record<string, TabView> = { '/saved': 'saved', '/search': 'search', '/nearby': 'nearby' };
 
@@ -19,6 +21,9 @@ export function parseRoute(pathname: string): Route {
     return { view: 'board', stopCode: stop[1], serviceNo };
   }
 
+  const track = TRACK_PATH.exec(pathname);
+  if (track !== null) return { view: 'track', stopCode: track[1], serviceNo: decodeURIComponent(track[2]) };
+
   return { view: 'home' };
 }
 
@@ -27,6 +32,7 @@ export function formatRoute(route: Route): string {
     const base = `/stop/${route.stopCode}`;
     return route.serviceNo === null ? base : `${base}/bus/${encodeURIComponent(route.serviceNo)}`;
   }
+  if (route.view === 'track') return `/track/${route.stopCode}/${encodeURIComponent(route.serviceNo)}`;
   if (route.view === 'home') return '/';
   return `/${route.view}`;
 }

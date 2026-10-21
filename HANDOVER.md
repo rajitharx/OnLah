@@ -115,9 +115,12 @@ All routes are prefixed `/api/v1/`.
 | `GET` | `/bus-stops/nearby?lat=&lng=&radiusMeters=` | Stops within radius (max 5000m) |
 | `GET` | `/bus-stops/search?query=` | Search stops by code or name (min 2 chars) |
 | `GET` | `/train-alerts` | Current MRT disruption alerts |
+| `GET` | `/bus-services/{serviceNo}` | Service details: directions, hours, frequency |
+| `GET` | `/route-tracker?busStopCode=&serviceNo=&direction=` | One service at one stop: ordered stops, the user's stop, and each bus's ETA and stops away. Never cached. `direction` (1 or 2) is optional |
 | `POST` | `/admin/bus-stops/sync` | Sync all bus stops from LTA into PostgreSQL |
+| `POST` | `/admin/bus-network/sync` | Sync BusServices and BusRoutes from LTA into PostgreSQL |
 
-> Run the sync endpoint once after first boot to populate the bus stops table, otherwise nearby and search will return empty results.
+> Run both sync endpoints once after first boot, otherwise nearby, search, service details and the route tracker will return empty results. Nothing refreshes them on a schedule yet, so re-run them about weekly.
 
 ---
 
