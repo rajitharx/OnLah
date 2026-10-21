@@ -709,9 +709,15 @@ input {
 
 .stop-row {
   display: flex;
-  align-items: stretch;
-  gap: var(--space-sm);
+  align-items: center;
   min-width: 0;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.stop-row .icon-btn {
+  margin-right: var(--space-sm);
 }
 
 .stop-card {
@@ -721,9 +727,9 @@ input {
   gap: var(--space-md);
   min-width: 0;
   padding: var(--space-md);
-  border: 1px solid var(--card-border);
+  border: 0;
   border-radius: var(--radius-md);
-  background: var(--card);
+  background: transparent;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
