@@ -10,6 +10,7 @@ import { useSavedBuses } from '../features/saved-buses/useSavedBuses';
 import { NearbyView } from '../features/nearby/NearbyView';
 import { SearchView } from '../features/search/SearchView';
 import { StopBoard } from '../features/arrivals/StopBoard';
+import { RouteTrackerView } from '../features/route-tracker/RouteTrackerView';
 import { useBoardStop, type BoardStopStatus } from '../features/arrivals/useBoardStop';
 import { useStopArrivals } from '../features/arrivals/useStopArrivals';
 import { EmptyState } from '../shared/components/EmptyState';
@@ -19,7 +20,7 @@ import { APP_VERSION, betaLabel } from '../shared/version';
 import { AppHeader } from './AppHeader';
 import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
-import { defaultView, type TabView } from './routes';
+import { defaultView, formatRoute, type TabView } from './routes';
 
 const BOARD_MESSAGES: Record<Exclude<BoardStopStatus, 'idle' | 'ready'>, string> = {
   loading: 'Loading stop…',
@@ -41,7 +42,7 @@ export default function App() {
   const saved = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
   const hasSaved = savedBuses.buses.length > 0 || favourites.stops.length > 0;
-  const view: TabView | 'board' = route.view === 'home' ? defaultView(hasSaved) : route.view;
+  const view: TabView | 'board' | 'track' = route.view === 'home' ? defaultView(hasSaved) : route.view;
 
   const openStop = (next: BusStop): void => {
     setKnownStop(next);
@@ -95,7 +96,12 @@ export default function App() {
             onCloseService={() => replace({ view: 'board', stopCode: route.stopCode, serviceNo: null })}
             onBack={goBack}
             onRefresh={arrivals.refresh}
+            trackHref={(serviceNo) => formatRoute({ view: 'track', stopCode: route.stopCode, serviceNo })}
+            onTrack={(serviceNo) => push({ view: 'track', stopCode: route.stopCode, serviceNo })}
           />
+        )}
+        {route.view === 'track' && (
+          <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} now={now} onBack={goBack} />
         )}
         {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
           <EmptyState icon={<SearchIcon size={24} />} message={BOARD_MESSAGES[board.status]} />

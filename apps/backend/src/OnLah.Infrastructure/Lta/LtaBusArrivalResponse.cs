@@ -20,5 +20,9 @@ internal sealed record LtaArrivalTiming(
     [property: JsonPropertyName("Monitored")] int Monitored,
     [property: JsonPropertyName("Load")] string Load,
     [property: JsonPropertyName("Feature")] string Feature,
-    [property: JsonPropertyName("Type")] string Type
+    [property: JsonPropertyName("Type")] string Type,
+    [property: JsonPropertyName("DestinationCode")] string? DestinationCode = null,
+    [property: JsonPropertyName("Latitude")] string? Latitude = null,
+    [property: JsonPropertyName("Longitude")] string? Longitude = null,
+    [property: JsonPropertyName("VisitNumber")] string? VisitNumber = null
 );

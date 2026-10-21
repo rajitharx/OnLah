@@ -86,4 +86,21 @@ describe('createOnlahApi', () => {
 
     expect(await api.getTrainAlerts()).toEqual(body);
   });
+
+  it('getRouteTracker sends the stop and service, and encodes the service number', async () => {
+    const calls: string[] = [];
+    const api = createOnlahApi(BASE, fakeFetch(() => json({ serviceNo: '10e' }), calls));
+
+    await api.getRouteTracker('67009', '10e');
+
+    expect(calls).toEqual([`${BASE}/api/v1/route-tracker?busStopCode=67009&serviceNo=10e`]);
+  });
+
+  it('getRouteTracker reports an unknown stop or service as an ApiError with status 404', async () => {
+    const api = createOnlahApi(BASE, fakeFetch(() => json({ detail: 'BusService was not found.' }, 404)));
+
+    const error = await api.getRouteTracker('67009', '999').catch((e: unknown) => e);
+
+    expect((error as ApiError).status).toBe(404);
+  });
 });

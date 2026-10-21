@@ -9,7 +9,7 @@ using OnLah.Domain.Common;
 
 namespace OnLah.Infrastructure.Lta;
 
-internal sealed partial class LtaBusClient : ILtaBusClient
+internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<LtaBusClient> _logger;
@@ -29,6 +29,17 @@ internal sealed partial class LtaBusClient : ILtaBusClient
         string stopCode,
         CancellationToken cancellationToken = default)
     {
+        var fetched = await FetchServicesAsync(stopCode, cancellationToken);
+        if (fetched.IsFailure)
+            return fetched.Error;
+
+        return fetched.Value!.Select(Map).ToList();
+    }
+
+    private async Task<Result<IReadOnlyList<LtaService>>> FetchServicesAsync(
+        string stopCode,
+        CancellationToken cancellationToken)
+    {
         LogFetchingArrivals(stopCode);
 
         try
@@ -47,7 +58,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient
 
             // An empty body means no service information, which the app shows as an advisory.
             if (string.IsNullOrWhiteSpace(body))
-                return new List<BusArrival>();
+                return new List<LtaService>();
 
             return ParseServices(body);
         }
@@ -68,10 +79,10 @@ internal sealed partial class LtaBusClient : ILtaBusClient
         }
     }
 
-    private static List<BusArrival> ParseServices(string body)
+    private static List<LtaService> ParseServices(string body)
     {
         var raw = JsonSerializer.Deserialize<LtaBusArrivalResponse>(body, JsonSerializerOptions.Web);
-        return (raw?.Services ?? []).Select(Map).ToList();
+        return (raw?.Services ?? []).ToList();
     }
 
     private static BusArrival Map(LtaService s) => new(
@@ -89,23 +100,27 @@ internal sealed partial class LtaBusClient : ILtaBusClient
 
         return new ArrivalTiming(
             DateTimeOffset.Parse(t.EstimatedArrival, CultureInfo.InvariantCulture),
-            t.Load switch
-            {
-                "SEA" => CrowdLevel.SeatsAvailable,
-                "SDA" => CrowdLevel.StandingAvailable,
-                "LSD" => CrowdLevel.LimitedStanding,
-                _ => CrowdLevel.SeatsAvailable
-            },
+            MapLoad(t.Load),
             t.Feature == "WAB",
-            t.Type switch
-            {
-                "DD" => BusType.DoubleDeck,
-                "BD" => BusType.Bendy,
-                _ => BusType.SingleDeck
-            },
+            MapType(t.Type),
             t.Monitored == 1
         );
     }
+
+    private static CrowdLevel MapLoad(string load) => load switch
+    {
+        "SEA" => CrowdLevel.SeatsAvailable,
+        "SDA" => CrowdLevel.StandingAvailable,
+        "LSD" => CrowdLevel.LimitedStanding,
+        _ => CrowdLevel.SeatsAvailable
+    };
+
+    private static BusType MapType(string type) => type switch
+    {
+        "DD" => BusType.DoubleDeck,
+        "BD" => BusType.Bendy,
+        _ => BusType.SingleDeck
+    };
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching bus arrivals for stop {StopCode}")]
     private partial void LogFetchingArrivals(string stopCode);

@@ -37,6 +37,8 @@ function render(services: BusArrival[]): string {
       onCloseService={() => undefined}
       onBack={() => undefined}
       onRefresh={() => undefined}
+      trackHref={(serviceNo) => `/track/01121/${serviceNo}`}
+      onTrack={() => undefined}
     />,
   );
 }
@@ -48,6 +50,14 @@ describe('StopBoard', () => {
     const positions = order.map((label) => html.indexOf(label));
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+  });
+
+  it('links each service to its route tracker', () => {
+    const html = render([service('12'), service('197')]);
+
+    expect(html).toContain('href="/track/01121/12"');
+    expect(html).toContain('href="/track/01121/197"');
+    expect(html).toContain('aria-label="Track bus 12"');
   });
 
   it('offers a back control that does not depend on the tabs', () => {

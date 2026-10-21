@@ -27,6 +27,8 @@ interface StopBoardProps {
   onCloseService: () => void;
   onBack: () => void;
   onRefresh: () => void;
+  trackHref: (serviceNo: string) => string;
+  onTrack: (serviceNo: string) => void;
 }
 
 export function StopBoard({
@@ -44,6 +46,8 @@ export function StopBoard({
   onCloseService,
   onBack,
   onRefresh,
+  trackHref,
+  onTrack,
 }: StopBoardProps) {
   const saveDisabled = !isFavourite && favouritesFull;
   const { data, failed } = arrivals;
@@ -118,6 +122,8 @@ export function StopBoard({
                 isSaved={isBusSaved(service.serviceNo)}
                 saveDisabled={!isBusSaved(service.serviceNo) && savedBusesFull}
                 onToggleSave={() => onToggleBus(service.serviceNo)}
+                trackHref={trackHref(service.serviceNo)}
+                onTrack={() => onTrack(service.serviceNo)}
               />
             ))}
           </ul>

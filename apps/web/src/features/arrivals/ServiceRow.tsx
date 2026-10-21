@@ -10,9 +10,20 @@ interface ServiceRowProps {
   isSaved: boolean;
   saveDisabled: boolean;
   onToggleSave: () => void;
+  trackHref: string;
+  onTrack: () => void;
 }
 
-export function ServiceRow({ service, now, onOpenService, isSaved, saveDisabled, onToggleSave }: ServiceRowProps) {
+export function ServiceRow({
+  service,
+  now,
+  onOpenService,
+  isSaved,
+  saveDisabled,
+  onToggleSave,
+  trackHref,
+  onTrack,
+}: ServiceRowProps) {
   const timings = [service.nextBus, service.nextBus2, service.nextBus3];
 
   return (
@@ -27,6 +38,17 @@ export function ServiceRow({ service, now, onOpenService, isSaved, saveDisabled,
           {service.serviceNo}
         </button>
         <OperatorLogo operator={service.operator} />
+        <a
+          className="btn btn-quiet track-link"
+          href={trackHref}
+          aria-label={`Track bus ${service.serviceNo}`}
+          onClick={(event) => {
+            event.preventDefault();
+            onTrack();
+          }}
+        >
+          Track
+        </a>
         <button
           type="button"
           className="icon-btn"

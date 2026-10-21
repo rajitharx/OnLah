@@ -1,0 +1,373 @@
+/* Route tracker. It uses the app's own tokens from styles.css, so it follows the rest of the site. */
+
+.tracker,
+.tracker-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* Header: service badge, destination and user stop, then the freshness chip. */
+.tracker-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.tracker-head .freshness {
+  grid-column: 1 / -1;
+}
+
+.tracker-to {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.tracker-stop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: var(--space-xs) 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.tracker-stop-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.freshness-stale {
+  color: var(--ink);
+}
+
+.freshness-stale .live-dot {
+  background: var(--crowd-amber);
+  animation: none;
+}
+
+/* Countdown hero: a dark split-flap panel, like the departure tiles. */
+.tracker-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--accent);
+}
+
+.hero-count {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.hero-eta {
+  margin: var(--space-xs) 0 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--accent) 70%, var(--background));
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  margin: 0;
+}
+
+.crowd-badge,
+.bus-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.later-bus .bus-mark {
+  color: var(--muted);
+}
+
+/* Later buses. */
+.later-buses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.later-buses .label {
+  margin: 0;
+}
+
+.later-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.later-bus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.later-eta {
+  min-width: 56px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.later-stops {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* Rail: a vertical line with one node per stop. */
+.rail {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail-node {
+  position: relative;
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+}
+
+.rail-node::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  width: 2px;
+  background: var(--ink);
+}
+
+.rail-node:first-child::before {
+  top: 50%;
+}
+
+.rail-node:last-child::before {
+  bottom: 50%;
+}
+
+.rail-marker {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--page);
+}
+
+.rail-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+}
+
+.rail-name {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.rail-meta {
+  flex-basis: 100%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.rail-tag {
+  padding: 2px var(--space-sm);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-ink);
+}
+
+.rail-tag-bus {
+  background: transparent;
+  color: var(--ink);
+}
+
+.rail-node-passed {
+  opacity: 0.45;
+}
+
+.rail-node-passed::before,
+.rail-node-beyond::before {
+  background: var(--muted);
+}
+
+.rail-node-passed .rail-marker {
+  border-color: var(--muted);
+  background: var(--muted);
+}
+
+.rail-node-beyond {
+  opacity: 0.65;
+}
+
+.rail-node-beyond .rail-marker {
+  border-color: var(--muted);
+}
+
+.rail-node-user .rail-marker {
+  width: 20px;
+  height: 20px;
+  margin: 0 -2px;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px var(--page), 0 0 0 5px var(--ink);
+}
+
+.rail-node-user .rail-name {
+  font-weight: 700;
+}
+
+.rail-marker-bus {
+  background: var(--ink);
+  animation: rail-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rail-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+.rail-gap {
+  position: relative;
+  padding: var(--space-xs) 0 var(--space-xs) 28px;
+}
+
+.rail-gap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  border-left: 2px dashed var(--muted);
+}
+
+.rail-gap-btn {
+  min-height: 44px;
+  padding: 0 var(--space-md);
+  border: 1px dashed var(--muted);
+  border-radius: var(--radius-pill);
+  background: var(--page);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.tracker-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.tracker-error .error {
+  flex: 1 1 200px;
+}
+
+/* Loading skeleton. */
+.tracker-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.skeleton-block {
+  display: block;
+  border-radius: var(--radius-md);
+  background: var(--hairline);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+.skeleton-head {
+  height: 56px;
+}
+
+.skeleton-hero {
+  height: 132px;
+}
+
+.skeleton-row {
+  height: 40px;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-marker-bus,
+  .skeleton-block {
+    animation: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .tracker-to {
+    font-size: 24px;
+  }
+
+  .hero-count {
+    font-size: 32px;
+  }
+}
