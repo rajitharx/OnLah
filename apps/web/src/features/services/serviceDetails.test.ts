@@ -56,6 +56,7 @@ describe('collectDeckTypes', () => {
     isWheelchairAccessible: false,
     type,
     isMonitored: true,
+    isLastBus: false,
   });
 
   const arrivals: BusArrivalsResponse = {

@@ -601,6 +601,35 @@ input {
   color: var(--muted);
 }
 
+/* The tag sits on the top edge, outside the flow, so the last-bus tile keeps the same size as its neighbours. */
+.eta-tile-last {
+  position: relative;
+}
+
+.eta-last {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% + 4px));
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  color: var(--on-ink);
+  white-space: nowrap;
+}
+
+.eta-last .live-dot {
+  background: var(--on-ink);
+}
+
 .eta-value {
   position: relative;
   display: block;

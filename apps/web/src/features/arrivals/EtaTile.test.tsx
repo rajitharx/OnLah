@@ -12,6 +12,7 @@ function timing(overrides: Partial<ArrivalTiming> = {}): ArrivalTiming {
     isWheelchairAccessible: false,
     type: 0,
     isMonitored: true,
+    isLastBus: false,
     ...overrides,
   };
 }
@@ -41,6 +42,18 @@ describe('EtaTile', () => {
       expect(html).toContain(`>${label}<`);
       expect(html).not.toContain('<svg');
     }
+  });
+
+  it('tags the last bus in text and says so to screen readers', () => {
+    const html = render(timing({ isLastBus: true }));
+    expect(html).toContain('aria-label="4 minutes, Crowded, Single, last bus"');
+    expect(html).toMatch(/>LAST</);
+  });
+
+  it('leaves the tag and the spoken last bus off every other tile', () => {
+    const html = render(timing());
+    expect(html).toContain('aria-label="4 minutes, Crowded, Single"');
+    expect(html).not.toMatch(/LAST|last bus/i);
   });
 
   it('shows the crowd by colour alone, with no bar meter', () => {

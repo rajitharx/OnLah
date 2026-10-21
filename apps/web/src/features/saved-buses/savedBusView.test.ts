@@ -94,7 +94,7 @@ describe('hasBusesDue', () => {
   });
 
   it('is true when any of the next three buses is listed', () => {
-    const later: BusArrival = { ...service('12'), nextBus3: { estimatedArrival: '2026-10-19T10:09:00Z', load: 0, isWheelchairAccessible: false, type: 0, isMonitored: true } };
+    const later: BusArrival = { ...service('12'), nextBus3: { estimatedArrival: '2026-10-19T10:09:00Z', load: 0, isWheelchairAccessible: false, type: 0, isMonitored: true, isLastBus: false } };
 
     expect(hasBusesDue(later)).toBe(true);
   });

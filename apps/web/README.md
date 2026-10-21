@@ -36,7 +36,7 @@ npm run build   # type check and production build
 
 - **Routes**: each screen has a path (`/search`, `/nearby`, `/saved`, `/stop/01121`, `/stop/01121/bus/197`). Refresh, back and bookmarks keep the place. Vite serves the app for any path in dev. Cloudflare Pages uses `public/_redirects` to do the same in production.
 - **Route Tracker** (`/track/:busStopCode/:serviceNo`): one service at one stop. A "N stops away" countdown, the ETA and crowd level, the later buses, and a vertical rail of every stop with the bus and the user's stop marked. It refreshes every 20 seconds, pauses while the tab is hidden, and never overlaps requests. A bus with no GPS fix shows the ETA only, and a timetable-only bus shows "Scheduled". There is no map. Open it from the Track link on any service row.
-- **Board**: stop name and road, then one row per service with three ETA tiles (minutes, crowd level, bus type, wheelchair access). Refreshes every 20 seconds. A failed refresh keeps the last known times and says so.
+- **Board**: stop name and road, then one row per service with three ETA tiles (minutes, crowd level, bus type, wheelchair access). The tile for a service's last bus carries a "LAST" tag. Refreshes every 20 seconds. A failed refresh keeps the last known times and says so.
 - **Search**: by stop code or road name. Backend limits apply: 2 to 50 characters, max 20 results.
 - **Nearby**: uses the browser's location, within 1 km, nearest first. Nothing is shown until the visitor shares a location. A blocked or unavailable location says why, and offers Search.
 - **Saved**: buses (max 20) and stops (max 10) kept in `localStorage`. Either list can be reordered. A first-time visitor lands on Search.

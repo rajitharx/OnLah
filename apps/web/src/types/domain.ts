@@ -14,6 +14,7 @@ export interface ArrivalTiming {
   isWheelchairAccessible: boolean;
   type: BusType;
   isMonitored: boolean;
+  isLastBus: boolean;
 }
 
 export interface BusArrival {

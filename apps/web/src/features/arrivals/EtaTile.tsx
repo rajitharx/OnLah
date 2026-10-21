@@ -22,11 +22,18 @@ export function EtaTile({ timing, now }: EtaTileProps) {
   const arriving = minutes === 0;
   const type = busTypeLabel(timing.type);
   const accessible = timing.isWheelchairAccessible;
-  const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}`;
-  const tileClass = `eta-tile ${crowdClass(timing.load)}`;
+  const lastBus = timing.isLastBus;
+  const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}${lastBus ? ', last bus' : ''}`;
+  const tileClass = `eta-tile ${crowdClass(timing.load)}${lastBus ? ' eta-tile-last' : ''}`;
 
   return (
     <div className={tileClass} role="group" aria-label={spoken}>
+      {lastBus && (
+        <span className="eta-last">
+          <span className="live-dot" aria-hidden="true" />
+          LAST
+        </span>
+      )}
       <span className="eta-value">{arriving ? 'Arr' : minutes}</span>
       {!arriving && <span className="eta-unit">min</span>}
       <span className="eta-foot">

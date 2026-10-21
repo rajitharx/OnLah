@@ -8,6 +8,7 @@ const timing: ArrivalTiming = {
   isWheelchairAccessible: false,
   type: 0,
   isMonitored: true,
+  isLastBus: false,
 };
 
 const service = (serviceNo: string, nextBus: ArrivalTiming | null): BusArrival => ({

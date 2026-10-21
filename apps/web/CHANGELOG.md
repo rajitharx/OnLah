@@ -3,6 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so only milestone versions are listed here.
 
+## 1.5
+
+**Last bus.** The ETA tile for a service's last bus of the night carries a "LAST" tag with a slowly pulsing dot, on the stop board and on saved buses. Screen readers hear "last bus".
+
+- LTA sends no last-bus flag, so the backend matches each ETA against the published last-bus time at that stop (5 minutes before to 30 minutes after). It is an estimate, not an LTA signal.
+- Only the latest matching bus of a service is tagged.
+- With reduced motion the dot does not pulse.
+
 ## 1.1
 
 **Route Tracker.** Follow one bus service at one stop.
