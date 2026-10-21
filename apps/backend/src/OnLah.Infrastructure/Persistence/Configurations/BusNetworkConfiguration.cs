@@ -39,5 +39,6 @@ internal sealed class BusRouteConfiguration : IEntityTypeConfiguration<BusRoute>
         builder.Property(r => r.SunFirst).HasMaxLength(4).IsRequired();
         builder.Property(r => r.SunLast).HasMaxLength(4).IsRequired();
         builder.HasIndex(r => r.ServiceNo);
+        builder.HasIndex(r => r.BusStopCode);
     }
 }

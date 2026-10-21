@@ -42,4 +42,31 @@ public sealed class BusNetworkRepositoryTests(ApiFactory factory) : IClassFixtur
         var stored = await repository.GetServicesAsync("TST1");
         Assert.Single(stored);
     }
+
+    [Fact]
+    public async Task GetRoutesForStopAsync_StopServedByTwoServices_ReturnsOnlyThatStopsRows()
+    {
+        using var scope = factory.Services.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IBusNetworkRepository>();
+        await repository.ReplaceAllAsync([], [Row("15", 1, 3, "83139"), Row("10e", 2, 7, "83139"), Row("15", 1, 4, "83141")]);
+
+        var routes = await repository.GetRoutesForStopAsync("83139");
+
+        Assert.Equal(["10e", "15"], routes.Select(r => r.ServiceNo).Order(StringComparer.Ordinal));
+    }
+
+    [Fact]
+    public async Task GetRoutesForStopAsync_UnknownStop_ReturnsEmpty()
+    {
+        using var scope = factory.Services.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IBusNetworkRepository>();
+        await repository.ReplaceAllAsync([], [Row("15", 1, 3, "83139")]);
+
+        var routes = await repository.GetRoutesForStopAsync("99999");
+
+        Assert.Empty(routes);
+    }
+
+    private static BusRoute Row(string serviceNo, int direction, int sequence, string stopCode) =>
+        BusRoute.Create(serviceNo, direction, sequence, stopCode, "SBST", 0, "0530", "2330", "0530", "2330", "0530", "2330");
 }

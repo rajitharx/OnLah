@@ -103,7 +103,8 @@ internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClien
             MapLoad(t.Load),
             t.Feature == "WAB",
             MapType(t.Type),
-            t.Monitored == 1
+            t.Monitored == 1,
+            IsLastBus: false
         );
     }
 

@@ -13,7 +13,8 @@ public sealed record ArrivalTiming(
     CrowdLevel Load,
     bool IsWheelchairAccessible,
     BusType Type,
-    bool IsMonitored
+    bool IsMonitored,
+    bool IsLastBus
 );
 
 public enum CrowdLevel { SeatsAvailable, StandingAvailable, LimitedStanding }

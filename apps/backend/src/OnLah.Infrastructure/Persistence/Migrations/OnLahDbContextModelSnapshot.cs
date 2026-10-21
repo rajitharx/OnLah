@@ -78,6 +78,8 @@ namespace OnLah.Infrastructure.Persistence.Migrations
 
                     b.HasKey("ServiceNo", "Direction", "StopSequence");
 
+                    b.HasIndex("BusStopCode");
+
                     b.HasIndex("ServiceNo");
 
                     b.ToTable("BusRoutes", (string)null);
