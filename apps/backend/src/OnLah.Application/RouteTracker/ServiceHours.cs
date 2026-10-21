@@ -9,6 +9,8 @@ namespace OnLah.Application.RouteTracker;
 public sealed class ServiceHours
 {
     private static readonly TimeSpan Singapore = TimeSpan.FromHours(8);
+    private static readonly TimeSpan LastBusEarly = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan LastBusLate = TimeSpan.FromMinutes(30);
 
     private readonly DaySchedule? _weekday;
     private readonly DaySchedule? _saturday;
@@ -40,6 +42,27 @@ public sealed class ServiceHours
 
         var yesterday = ScheduleFor(local.AddDays(-1).DayOfWeek);
         return yesterday is { PassesMidnight: true } && minute <= yesterday.LastMinute;
+    }
+
+    /// <summary>
+    /// LTA arrivals carry no last-bus flag, so this is a heuristic against the published last-bus time.
+    /// The window reaches further past that time than before it because late-night buses run late more often than early.
+    /// </summary>
+    public bool IsLastBus(DateTimeOffset estimatedArrival)
+    {
+        var local = estimatedArrival.ToOffset(Singapore);
+        var serviceDay = new DateTimeOffset(local.Date, Singapore);
+        return IsNearLastBus(serviceDay, local) || IsNearLastBus(serviceDay.AddDays(-1), local);
+    }
+
+    private bool IsNearLastBus(DateTimeOffset serviceDay, DateTimeOffset estimatedArrival)
+    {
+        var schedule = ScheduleFor(serviceDay.DayOfWeek);
+        if (schedule is null)
+            return false;
+
+        var lastBus = serviceDay.AddMinutes(schedule.LastMinute).AddDays(schedule.PassesMidnight ? 1 : 0);
+        return estimatedArrival >= lastBus - LastBusEarly && estimatedArrival <= lastBus + LastBusLate;
     }
 
     private DaySchedule? ScheduleFor(DayOfWeek day) => day switch

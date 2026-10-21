@@ -86,6 +86,91 @@ public sealed class ServiceHoursTests
         Assert.False(hours.IsInOperation(fourAmSgtAsUtc));
     }
 
+    [Theory]
+    [InlineData(23, 25)]
+    [InlineData(23, 30)]
+    [InlineData(23, 59)]
+    public void IsLastBus_WeekdayEtaNearTheLastBus_ReturnsTrue(int hour, int minute)
+    {
+        var hours = ServiceHours.From(Row());
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 21, hour, minute)));
+    }
+
+    [Theory]
+    [InlineData(22, 0)]
+    [InlineData(23, 24)]
+    public void IsLastBus_EtaWellBeforeTheLastBus_ReturnsFalse(int hour, int minute)
+    {
+        var hours = ServiceHours.From(Row());
+
+        Assert.False(hours.IsLastBus(At(2026, 10, 21, hour, minute)));
+    }
+
+    [Fact]
+    public void IsLastBus_EtaFarAfterTheLastBus_ReturnsFalse()
+    {
+        var hours = ServiceHours.From(Row());
+
+        Assert.False(hours.IsLastBus(At(2026, 10, 22, 0, 1)));
+        Assert.False(hours.IsLastBus(At(2026, 10, 22, 3, 0)));
+    }
+
+    [Fact]
+    public void IsLastBus_Saturday_UsesTheSaturdayLastBus()
+    {
+        var hours = ServiceHours.From(Row(satLast: "2200"));
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 24, 22, 5)));
+        Assert.False(hours.IsLastBus(At(2026, 10, 21, 22, 5)));
+    }
+
+    [Fact]
+    public void IsLastBus_Sunday_UsesTheSundayLastBus()
+    {
+        var hours = ServiceHours.From(Row(sunLast: "2100"));
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 25, 21, 10)));
+        Assert.False(hours.IsLastBus(At(2026, 10, 24, 21, 10)));
+    }
+
+    [Fact]
+    public void IsLastBus_LastBusAfterMidnight_MatchesThePreviousDaysTimetable()
+    {
+        var hours = ServiceHours.From(Row(wdLast: "0015"));
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 22, 0, 20)));
+        Assert.False(hours.IsLastBus(At(2026, 10, 19, 0, 20)));
+    }
+
+    [Fact]
+    public void IsLastBus_SaturdayLastBusAfterMidnight_MatchesOnSundayMorning()
+    {
+        var hours = ServiceHours.From(Row(satLast: "0030"));
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 25, 0, 35)));
+    }
+
+    [Fact]
+    public void IsLastBus_EtaExpressedInUtc_IsReadAsSingaporeTime()
+    {
+        var hours = ServiceHours.From(Row());
+        var elevenThirtyTwoSgtAsUtc = new DateTimeOffset(2026, 10, 21, 15, 32, 0, TimeSpan.Zero);
+
+        Assert.True(hours.IsLastBus(elevenThirtyTwoSgtAsUtc));
+    }
+
+    [Theory]
+    [InlineData("-")]
+    [InlineData("")]
+    [InlineData("2399")]
+    public void IsLastBus_LastTimeUnparseable_ReturnsFalse(string wdLast)
+    {
+        var hours = ServiceHours.From(Row(wdLast: wdLast));
+
+        Assert.False(hours.IsLastBus(At(2026, 10, 21, 23, 30)));
+    }
+
     private static DateTimeOffset At(int year, int month, int day, int hour, int minute) =>
         new(year, month, day, hour, minute, 0, Sgt);
 
