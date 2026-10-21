@@ -16,6 +16,7 @@ import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
 import { useNow } from '../shared/hooks/useNow';
 import { APP_VERSION, betaLabel } from '../shared/version';
+import { AppHeader } from './AppHeader';
 import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
 import { defaultView, type TabView } from './routes';
@@ -71,12 +72,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="wordmark">
-          OnLah <span className="wordmark-sub">Bus board</span>
-        </div>
-        <span className="app-version">{betaLabel(APP_VERSION)}</span>
-      </header>
+      <AppHeader version={betaLabel(APP_VERSION)} onHome={() => push({ view: 'home' })} />
 
       <DisruptionBanner alerts={alerts} now={now} />
 

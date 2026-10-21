@@ -1,7 +1,7 @@
 {
   "name": "@onlah/web",
   "private": true,
-  "version": "0.3",
+  "version": "0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
