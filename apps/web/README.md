@@ -16,6 +16,15 @@ Open http://127.0.0.1:5173/. The backend allows this origin for CORS in Developm
 
 To point at another backend, set `VITE_API_BASE_URL` (default `http://localhost:5050`).
 
+## Version
+
+The version is `major.minor` in `package.json`. The header shows it as "Beta <version>".
+
+- Every commit raises the minor version by 0.1. `.githooks/pre-commit` runs `bump:minor` and stages `package.json` with the commit.
+- `npm install` points git at `.githooks` (the `prepare` script). Without it, run `git config core.hooksPath .githooks` once.
+- For a major release, run `npm run bump:major` by hand. It sets the minor number back to 0 and is committed like any other change.
+- `git commit --no-verify` skips the bump.
+
 ## Test and build
 
 ```bash
