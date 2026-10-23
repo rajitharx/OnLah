@@ -15,7 +15,7 @@ public sealed class SearchBusStopsService
         string query,
         CancellationToken cancellationToken = default)
     {
-        var stops = await _repository.SearchAsync(query, MaxResults, cancellationToken);
+        var stops = await _repository.SearchAsync(StopSearchQuery.Parse(query), MaxResults, cancellationToken);
 
         var results = stops
             .Select(s => new BusStopDto(s.BusStopCode, s.RoadName, s.Description, s.Latitude, s.Longitude, 0))
