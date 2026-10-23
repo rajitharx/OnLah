@@ -174,6 +174,51 @@ npm run build
 - ETA reliability scoring
 - Server-synced favourites
 
+## Release Notes
+
+Newest first. The number after each item is its pull request. The web header shows the version as "Beta x.y", and the version rises by 0.1 on every commit. [`apps/web/CHANGELOG.md`](apps/web/CHANGELOG.md) has more detail on milestone versions.
+
+### 23 October 2026 (Beta 1.8)
+
+- **Better stop search** (#17). Search now matches road names as well as stop names, so "Victoria" finds the stops on Victoria St. Each word in the query must match, so "Orchard Rd" works. Both LTA spellings match, so "Bukit Timah" finds "Bt Timah", and the same goes for Road and Rd, Street and St, Avenue and Ave, Jalan and Jln, and other common LTA abbreviations. Part of a stop code also works, so "1012" finds 01012. When the list stops at 20 results, the page says so.
+
+### 21 October 2026
+
+- **Last bus tag** (#16, Beta 1.5). The ETA tile for the last bus of a service at a stop shows a "LAST" tag with a slowly pulsing dot, on the board and on saved buses. Screen readers hear "last bus". LTA sends no last-bus flag, so the backend compares each ETA with the published last-bus time at that stop. It is an estimate.
+- **Route Tracker** (#14, Beta 1.1). Follow one bus service at one stop. It shows a "N stops away" countdown, the ETA and crowd level, the later buses, and a rail of every stop. Open it from the Track link on any service row. The backend adds `GET /api/v1/route-tracker`.
+- **Saved stops** (#15). The star now sits inside the stop card.
+- **Header** (#13). The OnLah wordmark goes to the home page.
+- **Version** (#12). The web version rises by 0.1 on every commit.
+
+### 19 to 20 October 2026
+
+- **Saved buses** (#5). Star one bus at one stop to save it. The app opens on Saved, which shows live times for each saved bus.
+- **UI review** (#6 to #11).
+  - Services sort in natural order (2, 10, 100).
+  - Each screen has its own URL, such as `/stop/01121`.
+  - Search shows a "Searching" status and explains when a slow server is waking up.
+  - The tab bar stays on screen.
+  - The original cream page and crowd-coloured tiles are back.
+  - Bus types read Single, Double or Bendy.
+  - All ETA tiles are the same size.
+  - The header shows "Beta" with the version.
+  - "Show in Maps" sits under the stop address.
+  - Refresh is a single icon.
+
+### 18 October 2026
+
+- **Web bus board** (#3). The first web client shows arrivals with crowd colours, search, nearby stops, saved stops, and the MRT disruption banner.
+- **Service details** (#3). Tap a service number to see its operator, route, hours by day and frequency. The backend adds `GET /api/v1/bus-services/{serviceNo}` and an admin sync of the bus network from LTA.
+- **Deployment** (#3, #4). A Dockerfile, a health check and CORS set from the environment get the backend ready to deploy. The web build reads its API address from the environment and explains a slow first load. Pull requests run CI checks.
+
+### 17 October 2026
+
+- **Mobile app** (#2). The React Native app shows arrivals, nearby stops, search, saved stops and MRT alerts.
+
+### 25 June 2026
+
+- **Backend v1** (#1). The .NET 10 API proxies LTA real-time arrivals (v3 Bus Arrival endpoint) and MRT disruption alerts. It serves nearby stops from its own database and has an admin endpoint to sync all bus stops from LTA.
+
 ## License
 
 [Add license here]
