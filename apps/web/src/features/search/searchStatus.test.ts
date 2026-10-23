@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { searchStatusMessage } from './searchStatus';
+import { resultCountMessage, searchStatusMessage } from './searchStatus';
+
+describe('resultCountMessage', () => {
+  it('counts the results below the limit', () => {
+    expect(resultCountMessage(1)).toBe('1 result');
+    expect(resultCountMessage(16)).toBe('16 results');
+  });
+
+  it('says the list is cut off when the backend returns its limit', () => {
+    expect(resultCountMessage(20)).toBe('Showing the top 20. Add a word to narrow it down.');
+  });
+});
 
 const searching = { check: { kind: 'ok', term: 'Victoria' } as const, failed: false, slow: false };
 

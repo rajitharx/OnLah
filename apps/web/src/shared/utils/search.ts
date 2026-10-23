@@ -1,8 +1,9 @@
-// Mirrors the backend validation: the search query must be 2 to 50 characters.
+// Mirrors the backend validation: the search query must be 2 to 50 characters, and at most 20 stops come back.
 // Stop codes are exactly 5 digits, so a longer numeric query is rejected here before the request.
 export const MIN_QUERY_LENGTH = 2;
 export const MAX_QUERY_LENGTH = 50;
 export const STOP_CODE_LENGTH = 5;
+export const MAX_SEARCH_RESULTS = 20;
 
 export type SearchQueryCheck =
   | { kind: 'empty' }

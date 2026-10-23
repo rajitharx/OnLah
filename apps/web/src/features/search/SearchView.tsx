@@ -3,7 +3,7 @@ import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
 import { useStopSearch } from './useStopSearch';
-import { searchStatusMessage } from './searchStatus';
+import { resultCountMessage, searchStatusMessage } from './searchStatus';
 
 interface SearchViewProps {
   query: string;
@@ -56,7 +56,7 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
 
       {results.length > 0 && (
         <>
-          <p className="caption">{results.length} result{results.length === 1 ? '' : 's'}</p>
+          <p className="caption">{resultCountMessage(results.length)}</p>
           <div className="stop-list">
             {results.map((stop) => (
               <StopCard key={stop.busStopCode} stop={stop} onOpen={onOpen} highlight={check.kind === 'ok' ? check.term : ''} />
