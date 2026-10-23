@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using OnLah.Domain.BusStops;
 
@@ -12,16 +14,30 @@ internal sealed class BusStopRepository : IBusStopRepository
     public async Task<IReadOnlyList<BusStop>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _context.BusStops.AsNoTracking().ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<BusStop>> SearchAsync(string query, int maxResults, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<BusStop>> SearchAsync(StopSearchQuery query, int maxResults, CancellationToken cancellationToken = default)
     {
-        var trimmed = query.Trim();
-        return await _context.BusStops
-            .AsNoTracking()
-            .Where(s => EF.Functions.ILike(s.BusStopCode, $"{trimmed}%")
-                     || EF.Functions.ILike(s.Description, $"%{trimmed}%"))
-            .OrderBy(s => s.BusStopCode)
-            .Take(maxResults)
-            .ToListAsync(cancellationToken);
+        if (query.Terms.Count == 0)
+            return [];
+
+        var stops = _context.BusStops.AsNoTracking();
+        foreach (var term in query.Terms)
+            stops = stops.Where(Matches(term));
+
+        return await stops.OrderBy(s => s.BusStopCode).Take(maxResults).ToListAsync(cancellationToken);
+    }
+
+    // Postgres \m marks the start of a word and \M the end. The typed word may be half-typed, so it only has to start a word.
+    // Another spelling must be the whole word, so "Street" also finds "St" but not "Stn".
+    // Terms hold only letters and digits, so they go into the patterns unescaped.
+    private static Expression<Func<BusStop, bool>> Matches(StopSearchTerm term)
+    {
+        var pattern = $@"\m(?:{string.Join('|', term.Alternates.Select(a => a + @"\M").Prepend(term.Text))})";
+        var codePattern = $"%{term.Text}%";
+
+        return term.IsDigits
+            ? s => EF.Functions.ILike(s.BusStopCode, codePattern)
+                || Regex.IsMatch(s.Description + " " + s.RoadName, pattern, RegexOptions.IgnoreCase)
+            : s => Regex.IsMatch(s.Description + " " + s.RoadName, pattern, RegexOptions.IgnoreCase);
     }
 
     public async Task ReplaceAllAsync(IEnumerable<BusStop> stops, CancellationToken cancellationToken = default)
