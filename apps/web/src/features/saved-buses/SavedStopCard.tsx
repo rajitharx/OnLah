@@ -53,7 +53,6 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
               stop={stop}
               onOpenService={onOpenService}
               onRemove={onRemoveBus}
-              onResync={onResync}
             />
           ))}
         </ul>
@@ -68,10 +67,9 @@ interface SavedBusRowProps {
   stop: BusStop;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemove: (stopCode: string, serviceNo: string) => void;
-  onResync: (stopCode: string) => void;
 }
 
-function SavedBusRow({ row, now, stop, onOpenService, onRemove, onResync }: SavedBusRowProps) {
+function SavedBusRow({ row, now, stop, onOpenService, onRemove }: SavedBusRowProps) {
   const { serviceNo, service } = row;
 
   return (
@@ -86,7 +84,6 @@ function SavedBusRow({ row, now, stop, onOpenService, onRemove, onResync }: Save
           {serviceNo}
         </button>
         {service && <OperatorLogo operator={service.operator} />}
-        <ResyncButton label={`Re-sync bus ${serviceNo}`} onClick={() => onResync(stop.busStopCode)} />
         <button
           type="button"
           className="icon-btn"

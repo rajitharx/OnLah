@@ -85,11 +85,13 @@ describe('SavedView', () => {
   it('shows the re-sync control as an icon, not as text', () => {
     const html = render([bus('12')], withData);
     expect(html).not.toContain('>Re-sync<');
-    expect(buttonTag(html, 'Re-sync bus 12')).toContain('class="icon-btn resync-btn"');
+    expect(buttonTag(html, 'Re-sync Victoria Lane')).toContain('class="icon-btn resync-btn"');
   });
 
-  it('re-syncs from each saved bus, next to its star', () => {
-    expect(buttonTag(render([bus('12')], withData), 'Re-sync bus 12')).not.toBe('');
+  it('offers one re-sync per stop card and none on bus rows', () => {
+    const html = render([bus('12'), bus('2')], withData);
+    expect(html.match(/aria-label="Re-sync /g)).toHaveLength(1);
+    expect(html).not.toContain('Re-sync bus');
   });
 
   it('no longer offers up and down moves', () => {
