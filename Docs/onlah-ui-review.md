@@ -142,7 +142,8 @@
 - [x] 6. **Tap targets (medium).** 24 controls are under 44px on mobile. Track links are 56×26, the Back link is 64×26, and the stars and details buttons are 36px. Pad them to 44px for one-handed use.
   - *Done in this PR.* Measured at 375px, the stars were already 44px. Every other small control keeps its look and gets an invisible 44px hit area: Track, Back, Hide, Clear, the service number buttons, Use my location, Saved stop, Show in Maps, the saved stop name and the wordmark link.
 - [ ] 7. **Red dot next to the wordmark (medium).** It is a decorative red `::after`, but red means "crowded" and "disruption" elsewhere. Make it neutral or drop it, and later use a dot beside the wordmark for real alert status.
-- [ ] 8. **Wheelchair icon on nearly every ETA cell (low).** At stop 01012 it appears about 30 times. Show it only when a bus is not accessible, or make it a filter.
+- [x] 8. **Wheelchair icon on nearly every ETA cell (low).** At stop 01012 it appears about 30 times. Show it only when a bus is not accessible, or make it a filter.
+  - *Done in #21.* ETA tiles show a crossed wheelchair only for buses without access. The legend and aria labels match.
 - [ ] 9. **Duplicate refresh buttons on Saved (low).** There is one per stop card and one per bus row.
 - [ ] 10. **ETA clock (to verify).** The ETA uses `Math.round((Date.parse(estimatedArrival) - c)/60000)`. If `c` is the phone's clock rather than the server's `fetchedAt`, a wrong device clock shows wrong ETAs. Confirm what `c` is.
 - [ ] 11. **Cold starts.** The Render free tier sleeps after about 15 minutes idle, so the first load can hang. Add a keep-alive ping to `/health` (for example a cron every 10 minutes) and a "Waking up…" state. *Partly done: the web shows a "Waking up the server…" message, but there is still no keep-alive ping.*
