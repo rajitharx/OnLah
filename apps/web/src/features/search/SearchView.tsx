@@ -3,7 +3,7 @@ import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
 import { useStopSearch } from './useStopSearch';
-import { resultCountMessage, searchStatusMessage } from './searchStatus';
+import { resultCountMessage, searchFailureMessage, searchStatusMessage } from './searchStatus';
 
 interface SearchViewProps {
   query: string;
@@ -14,7 +14,7 @@ interface SearchViewProps {
 // The query lives in the app shell, so it survives a trip to another tab.
 export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
   const search = useStopSearch(query);
-  const { check, results, loading, failed } = search;
+  const { check, results, loading, failure } = search;
   const status = searchStatusMessage(search);
 
   return (
@@ -48,9 +48,9 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
         <EmptyState icon={<SearchIcon size={24} />} message="Type a stop code or road to search." />
       )}
 
-      {failed && <p className="error" role="alert">Search is unavailable right now. Try again.</p>}
+      {failure !== null && <p className="error" role="alert">{searchFailureMessage(failure)}</p>}
 
-      {check.kind === 'ok' && !loading && !failed && results.length === 0 && (
+      {check.kind === 'ok' && !loading && failure === null && results.length === 0 && (
         <EmptyState icon={<SearchIcon size={24} />} message={`No stops match "${check.term}".`} />
       )}
 
