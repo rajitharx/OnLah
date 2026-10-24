@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using OnLah.Api.Middleware;
 using OnLah.Application.RouteTracker;
 using OnLah.Domain.Common;
 
@@ -9,7 +10,7 @@ internal static class RouteTrackerEndpoints
 {
     internal static RouteGroupBuilder MapRouteTrackerEndpoints(this RouteGroupBuilder group)
     {
-        group.MapGet("route-tracker", GetAsync);
+        group.MapGet("route-tracker", GetAsync).NoStore();
         return group;
     }
 
@@ -19,7 +20,6 @@ internal static class RouteTrackerEndpoints
         int? direction,
         RouteTrackerService service,
         IValidator<GetRouteTrackerRequest> validator,
-        HttpResponse response,
         CancellationToken cancellationToken)
     {
         var validation = await validator.ValidateAsync(new GetRouteTrackerRequest(busStopCode, serviceNo, direction), cancellationToken);
@@ -32,7 +32,6 @@ internal static class RouteTrackerEndpoints
         if (result.IsFailure)
             return TypedResults.Problem(detail: result.Error.Description, statusCode: StatusFor(result.Error.Kind));
 
-        response.Headers.CacheControl = "no-store";
         return TypedResults.Ok(result.Value!);
     }
 
