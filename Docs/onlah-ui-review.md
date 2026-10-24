@@ -146,7 +146,7 @@
   - *Done in #21.* ETA tiles show a crossed wheelchair only for buses without access. The legend and aria labels match.
 - [x] 9. **Duplicate refresh buttons on Saved (low).** There is one per stop card and one per bus row.
   - *Done in #22.* Saved keeps the one re-sync button on each stop card. The bus rows no longer have their own.
-- [ ] 10. **ETA clock (to verify).** The ETA uses `Math.round((Date.parse(estimatedArrival) - c)/60000)`. If `c` is the phone's clock rather than the server's `fetchedAt`, a wrong device clock shows wrong ETAs. Confirm what `c` is.
+- [x] 10. **ETA clock (to verify).** The ETA uses `Math.round((Date.parse(estimatedArrival) - c)/60000)`. If `c` is the phone's clock rather than the server's `fetchedAt`, a wrong device clock shows wrong ETAs. Confirm what `c` is. *Done in #23.* `c` was the phone's clock (`Date.now()` in `useNow`). ETAs and "Updated Ns ago" now use a clock anchored to the response's `fetchedAt` and carried forward by a monotonic timer.
 - [ ] 11. **Cold starts.** The Render free tier sleeps after about 15 minutes idle, so the first load can hang. Add a keep-alive ping to `/health` (for example a cron every 10 minutes) and a "Waking up…" state. *Partly done: the web shows a "Waking up the server…" message, but there is still no keep-alive ping.*
 - [ ] 12. **Cache headers.** The API sends no `Cache-Control`. Stops and services rarely change, so set `max-age` on `bus-stops/*` and `bus-services/*`.
 - [ ] 13. **Offline support.** There is no service worker. Caching the app shell and saved stops would help on the MRT.
