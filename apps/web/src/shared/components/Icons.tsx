@@ -24,9 +24,10 @@ function Icon({ size = 16, filled = false, children }: IconProps & { filled?: bo
   );
 }
 
-export function WheelchairIcon(props: IconProps) {
+export function WheelchairIcon({ crossed = false, ...props }: IconProps & { crossed?: boolean }) {
   return (
     <Icon {...props}>
+      {crossed && <line x1="3" y1="3" x2="21" y2="21" />}
       <circle cx="10" cy="4" r="2" />
       <path d="M10 8v5h5l2 4" />
       <path d="M8.5 13.5A5 5 0 1 0 15 19.5" />

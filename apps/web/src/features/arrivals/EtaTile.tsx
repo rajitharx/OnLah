@@ -7,7 +7,7 @@ interface EtaTileProps {
   now: number;
 }
 
-// One split-flap tile: the ETA in minutes, then crowd bars, bus type and wheelchair access.
+// One split-flap tile: the ETA in minutes, then crowd bars, bus type and wheelchair access when a bus has none.
 export function EtaTile({ timing, now }: EtaTileProps) {
   if (timing === null) {
     return (
@@ -23,7 +23,7 @@ export function EtaTile({ timing, now }: EtaTileProps) {
   const type = busTypeLabel(timing.type);
   const accessible = timing.isWheelchairAccessible;
   const lastBus = timing.isLastBus;
-  const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ''}${lastBus ? ', last bus' : ''}`;
+  const spoken = `${arriving ? 'Arriving' : `${minutes} minutes`}, ${crowdLabel(timing.load)}, ${type}${accessible ? ', wheelchair accessible' : ', not wheelchair accessible'}${lastBus ? ', last bus' : ''}`;
   const tileClass = `eta-tile ${crowdClass(timing.load)}${lastBus ? ' eta-tile-last' : ''}`;
 
   return (
@@ -38,7 +38,7 @@ export function EtaTile({ timing, now }: EtaTileProps) {
       {!arriving && <span className="eta-unit">min</span>}
       <span className="eta-foot">
         <span className="eta-type">{type}</span>
-        {accessible && <WheelchairIcon size={12} />}
+        {!accessible && <WheelchairIcon size={12} crossed />}
       </span>
     </div>
   );

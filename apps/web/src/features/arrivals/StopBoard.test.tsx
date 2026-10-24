@@ -93,10 +93,10 @@ describe('StopBoard', () => {
     expect(html).not.toContain('Open in Maps');
   });
 
-  it('explains the crowd colours and the wheelchair mark', () => {
+  it('explains the crowd colours and the no-wheelchair-access mark', () => {
     const html = render([service('12')]);
     expect(html).toContain('How to read the times');
     expect(html).toContain('Standing');
-    expect(html).toContain('Wheelchair accessible');
+    expect(html).toContain('Not wheelchair accessible');
   });
 });

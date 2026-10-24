@@ -5,9 +5,9 @@ import { BoardLegend } from './BoardLegend';
 describe('BoardLegend', () => {
   const html = renderToStaticMarkup(<BoardLegend />);
 
-  it('explains the crowd colours and the wheelchair mark', () => {
+  it('explains the crowd colours and the no-wheelchair-access mark', () => {
     expect(html).toContain('Standing');
-    expect(html).toContain('Wheelchair accessible');
+    expect(html).toContain('Not wheelchair accessible');
   });
 
   it('no longer explains bus types, since the tiles spell them out', () => {
