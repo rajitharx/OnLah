@@ -1,7 +1,7 @@
 import type { RouteTracker } from '../../types/routeTracker';
 
-// Last good data stays on screen while a refresh fails. `receivedAt` is the browser clock when the data arrived,
-// so a wrong device clock cannot make fresh data look stale.
+// Last good data stays on screen while a refresh fails. `receivedAt` is the server clock when the data arrived,
+// the same clock `isStale` is given, so a wrong device clock cannot make fresh data look stale.
 export interface TrackerState {
   data: RouteTracker | null;
   failed: boolean;

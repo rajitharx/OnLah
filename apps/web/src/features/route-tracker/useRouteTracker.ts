@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, api } from '../../shared/services/onlahApi';
+import { serverClock } from '../../shared/services/serverClock';
 import { EMPTY_TRACKER, applyTrackerResult, type TrackerResult, type TrackerState } from './trackerState';
 
 export interface UseRouteTracker extends TrackerState {
@@ -19,7 +20,7 @@ export function useRouteTracker(stopCode: string, serviceNo: string, refreshMs =
     let timer: number | undefined;
 
     const apply = (result: TrackerResult): void => {
-      if (!controller.signal.aborted) setState((previous) => applyTrackerResult(previous, result, Date.now()));
+      if (!controller.signal.aborted) setState((previous) => applyTrackerResult(previous, result, serverClock.now()));
     };
 
     const load = (): void => {

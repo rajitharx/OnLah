@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RouteTracker } from '../../types/routeTracker';
+import { createServerClock } from '../../shared/services/serverClock';
 import { EMPTY_TRACKER, STALE_AFTER_MS, applyTrackerResult, isStale } from './trackerState';
 
 const RECEIVED = 1_000_000;
@@ -70,5 +71,21 @@ describe('isStale', () => {
 
   it('is not stale when there is nothing to be stale', () => {
     expect(isStale(EMPTY_TRACKER, RECEIVED)).toBe(false);
+  });
+});
+
+describe('staleness with a skewed device clock', () => {
+  const FETCHED = '2026-10-21T12:00:00Z';
+
+  it.each([-3_600_000, 0, 3_600_000])('is fresh then stale on server time with the device %i ms off', (skew) => {
+    let mono = 1_000;
+    const clock = createServerClock(() => mono, () => Date.parse(FETCHED) + skew);
+    clock.sync(FETCHED);
+    const state = applyTrackerResult(EMPTY_TRACKER, { ok: true, value: tracker(FETCHED) }, clock.now());
+
+    mono += 5_000;
+    expect(isStale(state, clock.now())).toBe(false);
+    mono += STALE_AFTER_MS;
+    expect(isStale(state, clock.now())).toBe(true);
   });
 });
