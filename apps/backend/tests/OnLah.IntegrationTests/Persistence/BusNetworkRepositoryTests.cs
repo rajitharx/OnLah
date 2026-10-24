@@ -67,6 +67,24 @@ public sealed class BusNetworkRepositoryTests(ApiFactory factory) : IClassFixtur
         Assert.Empty(routes);
     }
 
+    [Fact]
+    public async Task GetServicesForStopAsync_ReturnsOnlyTheDirectionsThatCallAtTheStop()
+    {
+        using var scope = factory.Services.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IBusNetworkRepository>();
+        await repository.ReplaceAllAsync(
+            [Direction("15", 1), Direction("15", 2), Direction("10e", 1)],
+            [Row("15", 1, 3, "83139"), Row("10e", 1, 7, "83141")]);
+
+        var services = await repository.GetServicesForStopAsync("83139");
+
+        var only = Assert.Single(services);
+        Assert.Equal(("15", 1), (only.ServiceNo, only.Direction));
+    }
+
+    private static BusService Direction(string serviceNo, int direction) =>
+        BusService.Create(serviceNo, direction, "SBST", "TRUNK", "01012", "01019", null, null, null, null, null);
+
     private static BusRoute Row(string serviceNo, int direction, int sequence, string stopCode) =>
         BusRoute.Create(serviceNo, direction, sequence, stopCode, "SBST", 0, "0530", "2330", "0530", "2330", "0530", "2330");
 }

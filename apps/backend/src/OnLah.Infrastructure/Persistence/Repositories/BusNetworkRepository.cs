@@ -27,6 +27,14 @@ internal sealed class BusNetworkRepository : IBusNetworkRepository
             .Where(r => r.BusStopCode == stopCode)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<BusService>> GetServicesForStopAsync(string stopCode, CancellationToken cancellationToken = default) =>
+        await _context.BusServices.AsNoTracking()
+            .Where(s => _context.BusRoutes.Any(r =>
+                r.BusStopCode == stopCode && r.ServiceNo == s.ServiceNo && r.Direction == s.Direction))
+            .OrderBy(s => s.ServiceNo)
+            .ThenBy(s => s.Direction)
+            .ToListAsync(cancellationToken);
+
     public async Task ReplaceAllAsync(IEnumerable<BusService> services, IEnumerable<BusRoute> routes, CancellationToken cancellationToken = default)
     {
         await _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
