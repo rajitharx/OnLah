@@ -24,7 +24,7 @@ public sealed class CacheHeaderTests(ApiFactory factory) : IClassFixture<ApiFact
         var response = await _client.GetAsync("/api/v1/bus-services/102M");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("public, max-age=3600", response.Headers.CacheControl?.ToString());
+        AssertPublicForAnHour(response);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public sealed class CacheHeaderTests(ApiFactory factory) : IClassFixture<ApiFact
         var response = await _client.GetAsync("/api/v1/bus-stops/search?query=seletar");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("public, max-age=3600", response.Headers.CacheControl?.ToString());
+        AssertPublicForAnHour(response);
     }
 
     [Fact]
@@ -69,7 +69,12 @@ public sealed class CacheHeaderTests(ApiFactory factory) : IClassFixture<ApiFact
         var response = await _client.GetAsync("/api/v1/bus-stops/nearby?lat=1.39&lng=103.87&radiusMeters=500");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("private, max-age=3600", response.Headers.CacheControl?.ToString());
+        var cacheControl = response.Headers.CacheControl;
+        Assert.NotNull(cacheControl);
+        Assert.True(cacheControl.Private);
+        Assert.False(cacheControl.Public);
+        Assert.False(cacheControl.NoStore);
+        Assert.Equal(TimeSpan.FromHours(1), cacheControl.MaxAge);
     }
 
     [Fact]
@@ -121,7 +126,17 @@ public sealed class CacheHeaderTests(ApiFactory factory) : IClassFixture<ApiFact
         var response = await _client.SendAsync(request);
 
         Assert.Equal("http://localhost:5173", response.Headers.GetValues("Access-Control-Allow-Origin").Single());
-        Assert.Equal("public, max-age=3600", response.Headers.CacheControl?.ToString());
+        AssertPublicForAnHour(response);
+    }
+
+    private static void AssertPublicForAnHour(HttpResponseMessage response)
+    {
+        var cacheControl = response.Headers.CacheControl;
+        Assert.NotNull(cacheControl);
+        Assert.True(cacheControl.Public);
+        Assert.False(cacheControl.Private);
+        Assert.False(cacheControl.NoStore);
+        Assert.Equal(TimeSpan.FromHours(1), cacheControl.MaxAge);
     }
 
     private async Task SeedAsync()
