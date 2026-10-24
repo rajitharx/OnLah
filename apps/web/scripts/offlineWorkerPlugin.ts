@@ -3,7 +3,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { build, type Plugin } from 'vite';
 
-const NOT_PRECACHED = new Set(['sw.js', '_redirects', '_headers']);
+// og-image.png is fetched by link-preview crawlers, never by the app.
+const NOT_PRECACHED = new Set(['sw.js', '_redirects', '_headers', 'og-image.png']);
 
 function listFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
