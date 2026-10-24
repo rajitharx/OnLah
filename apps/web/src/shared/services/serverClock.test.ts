@@ -8,6 +8,9 @@ function fakeTimers(wallStart: number) {
   return {
     monotonic: () => mono,
     wall: () => wall,
+    jumpWall(ms: number) {
+      wall += ms;
+    },
     advance(ms: number) {
       mono += ms;
       wall += ms;
@@ -55,5 +58,41 @@ describe('serverClock', () => {
     const clock = createServerClock(t.monotonic, t.wall);
     clock.sync('');
     expect(clock.now()).toBe(7_000);
+  });
+
+  it('ignores device wall-clock jumps after the first response', () => {
+    const t = fakeTimers(0);
+    const clock = createServerClock(t.monotonic, t.wall);
+    clock.sync(SERVER_NOW);
+    t.jumpWall(7_200_000);
+    t.advance(10_000);
+    expect(clock.now()).toBe(Date.parse(SERVER_NOW) + 10_000);
+  });
+
+  it('ignores a response older than the last accepted one', () => {
+    const t = fakeTimers(0);
+    const clock = createServerClock(t.monotonic, t.wall);
+    clock.sync(SERVER_NOW);
+    t.advance(5_000);
+    clock.sync('2026-10-19T09:59:58Z');
+    expect(clock.now()).toBe(Date.parse(SERVER_NOW) + 5_000);
+  });
+
+  it('accepts a fresh response even though now() has run ahead of its fetchedAt', () => {
+    const t = fakeTimers(0);
+    const clock = createServerClock(t.monotonic, t.wall);
+    clock.sync(SERVER_NOW);
+    t.advance(20_000);
+    clock.sync('2026-10-19T10:00:18Z');
+    expect(clock.now()).toBe(Date.parse('2026-10-19T10:00:18Z'));
+  });
+
+  it('accepts a response with the same fetchedAt', () => {
+    const t = fakeTimers(0);
+    const clock = createServerClock(t.monotonic, t.wall);
+    clock.sync(SERVER_NOW);
+    t.advance(1_000);
+    clock.sync(SERVER_NOW);
+    expect(clock.now()).toBe(Date.parse(SERVER_NOW));
   });
 });
