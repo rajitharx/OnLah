@@ -2,7 +2,7 @@
   "name": "@onlah/web",
   "private": true,
   "license": "MIT",
-  "version": "1.10",
+  "version": "1.11",
   "type": "module",
   "scripts": {
     "dev": "vite",
