@@ -1171,7 +1171,8 @@ input {
   margin-top: var(--space-lg);
 }
 
-/* The track link sits at the right edge of the row. */
-.service-head .track-link {
+/* The track link and the bus star sit at the right edge of the row. */
+.service-head .track-link,
+.service-head .icon-btn {
   margin-left: auto;
 }
