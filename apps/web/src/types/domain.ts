@@ -17,12 +17,19 @@ export interface ArrivalTiming {
   isLastBus: boolean;
 }
 
+export interface ArrivalRoute {
+  origin: string;
+  destination: string;
+}
+
 export interface BusArrival {
   serviceNo: string;
   operator: string;
   nextBus: ArrivalTiming | null;
   nextBus2: ArrivalTiming | null;
   nextBus3: ArrivalTiming | null;
+  // One entry per direction that calls at the stop. Empty when the route data is unavailable.
+  routes: ArrivalRoute[];
 }
 
 export interface BusArrivalsResponse {

@@ -570,6 +570,22 @@ input {
   min-width: 0;
 }
 
+.service-route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs);
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.service-route > span:nth-child(2) {
+  color: var(--muted);
+}
+
 .service-badge {
   min-width: 76px;
   padding: var(--space-sm) var(--space-md);

@@ -12,8 +12,8 @@ const stop: BusStop = {
   distanceMeters: 0,
 };
 
-function service(serviceNo: string): BusArrival {
-  return { serviceNo, operator: 'GAS', nextBus: null, nextBus2: null, nextBus3: null };
+function service(serviceNo: string, routes: BusArrival['routes'] = []): BusArrival {
+  return { serviceNo, operator: 'GAS', nextBus: null, nextBus2: null, nextBus3: null, routes };
 }
 
 function render(services: BusArrival[]): string {
@@ -44,8 +44,33 @@ function render(services: BusArrival[]): string {
 }
 
 describe('StopBoard', () => {
+  it('shows where each service starts and ends', () => {
+    const html = render([service('372', [{ origin: 'Bishan Int', destination: 'Changi Airport' }])]);
+
+    expect(html).toContain('Bishan Int');
+    expect(html).toContain('Changi Airport');
+    expect(html.indexOf('Bishan Int')).toBeLessThan(html.indexOf('Changi Airport'));
+    expect(html).toContain('aria-label="From Bishan Int to Changi Airport"');
+  });
+
+  it('shows one line per direction that calls at the stop', () => {
+    const html = render([
+      service('15', [
+        { origin: 'A', destination: 'B' },
+        { origin: 'B', destination: 'A' },
+      ]),
+    ]);
+
+    expect(html).toContain('aria-label="From A to B"');
+    expect(html).toContain('aria-label="From B to A"');
+  });
+
+  it('shows no route line when the backend has no route for the service', () => {
+    expect(render([service('372')])).not.toContain('service-route');
+  });
+
   it('lists services in numeric order, not text order', () => {
-    const html = render(['130', '12', '2', '961M', '10e'].map(service));
+    const html = render(['130', '12', '2', '961M', '10e'].map((serviceNo) => service(serviceNo)));
     const order = ['Bus 2 details', 'Bus 10e details', 'Bus 12 details', 'Bus 130 details', 'Bus 961M details'];
     const positions = order.map((label) => html.indexOf(label));
     expect(positions.every((position) => position >= 0)).toBe(true);
