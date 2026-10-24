@@ -276,6 +276,30 @@ input {
   cursor: pointer;
 }
 
+/* These controls look smaller than 44px, so an invisible layer grows the tap target to 44px
+   without changing how they look or how much room they take. */
+.btn,
+.service-badge-button,
+.map-link,
+.saved-stop-open,
+.wordmark {
+  position: relative;
+}
+
+.btn::before,
+.service-badge-button::before,
+.map-link::before,
+.saved-stop-open::before,
+.wordmark::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
 .field {
   display: flex;
   flex-direction: column;
