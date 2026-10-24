@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { resultCountMessage, searchStatusMessage } from './searchStatus';
+import { ApiError } from '../../shared/services/onlahApi';
+import { classifySearchFailure, resultCountMessage, searchFailureMessage, searchStatusMessage } from './searchStatus';
 
 describe('resultCountMessage', () => {
   it('counts the results below the limit', () => {
@@ -12,7 +13,7 @@ describe('resultCountMessage', () => {
   });
 });
 
-const searching = { check: { kind: 'ok', term: 'Victoria' } as const, failed: false, slow: false };
+const searching = { check: { kind: 'ok', term: 'Victoria' } as const, failure: null, slow: false };
 
 describe('searchStatusMessage', () => {
   it('says it is searching while a query is in flight', () => {
@@ -30,6 +31,18 @@ describe('searchStatusMessage', () => {
   });
 
   it('says nothing when there is no valid query to search for', () => {
-    expect(searchStatusMessage({ check: { kind: 'empty' }, loading: true, failed: false, slow: true })).toBeNull();
+    expect(searchStatusMessage({ check: { kind: 'empty' }, loading: true, failure: null, slow: true })).toBeNull();
+  });
+});
+
+describe('search failures', () => {
+  it('tells the user to change their text when the request got no answer at all', () => {
+    const failure = classifySearchFailure(new TypeError('Failed to fetch'));
+    expect(searchFailureMessage(failure)).toBe("Couldn't search that text. Try different words.");
+  });
+
+  it('keeps the retry message when the backend answered with an error', () => {
+    const failure = classifySearchFailure(new ApiError(503, 'LTA DataMall is unreachable.'));
+    expect(searchFailureMessage(failure)).toBe('Search is unavailable right now. Try again.');
   });
 });

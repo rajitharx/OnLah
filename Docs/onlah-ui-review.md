@@ -127,7 +127,7 @@
 
 - [x] 2. **LIKE wildcards in search aren't escaped (low).** `query=%%` returns stops, so `%` and `_` act as wildcards. It isn't SQL injection, since quotes and `' OR` strings return normally, but escape them anyway. *Done: the search rewrite in #17 only passes letters and digits to the database, so `%` and `_` no longer act as wildcards.*
 
-- [ ] 3. **Search error message is misleading (low).** A WAF rule blocks one query pattern (`x' or 1=1`) without a CORS header, so the UI shows "Search is unavailable right now. Try again." Retrying won't help. Treat a network failure on search differently from a 5xx, or say "Couldn't search that text". *Open.*
+- [x] 3. **Search error message is misleading (low).** A WAF rule blocks one query pattern (`x' or 1=1`) without a CORS header, so the UI shows "Search is unavailable right now. Try again." Retrying won't help. Treat a network failure on search differently from a 5xx, or say "Couldn't search that text". *Done in this PR.*
 
 - [ ] 4. **Nearby is untested.** Geolocation was blocked in the test pane, so the real flow wasn't exercised.
     - The blocked state is handled well: it says location is blocked and offers a Search stops link.
