@@ -1171,8 +1171,7 @@ input {
   margin-top: var(--space-lg);
 }
 
-/* The bus star keeps the 44px touch target and sits at the right edge of the row. */
-.service-head .resync-btn,
+/* The track link sits at the right edge of the row. */
 .service-head .track-link {
   margin-left: auto;
 }
