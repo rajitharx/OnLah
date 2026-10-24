@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using OnLah.Api.Middleware;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Application.TrainAlerts;
 using OnLah.Domain.Common;
@@ -9,7 +10,7 @@ internal static class TrainAlertEndpoints
 {
     internal static RouteGroupBuilder MapTrainAlertEndpoints(this RouteGroupBuilder group)
     {
-        group.MapGet("train-alerts", GetAlertsAsync);
+        group.MapGet("train-alerts", GetAlertsAsync).NoStore();
         return group;
     }
 

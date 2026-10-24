@@ -7,10 +7,12 @@ namespace OnLah.Api.Endpoints.BusStops;
 
 internal static class BusStopEndpoints
 {
+    private static readonly TimeSpan ReferenceDataMaxAge = TimeSpan.FromHours(1);
+
     internal static RouteGroupBuilder MapBusStopEndpoints(this RouteGroupBuilder group)
     {
-        group.MapGet("bus-stops/nearby", GetNearbyAsync);
-        group.MapGet("bus-stops/search", SearchAsync);
+        group.MapGet("bus-stops/nearby", GetNearbyAsync).CachePrivate(ReferenceDataMaxAge);
+        group.MapGet("bus-stops/search", SearchAsync).CachePublic(ReferenceDataMaxAge);
         group.MapPost("admin/bus-stops/sync", TriggerSyncAsync).AddEndpointFilter<AdminKeyFilter>();
         return group;
     }

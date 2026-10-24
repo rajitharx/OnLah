@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using OnLah.Api.Middleware;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Domain.Common;
@@ -10,7 +11,7 @@ internal static class BusArrivalEndpoints
 {
     internal static RouteGroupBuilder MapBusArrivalEndpoints(this RouteGroupBuilder group)
     {
-        group.MapGet("bus-arrivals", GetArrivalsAsync);
+        group.MapGet("bus-arrivals", GetArrivalsAsync).NoStore();
         return group;
     }
 

@@ -8,9 +8,11 @@ namespace OnLah.Api.Endpoints.BusServices;
 
 internal static class BusServiceEndpoints
 {
+    private static readonly TimeSpan ReferenceDataMaxAge = TimeSpan.FromHours(1);
+
     internal static RouteGroupBuilder MapBusServiceEndpoints(this RouteGroupBuilder group)
     {
-        group.MapGet("bus-services/{serviceNo}", GetDetailsAsync);
+        group.MapGet("bus-services/{serviceNo}", GetDetailsAsync).CachePublic(ReferenceDataMaxAge);
         group.MapPost("admin/bus-network/sync", SyncAsync).AddEndpointFilter<AdminKeyFilter>();
         return group;
     }
