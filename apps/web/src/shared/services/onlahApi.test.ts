@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createServerClock } from './serverClock';
 import { ApiError, createOnlahApi, type FetchLike } from './onlahApi';
 
 const BASE = 'http://api.test';
@@ -15,6 +16,20 @@ function json(body: unknown, status = 200): Response {
 }
 
 describe('createOnlahApi', () => {
+  it('anchors the server clock to fetchedAt, not the device clock', async () => {
+    const deviceNow = Date.parse('2030-01-01T00:00:00Z');
+    const clock = createServerClock(() => 0, () => deviceNow);
+    const api = createOnlahApi(
+      BASE,
+      fakeFetch(() => json({ stopCode: '01012', fetchedAt: '2026-10-19T10:00:00Z', services: [] })),
+      clock,
+    );
+
+    await api.getArrivals('01012');
+
+    expect(clock.now()).toBe(Date.parse('2026-10-19T10:00:00Z'));
+  });
+
   it('getArrivals encodes the stop code in the query string', async () => {
     const calls: string[] = [];
     const api = createOnlahApi(BASE, fakeFetch(() => json({ stopCode: '01012', fetchedAt: '', services: [] }), calls));

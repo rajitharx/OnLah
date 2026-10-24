@@ -1,4 +1,5 @@
 import { resolveApiBaseUrl } from './apiBaseUrl';
+import { serverClock, type ServerClock } from './serverClock';
 import type { BusArrivalsResponse, BusStop, TrainAlertsResponse } from '../../types/domain';
 import type { BusServiceDetails } from '../../types/busService';
 import type { RouteTracker } from '../../types/routeTracker';
@@ -27,11 +28,18 @@ export interface OnlahApi {
 
 const defaultFetch: FetchLike = (url, init) => fetch(url, init);
 
-export function createOnlahApi(baseUrl: string, fetchImpl: FetchLike = defaultFetch): OnlahApi {
+export function createOnlahApi(
+  baseUrl: string,
+  fetchImpl: FetchLike = defaultFetch,
+  clock: ServerClock = serverClock,
+): OnlahApi {
   async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
     const response = await fetchImpl(`${baseUrl}${path}`, { signal });
     if (!response.ok) throw await toApiError(response);
-    return (await response.json()) as T;
+    const body = (await response.json()) as T;
+    const fetchedAt = (body as { fetchedAt?: unknown } | null)?.fetchedAt;
+    if (typeof fetchedAt === 'string') clock.sync(fetchedAt);
+    return body;
   }
 
   return {
