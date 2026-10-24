@@ -132,7 +132,7 @@ input {
   text-transform: uppercase;
 }
 
-/* A red dot, the Nothing "live" signal, next to the wordmark. */
+/* Neutral ink dot. Red is reserved for crowding and disruption. */
 .wordmark::after {
   content: "";
   display: inline-block;
@@ -140,7 +140,7 @@ input {
   height: 8px;
   margin-left: var(--space-sm);
   border-radius: 50%;
-  background: var(--crowd-red);
+  background: var(--ink);
   vertical-align: middle;
 }
 
