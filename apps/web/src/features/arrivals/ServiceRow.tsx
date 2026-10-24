@@ -60,6 +60,17 @@ export function ServiceRow({
           <StarIcon size={16} filled={isSaved} />
         </button>
       </div>
+      {service.routes.map((route) => (
+        <p
+          className="service-route"
+          key={`${route.origin}>${route.destination}`}
+          aria-label={`From ${route.origin} to ${route.destination}`}
+        >
+          <span>{route.origin}</span>
+          <span aria-hidden="true">→</span>
+          <span>{route.destination}</span>
+        </p>
+      ))}
       <div className="eta-grid">
         {timings.map((timing, index) => (
           <EtaTile key={index} timing={timing} now={now} />

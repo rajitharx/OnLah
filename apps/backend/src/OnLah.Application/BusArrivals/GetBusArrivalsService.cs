@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Application.RouteTracker;
 using OnLah.Domain.BusNetwork;
+using OnLah.Domain.BusStops;
 using OnLah.Domain.Common;
 
 namespace OnLah.Application.BusArrivals;
@@ -9,6 +10,7 @@ namespace OnLah.Application.BusArrivals;
 public sealed partial class GetBusArrivalsService(
     ILtaBusClient ltaBusClient,
     IBusNetworkRepository network,
+    IBusStopRepository stops,
     ILogger<GetBusArrivalsService> logger)
 {
     public async Task<Result<IReadOnlyList<BusArrival>>> GetAsync(
@@ -20,8 +22,31 @@ public sealed partial class GetBusArrivalsService(
             return arrivals;
 
         var hoursByService = await LoadServiceHoursAsync(stopCode, cancellationToken);
+        var routesByService = await LoadRoutesAsync(stopCode, cancellationToken);
         return Result.Success<IReadOnlyList<BusArrival>>(
-            arrivals.Value!.Select(a => MarkLastBus(a, hoursByService[a.ServiceNo])).ToList());
+            arrivals.Value!
+                .Select(a => MarkLastBus(a, hoursByService[a.ServiceNo]) with { Routes = routesByService[a.ServiceNo].ToList() })
+                .ToList());
+    }
+
+    private async Task<ILookup<string, ArrivalRoute>> LoadRoutesAsync(string stopCode, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var directions = await network.GetServicesForStopAsync(stopCode, cancellationToken);
+            var codes = directions.SelectMany(d => new[] { d.OriginCode, d.DestinationCode }).Distinct().ToList();
+            var names = (await stops.GetByCodesAsync(codes, cancellationToken)).ToDictionary(s => s.BusStopCode, s => s.Description);
+
+            return directions
+                .Where(d => names.ContainsKey(d.OriginCode) && names.ContainsKey(d.DestinationCode))
+                .OrderBy(d => d.Direction)
+                .ToLookup(d => d.ServiceNo, d => new ArrivalRoute(names[d.OriginCode], names[d.DestinationCode]), StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogRoutesUnavailable(ex, stopCode);
+            return Array.Empty<string>().ToLookup(s => s, _ => new ArrivalRoute("", ""));
+        }
     }
 
     // LTA publishes some service numbers in lowercase ("10e"), and arrivals and routes need not agree on case.
@@ -57,6 +82,9 @@ public sealed partial class GetBusArrivalsService(
 
     private static ArrivalTiming? WithLastBus(ArrivalTiming? timing, bool isLastBus) =>
         timing is null ? null : timing with { IsLastBus = isLastBus };
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Origin and destination unavailable for stop {StopCode}")]
+    private partial void LogRoutesUnavailable(Exception exception, string stopCode);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Last-bus times unavailable for stop {StopCode}")]
     private partial void LogServiceHoursUnavailable(Exception exception, string stopCode);

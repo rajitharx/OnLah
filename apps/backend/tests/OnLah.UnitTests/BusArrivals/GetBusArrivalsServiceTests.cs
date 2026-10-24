@@ -4,6 +4,7 @@ using NSubstitute.ExceptionExtensions;
 using OnLah.Application.BusArrivals;
 using OnLah.Application.Common.Interfaces;
 using OnLah.Domain.BusNetwork;
+using OnLah.Domain.BusStops;
 using OnLah.Domain.Common;
 using Xunit;
 
@@ -16,12 +17,15 @@ public sealed class GetBusArrivalsServiceTests
 
     private readonly ILtaBusClient _ltaBusClient = Substitute.For<ILtaBusClient>();
     private readonly IBusNetworkRepository _network = Substitute.For<IBusNetworkRepository>();
+    private readonly IBusStopRepository _stops = Substitute.For<IBusStopRepository>();
     private readonly GetBusArrivalsService _sut;
 
     public GetBusArrivalsServiceTests()
     {
-        _sut = new GetBusArrivalsService(_ltaBusClient, _network, NullLogger<GetBusArrivalsService>.Instance);
+        _sut = new GetBusArrivalsService(_ltaBusClient, _network, _stops, NullLogger<GetBusArrivalsService>.Instance);
         _network.GetRoutesForStopAsync(StopCode, Arg.Any<CancellationToken>()).Returns([]);
+        _network.GetServicesForStopAsync(StopCode, Arg.Any<CancellationToken>()).Returns([]);
+        _stops.GetByCodesAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>()).Returns([]);
     }
 
     [Fact]
@@ -119,6 +123,79 @@ public sealed class GetBusArrivalsServiceTests
         Assert.True(result.IsSuccess);
         Assert.False(Assert.Single(result.Value!).NextBus!.IsLastBus);
     }
+
+    [Fact]
+    public async Task GetAsync_ServiceWithKnownEnds_ReturnsOriginAndDestinationNames()
+    {
+        GivenServices(Direction("372", 1, "11111", "22222"));
+        GivenStops(Stop("11111", "Bishan Int"), Stop("22222", "Changi Airport"));
+        GivenArrivals(new BusArrival("372", "SBST", Timing(12, 0), null, null));
+
+        var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
+
+        var route = Assert.Single(service.Routes);
+        Assert.Equal(new ArrivalRoute("Bishan Int", "Changi Airport"), route);
+    }
+
+    [Fact]
+    public async Task GetAsync_ServiceStopsHereInBothDirections_ReturnsBothRoutes()
+    {
+        GivenServices(Direction("15", 1, "11111", "22222"), Direction("15", 2, "22222", "11111"));
+        GivenStops(Stop("11111", "A"), Stop("22222", "B"));
+        GivenArrivals(new BusArrival("15", "GAS", Timing(12, 0), null, null));
+
+        var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
+
+        Assert.Equal([new ArrivalRoute("A", "B"), new ArrivalRoute("B", "A")], service.Routes);
+    }
+
+    [Fact]
+    public async Task GetAsync_LowercaseServiceNumber_MatchesTheDirection()
+    {
+        GivenServices(Direction("10E", 1, "11111", "22222"));
+        GivenStops(Stop("11111", "A"), Stop("22222", "B"));
+        GivenArrivals(new BusArrival("10e", "SBST", Timing(12, 0), null, null));
+
+        var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
+
+        Assert.Single(service.Routes);
+    }
+
+    [Fact]
+    public async Task GetAsync_EndStopMissingFromStopList_OmitsThatRoute()
+    {
+        GivenServices(Direction("372", 1, "11111", "99999"));
+        GivenStops(Stop("11111", "A"));
+        GivenArrivals(new BusArrival("372", "SBST", Timing(12, 0), null, null));
+
+        var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
+
+        Assert.Empty(service.Routes);
+    }
+
+    [Fact]
+    public async Task GetAsync_ServiceLookupFails_ReturnsArrivalsWithoutRoutes()
+    {
+        _network.GetServicesForStopAsync(StopCode, Arg.Any<CancellationToken>())
+            .ThrowsAsync(new InvalidOperationException("database down"));
+        GivenArrivals(new BusArrival("15", "GAS", Timing(12, 0), null, null));
+
+        var result = await _sut.GetAsync(StopCode);
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(Assert.Single(result.Value!).Routes);
+    }
+
+    private void GivenServices(params BusService[] services) =>
+        _network.GetServicesForStopAsync(StopCode, Arg.Any<CancellationToken>()).Returns(services);
+
+    private void GivenStops(params BusStop[] stops) =>
+        _stops.GetByCodesAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>()).Returns(stops);
+
+    private static BusService Direction(string serviceNo, int direction, string originCode, string destinationCode) =>
+        BusService.Create(serviceNo, direction, "SBST", "TRUNK", originCode, destinationCode, null, null, null, null, null);
+
+    private static BusStop Stop(string code, string description) => BusStop.Create(code, "Road", description, 1.3, 103.8);
 
     private void GivenArrivals(params BusArrival[] arrivals) =>
         _ltaBusClient.GetArrivalsAsync(StopCode, Arg.Any<CancellationToken>())

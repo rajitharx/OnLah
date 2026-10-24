@@ -14,6 +14,7 @@ const timing: ArrivalTiming = {
 const service = (serviceNo: string, nextBus: ArrivalTiming | null): BusArrival => ({
   serviceNo,
   operator: 'SBST',
+  routes: [],
   nextBus,
   nextBus2: null,
   nextBus3: null,
@@ -49,7 +50,7 @@ describe('busAdvisories', () => {
   });
 
   it('does not report a service that has a later bus but no next bus', () => {
-    const laterOnly: BusArrival = { serviceNo: '65', operator: 'SBST', nextBus: null, nextBus2: timing, nextBus3: null };
+    const laterOnly: BusArrival = { serviceNo: '65', operator: 'SBST', nextBus: null, nextBus2: timing, nextBus3: null, routes: [] };
 
     expect(busAdvisories(response([laterOnly]))).toEqual([]);
   });

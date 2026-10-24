@@ -15,6 +15,7 @@ const bus = (stopCode: string, serviceNo: string): SavedBus => ({
 const service = (serviceNo: string): BusArrival => ({
   serviceNo,
   operator: 'SBST',
+  routes: [],
   nextBus: null,
   nextBus2: null,
   nextBus3: null,

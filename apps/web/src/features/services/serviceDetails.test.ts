@@ -63,8 +63,8 @@ describe('collectDeckTypes', () => {
     stopCode: '01012',
     fetchedAt: '2026-10-18T07:00:00Z',
     services: [
-      { serviceNo: '102', operator: 'SBST', nextBus: timing(0), nextBus2: timing(1), nextBus3: null },
-      { serviceNo: '15', operator: 'SBST', nextBus: timing(2), nextBus2: null, nextBus3: null },
+      { serviceNo: '102', operator: 'SBST', nextBus: timing(0), nextBus2: timing(1), nextBus3: null, routes: [] },
+      { serviceNo: '15', operator: 'SBST', nextBus: timing(2), nextBus2: null, nextBus3: null, routes: [] },
     ],
   };
 
