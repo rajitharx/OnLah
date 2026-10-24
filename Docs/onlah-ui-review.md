@@ -150,7 +150,7 @@
 - [x] 11. **Cold starts.** The Render free tier sleeps after about 15 minutes idle, so the first load can hang. Add a keep-alive ping to `/health` (for example a cron every 10 minutes) and a "Waking up…" state. *Done in #24*
 - [x] 12. **Cache headers.** The API sends no `Cache-Control`. Stops and services rarely change, so set `max-age` on `bus-stops/*` and `bus-services/*`. *Done in #25*
 - [x] 13. **Offline support.** There is no service worker. Caching the app shell and saved stops would help on the MRT. *Done in #26*
-- [ ] 14. **Page metadata.** The description is just "OnLah bus board". Add a better description and Open Graph tags (or an OG image) so shared links look right.
+- [x] 14. **Page metadata.** The description is just "OnLah bus board". Add a better description and Open Graph tags (or an OG image) so shared links look right. *Done in #27*
 
 ## What works well
 
