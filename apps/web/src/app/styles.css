@@ -1176,3 +1176,7 @@ input {
 .service-head .icon-btn {
   margin-left: auto;
 }
+
+.offline-notice {
+  margin: 0 0 var(--space-sm);
+}

@@ -16,6 +16,7 @@ import { useStopArrivals } from '../features/arrivals/useStopArrivals';
 import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
 import { useNow } from '../shared/hooks/useNow';
+import { OfflineNotice } from '../shared/components/OfflineNotice';
 import { APP_VERSION, betaLabel } from '../shared/version';
 import { AppHeader } from './AppHeader';
 import { TabBar } from './TabBar';
@@ -76,6 +77,8 @@ export default function App() {
       <AppHeader version={betaLabel(APP_VERSION)} onHome={() => push({ view: 'home' })} />
 
       <DisruptionBanner alerts={alerts} now={now} />
+
+      <OfflineNotice />
 
       <TabBar view={view} onChange={(next) => push({ view: next })} />
 

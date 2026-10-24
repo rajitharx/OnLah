@@ -32,6 +32,16 @@ npm test        # Vitest unit tests
 npm run build   # type check and production build
 ```
 
+## Offline
+
+A service worker (`src/sw/sw.ts`, built to `dist/sw.js` by `scripts/offlineWorkerPlugin.ts`) caches the app shell so the app opens without a connection, including routes such as `/stop/01012`.
+
+- The shell cache name carries a hash of the build. A new deploy installs a new cache and deletes the old one on activate. A visit that finds a new worker uses it on the next load.
+- Bus stop and bus service lookups from the API are served from cache and refreshed in the background. Arrivals, train alerts and the route tracker always go to the network.
+- It registers only in production builds, over HTTPS or on localhost. `npm run dev` never registers it.
+- To check it locally: `npm run build && npx vite preview`, load the page once, then go offline in DevTools.
+- To switch it off: unregister it in DevTools under Application, Service Workers, then clear site data. To remove it for everyone, deploy a `sw.js` that calls `self.registration.unregister()`.
+
 ## What it does
 
 - **Routes**: each screen has a path (`/search`, `/nearby`, `/saved`, `/stop/01121`, `/stop/01121/bus/197`). Refresh, back and bookmarks keep the place. Vite serves the app for any path in dev. Cloudflare Pages uses `public/_redirects` to do the same in production.
