@@ -53,6 +53,7 @@ Docs/
     BUS_ALERTS.md          Bus advisories: rules, placement, and parked mobile work
     BUS_SERVICE_DETAILS.md Service details popup: data sources, endpoint, and limits
 .claude/           → Claude Code skills and config
+LICENSE            → MIT License
 ```
 
 ## Backend API
@@ -221,4 +222,4 @@ Newest first. The number after each item is its pull request. The web header sho
 
 ## License
 
-[Add license here]
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

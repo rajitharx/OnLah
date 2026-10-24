@@ -1,6 +1,7 @@
 {
   "name": "onlah",
   "version": "1.0.0",
+  "license": "MIT",
   "main": "App.tsx",
   "scripts": {
     "start": "expo start",
