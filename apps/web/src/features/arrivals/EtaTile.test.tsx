@@ -38,7 +38,7 @@ describe('EtaTile', () => {
       [2, 'Bendy'],
     ];
     for (const [type, label] of cases) {
-      const html = render(timing({ type }));
+      const html = render(timing({ type, isWheelchairAccessible: true }));
       expect(html).toContain(`>${label}<`);
       expect(html).not.toContain('<svg');
     }
@@ -46,14 +46,24 @@ describe('EtaTile', () => {
 
   it('tags the last bus in text and says so to screen readers', () => {
     const html = render(timing({ isLastBus: true }));
-    expect(html).toContain('aria-label="4 minutes, Crowded, Single, last bus"');
+    expect(html).toContain('aria-label="4 minutes, Crowded, Single, not wheelchair accessible, last bus"');
     expect(html).toMatch(/>LAST</);
   });
 
   it('leaves the tag and the spoken last bus off every other tile', () => {
     const html = render(timing());
-    expect(html).toContain('aria-label="4 minutes, Crowded, Single"');
+    expect(html).toContain('aria-label="4 minutes, Crowded, Single, not wheelchair accessible"');
     expect(html).not.toMatch(/LAST|last bus/i);
+  });
+
+  it('marks only buses without wheelchair access, and says so to screen readers', () => {
+    const without = render(timing({ isWheelchairAccessible: false }));
+    expect(without).toContain('<svg');
+    expect(without).toContain('not wheelchair accessible');
+
+    const accessible = render(timing({ isWheelchairAccessible: true }));
+    expect(accessible).not.toContain('<svg');
+    expect(accessible).toContain('aria-label="4 minutes, Crowded, Single, wheelchair accessible"');
   });
 
   it('shows the crowd by colour alone, with no bar meter', () => {
