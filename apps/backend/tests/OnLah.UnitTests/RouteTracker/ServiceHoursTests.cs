@@ -182,4 +182,63 @@ public sealed class ServiceHoursTests
         string sunFirst = "0630",
         string sunLast = "2300") =>
         BusRoute.Create("197", 1, 1, "28009", "SBST", 0, wdFirst, wdLast, satFirst, satLast, sunFirst, sunLast);
+
+    [Theory]
+    [InlineData(5, 30, true)]
+    [InlineData(5, 29, false)]
+    [InlineData(23, 30, true)]
+    [InlineData(23, 31, false)]
+    public void IsInOperation_AtTheTimetableEdges_IncludesTheFirstAndLastMinute(int hour, int minute, bool expected)
+    {
+        var hours = ServiceHours.From(Row());
+
+        Assert.Equal(expected, hours.IsInOperation(At(2026, 10, 21, hour, minute)));
+    }
+
+    [Fact]
+    public void IsInOperation_FridayLateBusRunsPastMidnightAndSaturdayHasNoTimes_StillRunsInTheSmallHours()
+    {
+        var hours = ServiceHours.From(Row(wdFirst: "0530", wdLast: "0030", satFirst: "-", satLast: "-"));
+
+        Assert.True(hours.IsInOperation(At(2026, 10, 24, 0, 15)));
+    }
+
+    [Theory]
+    [InlineData(23, 25, true)]
+    [InlineData(23, 24, false)]
+    [InlineData(23, 59, true)]
+    [InlineData(0, 0, true)]
+    public void IsLastBus_WindowEdges_AreInclusive(int hour, int minute, bool expected)
+    {
+        var hours = ServiceHours.From(Row());
+        var eta = At(2026, 10, 21, hour, minute);
+        if (hour == 0)
+            eta = eta.AddDays(1);
+
+        Assert.Equal(expected, hours.IsLastBus(eta));
+    }
+
+    [Fact]
+    public void IsLastBus_ExactlyThirtyMinutesAfterTheLastBus_ReturnsTrue()
+    {
+        var hours = ServiceHours.From(Row(wdLast: "2330"));
+
+        Assert.True(hours.IsLastBus(At(2026, 10, 22, 0, 0)));
+    }
+
+    [Fact]
+    public void IsLastBus_ThirtyOneMinutesAfterTheLastBus_ReturnsFalse()
+    {
+        var hours = ServiceHours.From(Row(wdLast: "2330"));
+
+        Assert.False(hours.IsLastBus(At(2026, 10, 22, 0, 1)));
+    }
+
+    [Fact]
+    public void IsLastBus_SaturdayHasNoTimes_IgnoresSaturdayEtas()
+    {
+        var hours = ServiceHours.From(Row(satFirst: "-", satLast: "-"));
+
+        Assert.False(hours.IsLastBus(At(2026, 10, 24, 23, 30)));
+    }
 }

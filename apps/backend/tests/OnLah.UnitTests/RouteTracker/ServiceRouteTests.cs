@@ -101,4 +101,37 @@ public sealed class ServiceRouteTests
 
     private static BusRoute R(int direction, int sequence, string stopCode) =>
         BusRoute.Create("197", direction, sequence, stopCode, "SBST", sequence * 0.5, "0530", "2330", "0530", "2330", "0530", "2330");
+
+    [Fact]
+    public void Resolve_NoRowsAtAll_ReturnsNotFoundAndIsEmpty()
+    {
+        var route = ServiceRoute.From([]);
+
+        var result = route.Resolve("B", requestedDirection: null, destinationCode: null, visitNumber: null);
+
+        Assert.True(route.IsEmpty);
+        Assert.True(result.IsFailure);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-3)]
+    public void Resolve_VisitNumberBelowOne_UsesTheFirstVisit(int visitNumber)
+    {
+        var route = ServiceRoute.From([R(1, 1, "A"), R(1, 2, "B"), R(1, 3, "A")]);
+
+        var result = route.Resolve("A", requestedDirection: null, destinationCode: null, visitNumber: visitNumber);
+
+        Assert.Equal(0, result.Value!.UserIndex);
+    }
+
+    [Fact]
+    public void Resolve_DestinationMatchesNeitherDirection_FallsBackToTheFirstDirection()
+    {
+        var route = BothWays();
+
+        var result = route.Resolve("B", requestedDirection: null, destinationCode: "ZZZ", visitNumber: null);
+
+        Assert.Equal(1, result.Value!.Direction);
+    }
 }

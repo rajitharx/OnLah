@@ -45,6 +45,20 @@ public sealed class BusArrivalEndpointTests(ApiFactory factory) : IClassFixture<
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("abcde")]
+    [InlineData("1234")]
+    [InlineData("123456")]
+    [InlineData("12%2045")]
+    [InlineData("%D9%A0%D9%A1%D9%A2%D9%A3%D9%A4")]
+    [InlineData("1234%0A")]
+    public async Task GetBusArrivals_MalformedStopCode_Returns422(string stopCode)
+    {
+        var response = await _client.GetAsync($"/api/v1/bus-arrivals?stopCode={stopCode}");
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
     [Fact]
     public async Task GetBusArrivals_ValidStop_Returns200WithServices()
     {

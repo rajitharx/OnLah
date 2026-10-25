@@ -68,4 +68,25 @@ public sealed class GetNearbyStopsServiceTests
 
     private static BusStop MakeStop(string code, double lat, double lng) =>
         BusStop.Create(code, "Test Rd", "Test Stop", lat, lng);
+
+    [Fact]
+    public async Task GetNearbyAsync_StopExactlyOnTheUser_ReturnsItAtZeroMetres()
+    {
+        _repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns([MakeStop("67009", UserLat, UserLng)]);
+
+        var result = await _sut.GetNearbyAsync(UserLat, UserLng, 1);
+
+        Assert.Equal(0, Assert.Single(result.Value!).DistanceMeters);
+    }
+
+    [Fact]
+    public async Task GetNearbyAsync_StopExactlyAtTheRadius_IsIncluded()
+    {
+        _repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns([MakeStop("67009", UserLat + 0.001, UserLng)]);
+        var exact = GetNearbyStopsService.Haversine(UserLat, UserLng, UserLat + 0.001, UserLng);
+
+        var result = await _sut.GetNearbyAsync(UserLat, UserLng, exact);
+
+        Assert.Single(result.Value!);
+    }
 }

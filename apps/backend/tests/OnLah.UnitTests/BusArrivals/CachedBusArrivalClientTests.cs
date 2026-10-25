@@ -84,4 +84,46 @@ public sealed class CachedBusArrivalClientTests
         await _inner.Received(1).GetArrivalsAsync("83139", Arg.Any<CancellationToken>());
         await _inner.Received(1).GetArrivalsAsync("01012", Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task GetArrivalsAsync_LtaCallThrows_IsNotCached()
+    {
+        _inner.GetArrivalsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromException<Result<IReadOnlyList<BusArrival>>>(new HttpRequestException()),
+                Task.FromResult(Result.Success(Arrivals)));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => _sut.GetArrivalsAsync("83139"));
+        var recovered = await _sut.GetArrivalsAsync("83139");
+
+        Assert.True(recovered.IsSuccess);
+        await _inner.Received(2).GetArrivalsAsync("83139", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_CallerCancelsWhileWaiting_DoesNotCancelTheSharedFetch()
+    {
+        var pending = new TaskCompletionSource<Result<IReadOnlyList<BusArrival>>>();
+        _inner.GetArrivalsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(pending.Task);
+        using var cancelled = new CancellationTokenSource();
+
+        var impatient = _sut.GetArrivalsAsync("83139", cancelled.Token);
+        var patient = _sut.GetArrivalsAsync("83139");
+        await cancelled.CancelAsync();
+        pending.SetResult(Result.Success(Arrivals));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => impatient);
+        Assert.True((await patient).IsSuccess);
+        await _inner.Received(1).GetArrivalsAsync("83139", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_CallExactlyAtTimeToLive_FetchesFromLtaAgain()
+    {
+        await _sut.GetArrivalsAsync("83139");
+        _clock.UtcNow = _clock.UtcNow.AddSeconds(15);
+
+        await _sut.GetArrivalsAsync("83139");
+
+        await _inner.Received(2).GetArrivalsAsync("83139", Arg.Any<CancellationToken>());
+    }
 }
