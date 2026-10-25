@@ -52,6 +52,35 @@ describe('buildRail', () => {
   });
 });
 
+describe('buildRail bus load and next stop', () => {
+  it('carries the bus load on the stop where the bus is and nowhere else', () => {
+    const rail = buildRail(stops(10), 7, 'S5', 'SDA');
+
+    expect(rail.map((n) => n.busLoad)).toEqual([null, null, null, null, 'SDA', null, null, null, null, null]);
+  });
+
+  it('has no load when the load is not given', () => {
+    expect(buildRail(stops(10), 7, 'S5').every((n) => n.busLoad === null)).toBe(true);
+  });
+
+  it('marks the stop right after the bus as the next stop', () => {
+    const rail = buildRail(stops(10), 7, 'S5', 'SEA');
+
+    expect(rail.filter((n) => n.isNext).map((n) => n.stop.sequence)).toEqual([6]);
+  });
+
+  it('marks the user stop as next when the bus is one stop before it', () => {
+    const rail = buildRail(stops(10), 7, 'S7', 'SEA');
+
+    expect(rail[7].isNext).toBe(true);
+  });
+
+  it('has no next stop when the bus is at the user stop or its position is unknown', () => {
+    expect(buildRail(stops(10), 7, 'S8', 'SEA').some((n) => n.isNext)).toBe(false);
+    expect(buildRail(stops(10), 7, null, 'SEA').some((n) => n.isNext)).toBe(false);
+  });
+});
+
 describe('collapseRail', () => {
   const long = buildRail(stops(30), 22, 'S11');
 

@@ -33,7 +33,7 @@ export function TrackerContent({ state, stopCode, serviceNo, now, stale, onRetry
   }
 
   const [next, ...later] = data.buses;
-  const rail = buildRail(data.stops, data.userStopIndex, next?.nearestStopCode ?? null);
+  const rail = buildRail(data.stops, data.userStopIndex, next?.nearestStopCode ?? null, next?.load ?? null);
 
   return (
     <div className="tracker-body">

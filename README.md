@@ -181,6 +181,7 @@ Newest first. The number after each item is its pull request. The web header sho
 
 ### 25 October 2026
 
+- **Livelier bus tracker** (#30). The "Bus is here" marker on the route rail now takes the seating colour (green for seats, amber for standing, red for crowded) instead of black, and the tag names the level in words. Ink flows down the line from the bus to the next stop to show which way it is heading, and the next stop sends out a soft ring. All of it stops when the device asks for reduced motion.
 - **Backend edge-case fixes** (#29). A failed call to LTA no longer sticks in the arrivals cache: if the request threw, every board for that stop kept failing until the 15-second cache expired, and it now retries on the next request. Route Tracker also shows a service as in operation in the early hours when the night before ran past midnight and LTA has no times for the new day. Stop codes and service numbers now accept ASCII characters only, so look-alike digits (such as Arabic-Indic numerals) and a trailing newline get a 422 instead of reaching LTA. The backend gains 23 more unit tests and 22 integration test cases for these edges, plus boundaries of the last-bus window, loop routes, and nearby-stop radius and coordinate limits.
 
 ### 23 October 2026 (Beta 1.8)
