@@ -1,4 +1,4 @@
-import type { TrackerStop } from '../../types/routeTracker';
+import type { TrackedBus, TrackerStop } from '../../types/routeTracker';
 
 export type RailNodeState = 'passed' | 'bus' | 'ahead' | 'user' | 'beyond';
 
@@ -6,6 +6,8 @@ export interface RailNode {
   stop: TrackerStop;
   state: RailNodeState;
   hasBus: boolean;
+  busLoad: TrackedBus['load'] | null;
+  isNext: boolean;
 }
 
 export type RailItem =
@@ -32,12 +34,20 @@ function stateOf(index: number, userIndex: number, busIndex: number | null): Rai
   return index === busIndex ? 'bus' : 'ahead';
 }
 
-export function buildRail(stops: TrackerStop[], userIndex: number, nearestStopCode: string | null): RailNode[] {
+// The bus load rides on the bus node, and the next stop is the one the bus is heading to, never past the user's stop.
+export function buildRail(
+  stops: TrackerStop[],
+  userIndex: number,
+  nearestStopCode: string | null,
+  load: TrackedBus['load'] | null = null,
+): RailNode[] {
   const busIndex = findBusIndex(stops, userIndex, nearestStopCode);
   return stops.map((stop, index) => ({
     stop,
     state: stateOf(index, userIndex, busIndex),
     hasBus: index === busIndex,
+    busLoad: index === busIndex ? load : null,
+    isNext: busIndex !== null && index === busIndex + 1 && index <= userIndex,
   }));
 }
 

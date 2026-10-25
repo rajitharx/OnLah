@@ -269,19 +269,81 @@
   font-weight: 700;
 }
 
+/* The bus marker takes the crowd colour (green seats, amber standing, red crowded). */
 .rail-marker-bus {
-  background: var(--ink);
+  border-color: var(--ink);
+  background: var(--crowd, var(--ink));
   animation: rail-pulse 2s ease-in-out infinite;
 }
 
 @keyframes rail-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ink) 35%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--crowd, var(--ink)) 45%, transparent);
   }
 
   50% {
     box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+/* Ink flows down the line from the bus to the next stop, the way the bus is travelling. */
+.rail-node-bus::after,
+.rail-node-next::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, var(--crowd, var(--ink)) 0 6px, transparent 6px 12px);
+  background-size: 2px 12px;
+  animation: rail-flow 0.9s linear infinite;
+}
+
+.rail-node-bus::after {
+  top: 50%;
+  bottom: 0;
+}
+
+.rail-node-next::after {
+  top: 0;
+  bottom: 50%;
+}
+
+.rail-node-user.rail-node-bus::after {
+  display: none;
+}
+
+@keyframes rail-flow {
+  to {
+    background-position: 0 12px;
+  }
+}
+
+/* The next stop sends out a ring now and then, as if the bus were signalling it. */
+.rail-marker-next::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  opacity: 0;
+  animation: rail-ping 2s ease-out infinite;
+}
+
+.rail-node-user.rail-node-next .rail-marker::after {
+  inset: -2px;
+}
+
+@keyframes rail-ping {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
   }
 }
 
@@ -357,8 +419,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rail-marker-bus,
+  .rail-marker-next::after,
+  .rail-node-bus::after,
+  .rail-node-next::after,
   .skeleton-block {
     animation: none;
+  }
+
+  .rail-marker-next::after {
+    display: none;
   }
 }
 

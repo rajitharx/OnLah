@@ -142,6 +142,38 @@ describe('countdown wording', () => {
   });
 });
 
+describe('rail bus indicator', () => {
+  const liOf = (html: string, marker: string): string => html.split('<li').find((li) => li.includes(marker)) ?? '';
+
+  it('colours the bus stop by the seating level and names it in words', () => {
+    const html = render({ data: tracker({ buses: [bus({ load: 'LSD' })] }) });
+    const busStop = liOf(html, 'rail-marker-bus');
+
+    expect(busStop).toContain('crowd-crowded');
+    expect(busStop).toContain('Crowded');
+    expect(html.match(/crowd-crowded/g)?.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('uses the seats colour for a bus with seats free', () => {
+    const html = render({ data: tracker({ buses: [bus({ load: 'SEA' })] }) });
+
+    expect(liOf(html, 'rail-marker-bus')).toContain('crowd-seats');
+  });
+
+  it('marks exactly one next stop on the rail', () => {
+    const html = render({ data: tracker() });
+
+    expect(html.match(/rail-node-next/g)).toHaveLength(1);
+  });
+
+  it('marks no next stop when the position is unknown', () => {
+    const html = render({ data: tracker({ buses: [bus({ stopsAway: null, nearestStopCode: null })] }) });
+
+    expect(html).not.toContain('rail-node-next');
+    expect(html).not.toContain('rail-marker-bus');
+  });
+});
+
 describe('scheduled and empty statuses', () => {
   it('flags a scheduled bus with a clock and the word Scheduled', () => {
     const html = render({ data: tracker({ status: 'scheduled', buses: [bus({ monitored: false, stopsAway: null, nearestStopCode: null })] }) });
