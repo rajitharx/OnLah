@@ -13,7 +13,16 @@ public sealed class CachedBusArrivalClient(ILtaBusClient inner, IClock clock, Ti
         CancellationToken cancellationToken = default)
     {
         var entry = GetOrStartFetch(stopCode);
-        var result = await entry.Task.WaitAsync(cancellationToken);
+        Result<IReadOnlyList<BusArrival>> result;
+        try
+        {
+            result = await entry.Task.WaitAsync(cancellationToken);
+        }
+        catch when (entry.Task.IsFaulted || entry.Task.IsCanceled)
+        {
+            Evict(stopCode, entry);
+            throw;
+        }
 
         if (result.IsFailure)
             Evict(stopCode, entry);

@@ -31,6 +31,16 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("12345678901")]
+    [InlineData("197%0A")]
+    public async Task GetBusService_ServiceNumberTooLongOrWithNewline_Returns422(string serviceNo)
+    {
+        var response = await _client.GetAsync($"/api/v1/bus-services/{serviceNo}");
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
     [Fact]
     public async Task GetBusService_KnownServiceInLowercase_Returns200WithDirectionAndHours()
     {

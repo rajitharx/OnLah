@@ -29,19 +29,17 @@ public sealed class ServiceHours
         DaySchedule.Parse(row.SunFirst, row.SunLast));
 
     // Null when LTA has no times for today, because then neither answer would be honest.
+    // Yesterday's overnight bus still counts when today has no times of its own.
     public bool? IsInOperation(DateTimeOffset now)
     {
         var local = now.ToOffset(Singapore);
-        var today = ScheduleFor(local.DayOfWeek);
-        if (today is null)
-            return null;
-
         var minute = local.Hour * 60 + local.Minute;
-        if (today.RunsAt(minute))
+        var yesterday = ScheduleFor(local.AddDays(-1).DayOfWeek);
+        if (yesterday is { PassesMidnight: true } && minute <= yesterday.LastMinute)
             return true;
 
-        var yesterday = ScheduleFor(local.AddDays(-1).DayOfWeek);
-        return yesterday is { PassesMidnight: true } && minute <= yesterday.LastMinute;
+        var today = ScheduleFor(local.DayOfWeek);
+        return today?.RunsAt(minute);
     }
 
     /// <summary>

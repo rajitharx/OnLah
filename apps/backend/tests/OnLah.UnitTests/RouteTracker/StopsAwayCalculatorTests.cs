@@ -144,4 +144,22 @@ public sealed class StopsAwayCalculatorTests
 
     private static List<RouteStop> Line(int count) =>
         Enumerable.Range(1, count).Select(i => Stop(i, At(i))).ToList();
+
+    [Fact]
+    public void Calculate_NoStopsOnTheRoute_ReturnsUnknown()
+    {
+        var result = new StopsAwayCalculator().Calculate([], 1, new GeoPoint(1.3, 103.8));
+
+        Assert.Equal(StopsAwayResult.Unknown, result);
+    }
+
+    [Fact]
+    public void Calculate_UserSequenceBeforeEveryStop_ReturnsUnknown()
+    {
+        RouteStop[] stops = [new(5, "A", "A", "", 0, new GeoPoint(1.3, 103.8))];
+
+        var result = new StopsAwayCalculator().Calculate(stops, 1, new GeoPoint(1.3, 103.8));
+
+        Assert.Equal(StopsAwayResult.Unknown, result);
+    }
 }

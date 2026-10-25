@@ -179,6 +179,10 @@ npm run build
 
 Newest first. The number after each item is its pull request. The web header shows the version as "Beta x.y", and the version rises by 0.1 on every commit. [`apps/web/CHANGELOG.md`](apps/web/CHANGELOG.md) has more detail on milestone versions.
 
+### 25 October 2026
+
+- **Backend edge-case fixes** (#29). A failed call to LTA no longer sticks in the arrivals cache: if the request threw, every board for that stop kept failing until the 15-second cache expired, and it now retries on the next request. Route Tracker also shows a service as in operation in the early hours when the night before ran past midnight and LTA has no times for the new day. Stop codes and service numbers now accept ASCII characters only, so look-alike digits (such as Arabic-Indic numerals) and a trailing newline get a 422 instead of reaching LTA. The backend gains 23 more unit tests and 22 integration test cases for these edges, plus boundaries of the last-bus window, loop routes, and nearby-stop radius and coordinate limits.
+
 ### 23 October 2026 (Beta 1.8)
 
 - **Better stop search** (#17). Search now matches road names as well as stop names, so "Victoria" finds the stops on Victoria St. Each word in the query must match, so "Orchard Rd" works. Both LTA spellings match, so "Bukit Timah" finds "Bt Timah", and the same goes for Road and Rd, Street and St, Avenue and Ave, Jalan and Jln, and other common LTA abbreviations. Part of a stop code also works, so "1012" finds 01012. When the list stops at 20 results, the page says so.

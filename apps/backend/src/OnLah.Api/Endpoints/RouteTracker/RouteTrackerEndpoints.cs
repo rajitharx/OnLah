@@ -51,12 +51,12 @@ internal sealed class GetRouteTrackerValidator : AbstractValidator<GetRouteTrack
     {
         RuleFor(x => x.BusStopCode)
             .NotEmpty()
-            .Matches(@"^\d{5}$").WithMessage("BusStopCode must be a 5-digit numeric string.");
+            .Matches(@"^[0-9]{5}\z").WithMessage("BusStopCode must be a 5-digit numeric string.");
 
         RuleFor(x => x.ServiceNo)
             .NotEmpty()
             .MaximumLength(10)
-            .Matches("^[A-Za-z0-9]+$").WithMessage("Service number must be letters and digits only.");
+            .Matches(@"^[A-Za-z0-9]+\z").WithMessage("Service number must be letters and digits only.");
 
         RuleFor(x => x.Direction)
             .InclusiveBetween(1, 2).When(x => x.Direction is not null)

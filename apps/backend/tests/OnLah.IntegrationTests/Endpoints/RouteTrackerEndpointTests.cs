@@ -53,6 +53,12 @@ public sealed class RouteTrackerEndpointTests(ApiFactory factory) : IClassFixtur
     [InlineData("busStopCode=abcde&serviceNo=TRK1")]
     [InlineData("busStopCode=90003&serviceNo=T-1")]
     [InlineData("busStopCode=90003&serviceNo=TRK1&direction=3")]
+    [InlineData("busStopCode=90003&serviceNo=TRK1&direction=0")]
+    [InlineData("busStopCode=90003&serviceNo=TRK1&direction=-1")]
+    [InlineData("busStopCode=90003&serviceNo=ABCDEFGHIJK")]
+    [InlineData("busStopCode=%D9%A9%D9%A0%D9%A0%D9%A0%D9%A3&serviceNo=TRK1")]
+    [InlineData("busStopCode=90003%0A&serviceNo=TRK1")]
+    [InlineData("busStopCode=90003&serviceNo=TRK1%0A")]
     public async Task GetRouteTracker_InvalidInput_Returns422(string query)
     {
         var response = await _client.GetAsync($"/api/v1/route-tracker?{query}");
