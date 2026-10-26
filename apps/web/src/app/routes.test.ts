@@ -36,6 +36,15 @@ describe('parseRoute', () => {
     expect(parseRoute('/stop/12')).toEqual({ view: 'home' });
   });
 
+  it('decodes an encoded service number', () => {
+    expect(parseRoute('/stop/01121/bus/NR%201')).toEqual({ view: 'board', stopCode: '01121', serviceNo: 'NR 1' });
+  });
+
+  it('falls back to home instead of throwing on a malformed percent escape', () => {
+    expect(parseRoute('/stop/01121/bus/%E0%A4%A')).toEqual({ view: 'home' });
+    expect(parseRoute('/track/67009/%')).toEqual({ view: 'home' });
+  });
+
   it('falls back to home for an unknown path', () => {
     expect(parseRoute('/somewhere/else')).toEqual({ view: 'home' });
   });

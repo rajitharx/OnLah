@@ -12,6 +12,15 @@ const TAB_PATHS: Record<string, TabView> = { '/saved': 'saved', '/search': 'sear
 
 // Paths are the source of truth for the view, so refresh, back and bookmarks keep the place.
 export function parseRoute(pathname: string): Route {
+  try {
+    return matchRoute(pathname);
+  } catch {
+    // A hand-typed or truncated URL can hold a bad percent escape, and decodeURIComponent throws on it.
+    return { view: 'home' };
+  }
+}
+
+function matchRoute(pathname: string): Route {
   const tab = TAB_PATHS[pathname];
   if (tab !== undefined) return { view: tab };
 
