@@ -33,6 +33,12 @@ describe('parseSavedBuses', () => {
     expect(parseSavedBuses(raw)).toEqual([bus('01012', '12')]);
   });
 
+  it('keeps one entry when the same bus is stored twice', () => {
+    const raw = JSON.stringify([bus('01012', '12'), bus('01012', '12'), bus('01012', '14')]);
+
+    expect(parseSavedBuses(raw)).toEqual([bus('01012', '12'), bus('01012', '14')]);
+  });
+
   it('keeps at most MAX_SAVED_BUSES entries', () => {
     const raw = JSON.stringify(Array.from({ length: MAX_SAVED_BUSES + 4 }, (_, i) => bus('01012', String(i))));
 

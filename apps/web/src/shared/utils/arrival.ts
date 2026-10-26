@@ -25,5 +25,6 @@ export function minutesUntil(iso: string, now: number): number {
 }
 
 export function secondsSince(iso: string, now: number): number {
-  return Math.max(0, Math.floor((now - Date.parse(iso)) / 1_000));
+  const seconds = Math.floor((now - Date.parse(iso)) / 1_000);
+  return Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
 }

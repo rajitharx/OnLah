@@ -16,7 +16,8 @@ export function parseFavourites(raw: string | null): BusStop[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isBusStop).slice(0, MAX_FAVOURITES);
+    // Hand-edited or merged storage can repeat a stop, which would clash as a React key.
+    return parsed.filter(isBusStop).reduce<BusStop[]>(addFavourite, []);
   } catch {
     return [];
   }
