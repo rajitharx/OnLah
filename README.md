@@ -179,6 +179,10 @@ npm run build
 
 Newest first. The number after each item is its pull request. The web header shows the version as "Beta x.y", and the version rises by 0.1 on every commit. [`apps/web/CHANGELOG.md`](apps/web/CHANGELOG.md) has more detail on milestone versions.
 
+### 26 October 2026
+
+- **Web edge-case fixes** (#31). Opening a link with a broken percent escape, such as a service number cut off mid-escape, now lands on Home instead of showing a blank page. A saved bus or favourite stop that was stored twice now shows once. The "Updated Ns ago" chip reads 0s instead of NaNs when a timestamp cannot be read. The web app gains tests for these edges and for the disruption banner.
+
 ### 25 October 2026
 
 - **Livelier bus tracker** (#30). The "Bus is here" marker on the route rail now takes the seating colour (green for seats, amber for standing, red for crowded) instead of black, and the tag names the level in words. Ink flows down the line from the bus to the next stop to show which way it is heading, and the next stop sends out a soft ring. All of it stops when the device asks for reduced motion.
