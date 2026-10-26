@@ -41,6 +41,20 @@ There are two clients:
 | Database | PostgreSQL |
 | Data Source | LTA DataMall API v3 |
 
+### Deployment
+
+The whole stack runs on free tiers. [`DEPLOYMENT.md`](DEPLOYMENT.md) has the setup order, environment variables and migration steps.
+
+| Part | Technology |
+|---|---|
+| API hosting | [Render](https://render.com) web service in Singapore, built from the root `Dockerfile` and `render.yaml`, deployed from `main` |
+| Container | Docker, multi-stage build on the .NET 10 SDK and ASP.NET runtime images |
+| Database hosting | [Neon](https://neon.tech) serverless PostgreSQL, SSL required |
+| Web hosting | [Cloudflare Pages](https://pages.cloudflare.com), static Vite build of `apps/web` |
+| CI | GitHub Actions. `ci.yml` builds and tests the backend and web app on every pull request to `main` |
+| Uptime | GitHub Actions `keep-alive.yml` pings `/health` every 10 minutes so the free Render service stays warm |
+| Migrations | Run by hand with `scripts/migrate.sh`. The API does not migrate on startup |
+
 ## Monorepo Structure
 
 ```
