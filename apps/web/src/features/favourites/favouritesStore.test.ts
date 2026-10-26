@@ -20,6 +20,12 @@ describe('parseFavourites', () => {
     expect(parseFavourites('{not json')).toEqual([]);
   });
 
+  it('keeps one entry when the same stop is stored twice', () => {
+    const raw = JSON.stringify([stop('01012'), stop('01012'), stop('03111')]);
+
+    expect(parseFavourites(raw)).toEqual([stop('01012'), stop('03111')]);
+  });
+
   it('returns an empty list when the stored value is not an array', () => {
     expect(parseFavourites('{"busStopCode":"01012"}')).toEqual([]);
   });

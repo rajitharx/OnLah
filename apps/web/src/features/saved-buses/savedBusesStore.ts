@@ -31,7 +31,8 @@ export function parseSavedBuses(raw: string | null): SavedBus[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isSavedBus).slice(0, MAX_SAVED_BUSES);
+    // Hand-edited or merged storage can repeat a bus, which would clash as a React key.
+    return parsed.filter(isSavedBus).reduce<SavedBus[]>(addSavedBus, []);
   } catch {
     return [];
   }
