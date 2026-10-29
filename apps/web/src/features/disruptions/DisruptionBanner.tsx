@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import type { TrainAlertsResponse } from '../../types/domain';
 import { AlertIcon } from '../../shared/components/Icons';
 import { Freshness } from '../../shared/components/Freshness';
+import type { TrainAlertsState } from './useTrainAlerts';
 
 interface DisruptionBannerProps {
-  alerts: TrainAlertsResponse | null;
+  alerts: TrainAlertsState;
   now: number;
 }
 
@@ -13,8 +13,16 @@ interface DisruptionBannerProps {
 export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
 
-  if (alerts === null) return null;
-  const { status, alerts: items } = alerts.data;
+  if (alerts.status === 'loading') return null;
+  if (alerts.status === 'unavailable') {
+    return (
+      <section className="banner" role="status" aria-label="Service alerts">
+        <p className="banner-message">Service alerts unavailable</p>
+      </section>
+    );
+  }
+  const { data, fetchedAt } = alerts.alerts;
+  const { status, alerts: items } = data;
   if (status !== 1 || items.length === 0) return null;
 
   const key = items.map((a) => `${a.line}|${a.createdAt}`).join(';');
@@ -44,7 +52,7 @@ export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
           <p className="banner-message">{alert.message}</p>
         </div>
       ))}
-      <Freshness fetchedAt={alerts.fetchedAt} now={now} label="Checked" />
+      <Freshness fetchedAt={fetchedAt} now={now} label="Checked" />
     </section>
   );
 }

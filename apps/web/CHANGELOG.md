@@ -3,6 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so only milestone versions are listed here.
 
+## 1.45
+
+**Service alerts unavailable.** When the MRT alerts fail to load, the page now says "Service alerts unavailable" instead of showing nothing, which used to look the same as "no disruptions".
+
+- The notice is neutral, without the red used for real disruptions. It is announced to screen readers as a status.
+- A failed refresh after alerts have loaded keeps the last result, as before.
+- With no alerts and no error the page still shows nothing.
+
 ## 1.5
 
 **Last bus.** The ETA tile for a service's last bus of the night carries a "LAST" tag with a slowly pulsing dot, on the stop board and on saved buses. Screen readers hear "last bus".

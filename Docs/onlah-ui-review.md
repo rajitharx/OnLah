@@ -135,7 +135,7 @@
     - The API caps radius at 5000 m and returns 422 outside 1–5000.
     - **Action:** test Nearby on a real phone.
 
-- [ ] 5. **The disruption banner is untested (risky).** `train-alerts` returned no active alerts, so the banner never showed. The alert fetch ends in `.catch(()=>{})`, so a failed fetch looks the same as "no disruptions". Show an error or unknown state instead.
+- [x] 5. **The disruption banner is untested (risky).** `train-alerts` returned no active alerts, so the banner never showed. The alert fetch ends in `.catch(()=>{})`, so a failed fetch looks the same as "no disruptions". Show an error or unknown state instead. *Done in this PR.* A failed fetch now shows a neutral "Service alerts unavailable" notice.
 
 ## Improvements
 
