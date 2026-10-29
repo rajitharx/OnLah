@@ -3,6 +3,7 @@ import { ServiceSheet } from '../services/ServiceSheet';
 import { Freshness } from '../../shared/components/Freshness';
 import { MapIcon, PinIcon, StarIcon } from '../../shared/components/Icons';
 import { ResyncButton } from '../../shared/components/ResyncButton';
+import { StaleNotice } from '../../shared/components/StaleNotice';
 import { mapsUrl } from '../../shared/utils/geo';
 import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
@@ -83,18 +84,15 @@ export function StopBoard({
       </header>
 
       <div className="board-meta">
-        {data && <Freshness fetchedAt={data.fetchedAt} now={now} stale={failed} />}
+        {data && !failed && <Freshness fetchedAt={data.fetchedAt} now={now} />}
         <span className="caption">LTA DataMall · every 20s</span>
         <ResyncButton label="Refresh bus times" onClick={onRefresh} />
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 
-      {failed && (
-        <p className="error" role="alert">
-          {data
-            ? 'Refresh failed. Showing the last known times.'
-            : 'Bus times are unavailable right now. Retrying every 20 seconds.'}
-        </p>
+      {failed && data && <StaleNotice fetchedAt={data.fetchedAt} now={now} onRetry={onRefresh} />}
+      {failed && !data && (
+        <p className="error" role="alert">Bus times are unavailable right now. Retrying every 20 seconds.</p>
       )}
       {!data && !failed && (
         <p className="caption" role="status">

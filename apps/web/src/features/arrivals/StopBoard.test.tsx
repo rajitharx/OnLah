@@ -16,13 +16,13 @@ function service(serviceNo: string, routes: BusArrival['routes'] = []): BusArriv
   return { serviceNo, operator: 'GAS', nextBus: null, nextBus2: null, nextBus3: null, routes };
 }
 
-function render(services: BusArrival[]): string {
+function render(services: BusArrival[], failed = false): string {
   return renderToStaticMarkup(
     <StopBoard
       stop={stop}
       arrivals={{
         data: { stopCode: stop.busStopCode, fetchedAt: '2026-10-19T10:00:00Z', services },
-        failed: false,
+        failed,
         slow: false,
       }}
       now={Date.parse('2026-10-19T10:00:05Z')}
@@ -123,5 +123,27 @@ describe('StopBoard', () => {
     expect(html).toContain('How to read the times');
     expect(html).toContain('Standing');
     expect(html).toContain('Not wheelchair accessible');
+  });
+
+  it('keeps the times and warns with their age and a retry when a refresh fails', () => {
+    const html = render([service('12')], true);
+    expect(html).toContain('Bus 12 details');
+    expect(html).toContain('Showing data from 5s ago.');
+    expect(html).toContain('>Try again<');
+    expect(html).not.toContain('class="error"');
+  });
+
+  it('shows the data age once when a refresh fails, not again as a stale chip', () => {
+    const html = render([service('12')], true);
+    expect(html.match(/\d+s ago/g)).toHaveLength(1);
+    expect(html).not.toContain('Stale');
+  });
+
+  it('shows the Updated age while refreshes succeed', () => {
+    expect(render([service('12')])).toContain('Updated 5s ago');
+  });
+
+  it('shows no stale warning while refreshes succeed', () => {
+    expect(render([service('12')])).not.toContain('Showing data from');
   });
 });

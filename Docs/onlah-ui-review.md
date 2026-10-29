@@ -29,7 +29,7 @@
 - [ ] 11. **The dark bar inside the coloured tile reads as a pill inside a pill.** The split-flap effect gets lost. Either commit to the flap look (with a seam line and flatter colour) or simplify. *Open: the tiles are coloured again, so the split-flap look is unchanged.*
 - [x] 12. **The star button is small and oddly placed.** It's a 32px circle sitting mid-row next to the operator code. Move it to the right edge and make it at least 44px.
 - [x] 13. **The operator code adds little.** `GAS`, `SBST` and `SMRT` are small and grey, and the sheet says "SBS Transit" instead. Drop the code from the card or keep the naming consistent.
-- [ ] 14. **You can't refresh by hand.** There's no pull-to-refresh or refresh button, and there's no stale warning if a fetch fails. The timer just keeps counting up. *Partly done: the manual refresh icon is in (#11), but there is no stale warning when a fetch fails.*
+- [x] 14. **You can't refresh by hand.** There's no pull-to-refresh or refresh button, and there's no stale warning if a fetch fails. The timer just keeps counting up. *Done: the manual refresh icon is in (#11), and a failed refresh now shows "Couldn't refresh. Showing data from Ns ago." with a Try again button.*
 - [ ] 15. **The live dots don't match.** The "Updated" dot is grey and the header dot is red, so pick one meaning and one colour. *Open: the red dot was removed in #6, then restored in #7.*
 - [ ] 16. **The no-service state is untested.** Make sure late-night or not-operating services show something clear rather than empty tiles.
 

@@ -1,5 +1,6 @@
 import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
+import { StaleNotice } from '../../shared/components/StaleNotice';
 import { Countdown, EmptyCountdown } from './Countdown';
 import { NextBusStrip } from './NextBusStrip';
 import { Rail } from './Rail';
@@ -38,7 +39,7 @@ export function TrackerContent({ state, stopCode, serviceNo, now, stale, onRetry
   return (
     <div className="tracker-body">
       <TrackerHeader tracker={data} now={now} stale={stale} />
-      {state.failed && <StaleNotice onRetry={onRetry} />}
+      {state.failed && <StaleNotice fetchedAt={data.fetchedAt} now={now} onRetry={onRetry} />}
       {next === undefined ? <EmptyCountdown status={data.status} /> : <Countdown bus={next} />}
       <NextBusStrip buses={later} />
       <Rail nodes={rail} />
@@ -50,15 +51,6 @@ function LoadError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="tracker-error">
       <p className="error" role="alert">The route tracker is unavailable right now.</p>
-      <button type="button" className="btn" onClick={onRetry}>Try again</button>
-    </div>
-  );
-}
-
-function StaleNotice({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="tracker-error">
-      <p className="error" role="alert">Refresh failed. Showing the last known positions.</p>
       <button type="button" className="btn" onClick={onRetry}>Try again</button>
     </div>
   );

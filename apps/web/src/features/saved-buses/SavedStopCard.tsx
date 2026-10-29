@@ -3,6 +3,7 @@ import { Freshness } from '../../shared/components/Freshness';
 import { OperatorLogo } from '../../shared/components/OperatorLogo';
 import { StarIcon } from '../../shared/components/Icons';
 import { ResyncButton } from '../../shared/components/ResyncButton';
+import { StaleNotice } from '../../shared/components/StaleNotice';
 import { EtaTile } from '../arrivals/EtaTile';
 import { EMPTY_ARRIVALS, type ArrivalsState } from '../arrivals/arrivalsState';
 import { hasBusesDue, pickSavedServices, toBusStop, type SavedStopGroup, type SavedServiceRow } from './savedBusView';
@@ -33,8 +34,11 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
         <ResyncButton label={`Re-sync ${group.stopName}`} onClick={() => onResync(group.stopCode)} />
       </div>
       <p className="caption">{group.roadName}</p>
-      {current.data !== null && <Freshness fetchedAt={current.data.fetchedAt} now={now} stale={current.failed} />}
+      {current.data !== null && !current.failed && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
 
+      {current.data !== null && current.failed && (
+        <StaleNotice fetchedAt={current.data.fetchedAt} now={now} onRetry={() => onResync(group.stopCode)} />
+      )}
       {!current.data && current.failed && (
         <p className="error" role="alert">Bus times are unavailable right now.</p>
       )}
