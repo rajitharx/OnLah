@@ -133,6 +133,16 @@ describe('StopBoard', () => {
     expect(html).not.toContain('class="error"');
   });
 
+  it('shows the data age once when a refresh fails, not again as a stale chip', () => {
+    const html = render([service('12')], true);
+    expect(html.match(/\d+s ago/g)).toHaveLength(1);
+    expect(html).not.toContain('Stale');
+  });
+
+  it('shows the Updated age while refreshes succeed', () => {
+    expect(render([service('12')])).toContain('Updated 5s ago');
+  });
+
   it('shows no stale warning while refreshes succeed', () => {
     expect(render([service('12')])).not.toContain('Showing data from');
   });
