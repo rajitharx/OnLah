@@ -98,4 +98,16 @@ describe('SavedView', () => {
     const html = render([bus('12'), bus('2')], withData, [favourite]);
     expect(html).not.toContain('Move ');
   });
+
+  it('warns with the data age and a retry on a stop whose refresh failed, keeping its times', () => {
+    const failed = { '01012': { ...withData['01012'], failed: true } };
+    const html = render([bus('12')], failed);
+    expect(html).toContain('Showing data from 5s ago.');
+    expect(html).toContain('>Try again<');
+    expect(html).toContain('Bus 12 details');
+  });
+
+  it('shows no stale warning when the refresh succeeded', () => {
+    expect(render([bus('12')], withData)).not.toContain('Showing data from');
+  });
 });

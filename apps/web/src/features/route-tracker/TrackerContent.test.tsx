@@ -80,7 +80,7 @@ describe('TrackerContent states', () => {
   it('keeps the last known tracker and says it is stale when a refresh fails', () => {
     const html = render({ data: tracker(), failed: true }, true);
 
-    expect(html).toContain('Showing the last known');
+    expect(html).toContain('Showing data from 5s ago.');
     expect(html).toContain('Stale');
     expect(html).toContain('3 stops away');
   });
