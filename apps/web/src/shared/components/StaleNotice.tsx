@@ -8,8 +8,9 @@ interface StaleNoticeProps {
 
 export function StaleNotice({ fetchedAt, now, onRetry }: StaleNoticeProps) {
   return (
-    <div className="stale-notice" role="alert">
-      <p className="stale-notice-text">{`Couldn't refresh. Showing data from ${secondsSince(fetchedAt, now)}s ago.`}</p>
+    <div className="stale-notice">
+      <p className="stale-notice-text" role="alert">Couldn't refresh.</p>
+      <p className="stale-notice-text">{`Showing data from ${secondsSince(fetchedAt, now)}s ago.`}</p>
       <button type="button" className="btn" onClick={onRetry}>Try again</button>
     </div>
   );

@@ -34,7 +34,7 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
         <ResyncButton label={`Re-sync ${group.stopName}`} onClick={() => onResync(group.stopCode)} />
       </div>
       <p className="caption">{group.roadName}</p>
-      {current.data !== null && <Freshness fetchedAt={current.data.fetchedAt} now={now} stale={current.failed} />}
+      {current.data !== null && !current.failed && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
 
       {current.data !== null && current.failed && (
         <StaleNotice fetchedAt={current.data.fetchedAt} now={now} onRetry={() => onResync(group.stopCode)} />

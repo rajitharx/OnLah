@@ -84,7 +84,7 @@ export function StopBoard({
       </header>
 
       <div className="board-meta">
-        {data && <Freshness fetchedAt={data.fetchedAt} now={now} stale={failed} />}
+        {data && !failed && <Freshness fetchedAt={data.fetchedAt} now={now} />}
         <span className="caption">LTA DataMall · every 20s</span>
         <ResyncButton label="Refresh bus times" onClick={onRefresh} />
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
