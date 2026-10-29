@@ -7,6 +7,10 @@ export type TrainAlertsState =
   | { status: 'ok'; alerts: TrainAlertsResponse }
   | { status: 'unavailable' };
 
+export function nextStateOnFailure(current: TrainAlertsState): TrainAlertsState {
+  return current.status === 'ok' ? current : { status: 'unavailable' };
+}
+
 // The backend polls LTA every 2 minutes, so the client refreshes at the same rate.
 // A failed refresh keeps the last result, and the banner's "Checked" time shows how old it is.
 export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
@@ -22,7 +26,7 @@ export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
         })
         .catch(() => {
           if (!controller.signal.aborted) {
-            setState((current) => (current.status === 'ok' ? current : { status: 'unavailable' }));
+            setState(nextStateOnFailure);
           }
         });
 
