@@ -3,7 +3,7 @@ import type { TrainAlertsResponse } from '../../types/domain';
 import { nextStateOnFailure, type TrainAlertsState } from './useTrainAlerts';
 
 const loaded: TrainAlertsResponse = {
-  data: { status: 'normal', alerts: [] },
+  data: { status: 0, alerts: [] },
   fetchedAt: '2026-10-26T10:00:00Z',
 };
 
