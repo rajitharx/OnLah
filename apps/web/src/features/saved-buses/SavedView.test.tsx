@@ -98,4 +98,27 @@ describe('SavedView', () => {
     const html = render([bus('12'), bus('2')], withData, [favourite]);
     expect(html).not.toContain('Move ');
   });
+
+  it('warns with the data age and a retry on a stop whose refresh failed, keeping its times', () => {
+    const failed = { '01012': { ...withData['01012'], failed: true } };
+    const html = render([bus('12')], failed);
+    expect(html).toContain('Showing data from 5s ago.');
+    expect(html).toContain('>Try again<');
+    expect(html).toContain('Bus 12 details');
+  });
+
+  it('shows the data age once on a failed stop, not again as a stale chip', () => {
+    const failed = { '01012': { ...withData['01012'], failed: true } };
+    const html = render([bus('12')], failed);
+    expect(html.match(/\d+s ago/g)).toHaveLength(1);
+    expect(html).not.toContain('Stale');
+  });
+
+  it('shows the Updated age when the refresh succeeded', () => {
+    expect(render([bus('12')], withData)).toContain('Updated 5s ago');
+  });
+
+  it('shows no stale warning when the refresh succeeded', () => {
+    expect(render([bus('12')], withData)).not.toContain('Showing data from');
+  });
 });

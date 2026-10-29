@@ -379,6 +379,24 @@ input {
   color: var(--crowd-red);
 }
 
+.stale-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--crowd-amber);
+  border-radius: var(--radius-md);
+  background-color: var(--card);
+}
+
+.stale-notice-text {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+}
+
 /* ---------- Disruption banner ---------- */
 
 .banner {

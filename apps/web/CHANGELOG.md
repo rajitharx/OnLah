@@ -3,6 +3,13 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so only milestone versions are listed here.
 
+## 1.6
+
+**Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
+
+- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not the crowd-red error style.
+- Try again reuses the existing manual refresh.
+
 ## 1.5
 
 **Last bus.** The ETA tile for a service's last bus of the night carries a "LAST" tag with a slowly pulsing dot, on the stop board and on saved buses. Screen readers hear "last bus".
