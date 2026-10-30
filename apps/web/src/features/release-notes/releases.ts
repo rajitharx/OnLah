@@ -1,0 +1,130 @@
+export type ItemKind = 'feature' | 'improvement' | 'fix';
+export type RoadmapStatus = 'shipped' | 'next' | 'later';
+
+export interface ReleaseItem {
+  kind: ItemKind;
+  text: string;
+}
+
+export interface Release {
+  version: string;
+  title: string;
+  summary: string;
+  items: ReleaseItem[];
+}
+
+export interface RoadmapItem {
+  status: RoadmapStatus;
+  text: string;
+}
+
+export const ITEM_KINDS: Record<ItemKind, { label: string; className: string }> = {
+  feature: { label: 'Feature', className: 'kind-feature' },
+  improvement: { label: 'Improvement', className: 'kind-improvement' },
+  fix: { label: 'Bug fix', className: 'kind-fix' },
+};
+
+export const ROADMAP_STATUSES: { status: RoadmapStatus; label: string; blurb: string }[] = [
+  { status: 'shipped', label: 'Shipped', blurb: 'Done and live.' },
+  { status: 'next', label: 'Next', blurb: 'Open items from the UI review and QA pass, closest to ready.' },
+  { status: 'later', label: 'Later', blurb: 'Open items that need a decision first, or were tried and reverted.' },
+];
+
+export const features: string[] = [
+  'Live bus arrivals for any Singapore bus stop, with three ETAs per service, crowd level, bus type and wheelchair access.',
+  'Search stops by code or road name, and find stops within 1 km of you.',
+  'Save up to 20 buses and 10 stops. They stay on your device and refresh together on the Saved tab.',
+  'Route Tracker: follow one service at one stop, with a "N stops away" countdown and a rail of every stop.',
+  'A LAST tag on the final bus of the night, and a banner when the MRT is disrupted.',
+  'Works offline once loaded, and every screen has its own link you can bookmark.',
+];
+
+export const releases: Release[] = [
+  {
+    version: '1.51',
+    title: 'Release notes and roadmap',
+    summary: 'This page. It is not linked from the app, so open it by URL at /notes or /about.',
+    items: [
+      { kind: 'feature', text: 'A release history, a Shipped / Next / Later roadmap and a features overview.' },
+    ],
+  },
+  {
+    version: '1.45',
+    title: 'Service alerts unavailable',
+    summary:
+      'When the MRT alerts fail to load, the page now says so instead of showing nothing, which used to look the same as "no disruptions". (PR #33)',
+    items: [
+      { kind: 'fix', text: 'A failed alerts load shows a "Service alerts unavailable" notice, announced to screen readers as a status.' },
+      { kind: 'improvement', text: 'The notice is neutral, without the red used for real disruptions.' },
+    ],
+  },
+  {
+    version: '1.6',
+    title: 'Stale arrivals warning',
+    summary:
+      'When a refresh fails, the last times stay on screen and a notice says how old they are, with a Try again button. (PR #34)',
+    items: [
+      { kind: 'fix', text: 'A failed refresh shows "Couldn\'t refresh. Showing data from Ns ago." and clears on the next success.' },
+      { kind: 'improvement', text: 'One shared notice for the stop board, saved stops and the Route Tracker, with the amber border rather than the crowd-red error style.' },
+      { kind: 'improvement', text: 'Try again reuses the existing manual refresh.' },
+    ],
+  },
+  {
+    version: '1.5',
+    title: 'Last bus',
+    summary: 'The ETA tile for a service\'s last bus of the night carries a "LAST" tag.',
+    items: [
+      { kind: 'feature', text: 'A LAST tag with a slowly pulsing dot on the stop board and on saved buses. Screen readers hear "last bus".' },
+      { kind: 'improvement', text: 'With reduced motion the dot does not pulse.' },
+      { kind: 'feature', text: 'The backend matches each ETA against the published last-bus time at that stop. It is an estimate, not an LTA signal.' },
+    ],
+  },
+  {
+    version: '1.1',
+    title: 'Route Tracker',
+    summary: 'Follow one bus service at one stop.',
+    items: [
+      { kind: 'feature', text: 'A "N stops away" countdown for the next bus, with its ETA and crowd level.' },
+      { kind: 'feature', text: 'A vertical rail of the service\'s stops in order, marking the bus and your stop, with long stretches folded into "+N stops".' },
+      { kind: 'feature', text: 'A strip for the second and third buses, and a Track link on every service row.' },
+      { kind: 'feature', text: 'States for loading, live, scheduled, no estimate, not in operation, a failed refresh and an unknown stop or service.' },
+    ],
+  },
+  {
+    version: '0.4',
+    title: 'Review fixes and polish',
+    summary: 'Versions 0.1 to 0.4: the first round of fixes from the UI review.',
+    items: [
+      { kind: 'fix', text: 'Services sort in natural order, so 2 comes before 12.' },
+      { kind: 'feature', text: 'URL routes for each screen, a bottom tab bar, and a Saved tab with re-sync.' },
+      { kind: 'improvement', text: 'Search status messages, plain deck labels, equal-size tiles and the Beta version label.' },
+      { kind: 'improvement', text: 'The wordmark links to the home page, and the version bumps automatically on commit.' },
+    ],
+  },
+];
+
+export const roadmap: RoadmapItem[] = [
+  { status: 'shipped', text: 'Route Tracker with a stop rail, now showing bus load and travel direction (#14, #30).' },
+  { status: 'shipped', text: 'Last bus tag (#16).' },
+  { status: 'shipped', text: 'Origin and destination on each bus card (#28).' },
+  { status: 'shipped', text: 'Stop search by road name with LTA abbreviations, and a note when results are capped at 20 (#17).' },
+  { status: 'shipped', text: '44px tap targets on small controls (#19).' },
+  { status: 'shipped', text: 'ETAs computed against the backend clock, not the device clock (#23).' },
+  { status: 'shipped', text: 'Offline app shell (#26), page description and share image (#27), cache headers on reference data (#25).' },
+  { status: 'shipped', text: 'Neutral wordmark dot (#20), crossed wheelchair only for inaccessible buses (#21), one refresh control per saved stop (#22).' },
+  { status: 'shipped', text: 'Stale arrivals warning with Try again (#34).' },
+  { status: 'shipped', text: 'Service alerts unavailable state (#33).' },
+  { status: 'next', text: 'Check the no-service state for late-night and not-operating services.' },
+  { status: 'next', text: 'Test Nearby on a real phone.' },
+  { status: 'next', text: 'Search by bus number as well as stop.' },
+  { status: 'next', text: 'Show the buses each search result serves, and the distance when location is known.' },
+  { status: 'next', text: 'Check the contrast of the search placeholder.' },
+  { status: 'next', text: 'Give the header dot a label for screen readers.' },
+  { status: 'next', text: 'In the service details sheet, highlight the direction that serves this stop and collapse the other.' },
+  { status: 'later', text: 'Decide the look on purpose and update the design spec, which still describes a dark-first design.' },
+  { status: 'later', text: 'Dark mode. Tried in #6, removed in #7.' },
+  { status: 'later', text: 'Neutral tiles with crowd bars. Tried in #6, reverted in #7.' },
+  { status: 'later', text: 'Make the next bus larger than the 2nd and 3rd. Tried in #6, undone in #9.' },
+  { status: 'later', text: 'Reorder saved buses and stops. Added in #6, removed in #8.' },
+  { status: 'later', text: 'One meaning and colour for the live dots. Changed in #6, restored in #7.' },
+];

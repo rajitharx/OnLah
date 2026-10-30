@@ -3,6 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so only milestone versions are listed here.
 
+## 1.51
+
+**Release notes and roadmap.** A page at `/notes` (also `/about`) lists the app's features, a release history and a Shipped / Next / Later roadmap.
+
+- It is reachable by URL only. No tab, button or header link points to it, and no tab shows as active on it.
+- The content is in `src/features/release-notes/releases.ts`. A test checks that its newest version matches the top entry here.
+- Each history item is tagged Feature, Improvement or Bug fix. The roadmap's Next and Later lists are the open items from `Docs/onlah-ui-review.md`.
+
 ## 1.45
 
 **Service alerts unavailable.** When the MRT alerts fail to load, the page now says "Service alerts unavailable" instead of showing nothing, which used to look the same as "no disruptions".
