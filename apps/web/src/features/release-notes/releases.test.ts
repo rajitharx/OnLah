@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import changelog from '../../../CHANGELOG.md?raw';
 import { ITEM_KINDS, features, releases, roadmap, ROADMAP_STATUSES } from './releases';
@@ -56,5 +58,61 @@ describe('roadmap and features', () => {
 
   it('describes what the app does today', () => {
     expect(features.length).toBeGreaterThan(3);
+  });
+});
+
+const REVIEW_DOC = readFileSync(resolve(process.cwd(), '../../Docs/onlah-ui-review.md'), 'utf8');
+
+const SECTIONS: Record<string, string> = { 'UI Review': 'ui', 'QA Pass': 'qa' };
+
+// Open items that belong on no roadmap entry, with the reason. Keyed like "ui-12".
+const NOT_ON_ROADMAP: Record<string, string> = {};
+
+function openReviewItems(doc: string): string[] {
+  const open: string[] = [];
+  let section: string | undefined;
+  for (const line of doc.split('\n')) {
+    const heading = /^# (.+)$/.exec(line);
+    if (heading) section = Object.entries(SECTIONS).find(([name]) => heading[1].includes(name))?.[1];
+    const item = /^- \[ \] (\d+)\./.exec(line);
+    if (item && section) open.push(`${section}-${item[1]}`);
+  }
+  return open;
+}
+
+describe('roadmap against the review document', () => {
+  const planned = new Set(roadmap.filter((item) => item.status !== 'shipped').flatMap((item) => item.review ?? []));
+
+  it('finds open items in both review sections', () => {
+    const open = openReviewItems(REVIEW_DOC);
+    expect(open.some((key) => key.startsWith('ui-'))).toBe(true);
+    expect(open.some((key) => key.startsWith('qa-'))).toBe(true);
+  });
+
+  it('puts every open review item in Next or Later, or explains why not', () => {
+    const missing = openReviewItems(REVIEW_DOC).filter((key) => !planned.has(key) && !(key in NOT_ON_ROADMAP));
+    expect(missing).toEqual([]);
+  });
+
+  it('does not plan work the review document marks done', () => {
+    const open = new Set(openReviewItems(REVIEW_DOC));
+    const stale = [...planned].filter((key) => !open.has(key));
+    expect(stale).toEqual([]);
+  });
+
+  it('lists the split-flap bar decision as Later', () => {
+    const entry = roadmap.find((item) => item.review?.includes('ui-11'));
+    expect(entry?.status).toBe('later');
+  });
+});
+
+describe('user-facing copy', () => {
+  it('does not claim the whole app works offline', () => {
+    expect(features.join(' ')).not.toMatch(/works offline/i);
+    expect(features.join(' ')).toContain('arrival times need a connection');
+  });
+
+  it('avoids the crowd-red jargon', () => {
+    expect(JSON.stringify(releases)).not.toMatch(/crowd-red/);
   });
 });
