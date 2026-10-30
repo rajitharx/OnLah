@@ -21,6 +21,25 @@ function liveRegion(html: string): string | undefined {
   return /<div role="status" aria-label="Service alerts" class="banner-live">(.*?)<\/div>/.exec(html)?.[1];
 }
 
+function statusContents(html: string): string[] {
+  const out: string[] = [];
+  for (const open of html.matchAll(/<(\w+)[^>]*role="status"[^>]*>/g)) {
+    const tag = open[1];
+    const start = open.index + open[0].length;
+    const tags = new RegExp(`<(/?)${tag}\\b[^>]*>`, 'g');
+    tags.lastIndex = start;
+    let depth = 1;
+    for (let m = tags.exec(html); m; m = tags.exec(html)) {
+      depth += m[1] ? -1 : 1;
+      if (depth === 0) {
+        out.push(html.slice(start, m.index));
+        break;
+      }
+    }
+  }
+  return out;
+}
+
 const alert: TrainAlertDetail = { stations: ['Tampines'], line: 'EWL', direction: 'Pasir Ris', message: 'Delay of 10 minutes', createdAt: '2026-10-26T09:50:00Z' };
 
 describe('DisruptionBanner', () => {
@@ -104,12 +123,21 @@ describe('DisruptionBanner', () => {
       response(1, [alert], true),
     ];
     const liveContents = (state: TrainAlertsState, now: number) =>
-      [...renderToStaticMarkup(<DisruptionBanner alerts={state} now={now} />).matchAll(/<(\w+)[^>]*role="status"[^>]*>(.*?)<\/\1>/g)].map((m) => m[2]);
+      statusContents(renderToStaticMarkup(<DisruptionBanner alerts={state} now={now} />));
     for (const state of states) {
       const first = liveContents(state, NOW);
       expect(liveContents(state, NOW + 10_000)).toEqual(first);
       for (const content of first) expect(content).not.toMatch(/\d+s ago/);
     }
+  });
+
+  it('announces the disruption card title and alert text from inside a status element', () => {
+    const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} now={NOW} />);
+    const card = statusContents(html).find((content) => content.includes('MRT disruption'));
+    expect(card).toBeDefined();
+    expect(card).toContain('Delay of 10 minutes');
+    expect(card).toContain('Pasir Ris');
+    expect(card).not.toContain('Hide');
   });
 
   it('gives the always-mounted live region an accessible name in every state', () => {
