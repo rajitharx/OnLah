@@ -1,14 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { parseVersion } from './version-core.mjs';
 
 // The version is two numbers, major.minor. package.json is the one place it is written.
-const VERSION_PATTERN = /^(\d+)\.(\d+)$/;
-
-export function parseVersion(version) {
-  const match = VERSION_PATTERN.exec(version);
-  if (match === null) throw new Error(`Version must be major.minor, got "${version}".`);
-  return { major: Number(match[1]), minor: Number(match[2]) };
-}
+export { parseVersion };
 
 export function bumpVersion(version, kind) {
   const { major, minor } = parseVersion(version);
