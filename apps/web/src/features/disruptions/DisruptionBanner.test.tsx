@@ -15,16 +15,22 @@ function render(alerts: TrainAlertsState): string {
   return renderToStaticMarkup(<DisruptionBanner alerts={alerts} now={NOW} />).replace(/&#x27;/g, "'");
 }
 
+const EMPTY = '<div><div role="status" class="banner-live"></div></div>';
+
+function liveRegion(html: string): string | undefined {
+  return /<div role="status" class="banner-live">(.*?)<\/div>/.exec(html)?.[1];
+}
+
 const alert: TrainAlertDetail = { stations: ['Tampines'], line: 'EWL', direction: 'Pasir Ris', message: 'Delay of 10 minutes', createdAt: '2026-10-26T09:50:00Z' };
 
 describe('DisruptionBanner', () => {
-  it('renders nothing before alerts have loaded', () => {
-    expect(renderToStaticMarkup(<DisruptionBanner alerts={{ status: 'loading' }} now={NOW} />)).toBe('');
+  it('renders only an empty live region before alerts have loaded', () => {
+    expect(render({ status: 'loading' })).toBe(EMPTY);
   });
 
-  it('renders nothing when the network is normal', () => {
-    expect(renderToStaticMarkup(<DisruptionBanner alerts={response(1, [])} now={NOW} />)).toBe('');
-    expect(renderToStaticMarkup(<DisruptionBanner alerts={response(0, [alert])} now={NOW} />)).toBe('');
+  it('renders only an empty live region when the network is normal', () => {
+    expect(render(response(1, []))).toBe(EMPTY);
+    expect(render(response(0, [alert]))).toBe(EMPTY);
   });
 
   it('shows each alert as a labelled status with a Hide button and freshness', () => {
@@ -62,5 +68,35 @@ describe('DisruptionBanner', () => {
   it('shows no failure notice after a successful refresh', () => {
     const html = render(response(1, [alert]));
     expect(html).not.toContain("Couldn't refresh");
+  });
+
+  it('mounts the same live region in every state so a later notice is announced', () => {
+    const states: TrainAlertsState[] = [
+      { status: 'loading' },
+      { status: 'unavailable' },
+      response(1, []),
+      response(1, [], true),
+      response(1, [alert]),
+    ];
+    for (const state of states) expect(liveRegion(render(state))).toBeDefined();
+  });
+
+  it('puts the notice text in the live region and nothing in it when all is well', () => {
+    expect(liveRegion(render({ status: 'unavailable' }))).toBe('<p class="banner-message">Service alerts unavailable</p>');
+    expect(liveRegion(render(response(1, [], true)))).toBe("<p class=\"banner-message\">Couldn't refresh service alerts.</p>");
+    expect(liveRegion(render(response(1, [])))).toBe('');
+  });
+
+  it('keeps the ticking age out of the live region', () => {
+    const failed = response(1, [], true);
+    const later = renderToStaticMarkup(<DisruptionBanner alerts={failed} now={NOW + 10_000} />);
+    expect(liveRegion(later)).toBe(liveRegion(render(failed)));
+    expect(liveRegion(later)).not.toMatch(/\d+s ago/);
+    expect(later).toContain('Last checked 40s ago');
+  });
+
+  it('adds no card chrome while there is nothing to say', () => {
+    expect(render(response(1, []))).not.toContain('class="banner"');
+    expect(render({ status: 'unavailable' })).toContain('class="banner"');
   });
 });
