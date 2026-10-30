@@ -89,7 +89,7 @@ describe('DisruptionBanner', () => {
 
   it('keeps the ticking age out of the live region', () => {
     const failed = response(1, [], true);
-    const later = renderToStaticMarkup(<DisruptionBanner alerts={failed} now={NOW + 10_000} />);
+    const later = renderToStaticMarkup(<DisruptionBanner alerts={failed} now={NOW + 10_000} />).replace(/&#x27;/g, "'");
     expect(liveRegion(later)).toBe(liveRegion(render(failed)));
     expect(liveRegion(later)).not.toMatch(/\d+s ago/);
     expect(later).toContain('Last checked 40s ago');
