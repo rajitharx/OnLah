@@ -1254,9 +1254,14 @@ input {
   font-size: 18px;
 }
 
-.notes-release-version {
+.notes-release-version,
+.notes-release-pr {
   font-family: var(--font-mono);
   font-size: 13px;
+}
+
+.notes-release-pr {
+  color: var(--muted);
 }
 
 .notes-releases {

@@ -8,6 +8,7 @@ export interface ReleaseItem {
 
 export interface Release {
   version: string;
+  pr: number | null;
   title: string;
   summary: string;
   items: ReleaseItem[];
@@ -43,6 +44,7 @@ export const features: string[] = [
 export const releases: Release[] = [
   {
     version: '1.67',
+    pr: 37,
     title: 'Clearer stale and alert notices',
     summary: 'A failed refresh no longer repeats the data age, and a failed alerts refresh no longer reads as all clear.',
     items: [
@@ -53,6 +55,7 @@ export const releases: Release[] = [
   },
   {
     version: '1.54',
+    pr: 36,
     title: 'Build and release labels',
     summary: 'This page now tells the build number apart from the release history.',
     items: [
@@ -63,6 +66,7 @@ export const releases: Release[] = [
   },
   {
     version: '1.51',
+    pr: 35,
     title: 'Release notes and roadmap',
     summary: 'This page. It is not linked from the app, so open it by URL at /notes or /about.',
     items: [
@@ -70,20 +74,11 @@ export const releases: Release[] = [
     ],
   },
   {
-    version: '1.45',
-    title: 'Service alerts unavailable',
-    summary:
-      'When the MRT alerts fail to load, the page now says so instead of showing nothing, which used to look the same as "no disruptions". (PR #33)',
-    items: [
-      { kind: 'fix', text: 'A failed alerts load shows a "Service alerts unavailable" notice, announced to screen readers as a status.' },
-      { kind: 'improvement', text: 'The notice is neutral, without the red used for real disruptions.' },
-    ],
-  },
-  {
     version: '1.6',
+    pr: 34,
     title: 'Stale arrivals warning',
     summary:
-      'When a refresh fails, the last times stay on screen and a notice says how old they are, with a Try again button. (PR #34)',
+      'When a refresh fails, the last times stay on screen and a notice says how old they are, with a Try again button.',
     items: [
       { kind: 'fix', text: 'A failed refresh shows "Couldn\'t refresh. Showing data from Ns ago." and clears on the next success.' },
       { kind: 'improvement', text: 'One shared notice for the stop board, saved stops and the Route Tracker, with an amber border rather than a red one.' },
@@ -91,7 +86,19 @@ export const releases: Release[] = [
     ],
   },
   {
+    version: '1.45',
+    pr: 33,
+    title: 'Service alerts unavailable',
+    summary:
+      'When the MRT alerts fail to load, the page now says so instead of showing nothing, which used to look the same as "no disruptions".',
+    items: [
+      { kind: 'fix', text: 'A failed alerts load shows a "Service alerts unavailable" notice, announced to screen readers as a status.' },
+      { kind: 'improvement', text: 'The notice is neutral, without the red used for real disruptions.' },
+    ],
+  },
+  {
     version: '1.5',
+    pr: 16,
     title: 'Last bus',
     summary: 'The ETA tile for a service\'s last bus of the night carries a "LAST" tag.',
     items: [
@@ -102,6 +109,7 @@ export const releases: Release[] = [
   },
   {
     version: '1.1',
+    pr: 14,
     title: 'Route Tracker',
     summary: 'Follow one bus service at one stop.',
     items: [
@@ -113,6 +121,7 @@ export const releases: Release[] = [
   },
   {
     version: '0.4',
+    pr: null,
     title: 'Review fixes and polish',
     summary: 'Versions 0.1 to 0.4: the first round of fixes from the UI review.',
     items: [

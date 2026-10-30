@@ -3,7 +3,9 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
 
-## 1.67
+Entries are ordered by when they shipped, newest first, not by version number: the minor number does not follow shipping order. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, and the numbers descend down the page. Early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `src/features/release-notes/releases.ts`.
+
+## 1.67 (#37)
 
 **Clearer stale and alert notices.** Three small fixes to the failed-refresh messages.
 
@@ -11,7 +13,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - If a service alerts refresh fails after a good result, the page shows "Couldn't refresh service alerts." with "Last checked Ns ago", also when that result had no alerts. The notice is neutral and clears on the next success. The disruption card drops its own "Checked" line while this shows.
 - The alert notices now go into a status region that is always on the page, so screen readers announce them when they appear. The age is outside the region, so the announced text does not change every second.
 
-## 1.54
+## 1.54 (#36)
 
 **Build and release labels.** The top of `/notes` read a single "Beta 1.53" version above a latest release of 1.51, which looked inconsistent. It now reads "This build: Beta <build>. Release notes cover up to <newest release>." and says that the build number rises with every change while the history lists milestones.
 
@@ -19,7 +21,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - A test checks that the build version is not older than the newest release, comparing major and minor as numbers.
 - The roadmap guard test now checks that it parses every open checkbox in `Docs/onlah-ui-review.md`.
 
-## 1.51
+## 1.51 (#35)
 
 **Release notes and roadmap.** A page at `/notes` (also `/about`) lists the app's features, a release history and a Shipped / Next / Later roadmap.
 
@@ -27,7 +29,14 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - The content is in `src/features/release-notes/releases.ts`. A test checks that its newest version matches the top entry here.
 - Each history item is tagged Feature, Improvement or Bug fix. The roadmap's Next and Later lists are the open items from `Docs/onlah-ui-review.md`.
 
-## 1.45
+## 1.6 (#34)
+
+**Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
+
+- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
+- Try again reuses the existing manual refresh.
+
+## 1.45 (#33)
 
 **Service alerts unavailable.** When the MRT alerts fail to load, the page now says "Service alerts unavailable" instead of showing nothing, which used to look the same as "no disruptions".
 
@@ -35,14 +44,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - A failed refresh after alerts have loaded keeps the last result, as before.
 - With no alerts and no error the page still shows nothing.
 
-## 1.6
-
-**Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
-
-- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
-- Try again reuses the existing manual refresh.
-
-## 1.5
+## 1.5 (#16)
 
 **Last bus.** The ETA tile for a service's last bus of the night carries a "LAST" tag with a slowly pulsing dot, on the stop board and on saved buses. Screen readers hear "last bus".
 
@@ -50,7 +52,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - Only the latest matching bus of a service is tagged.
 - With reduced motion the dot does not pulse.
 
-## 1.1
+## 1.1 (#14)
 
 **Route Tracker.** Follow one bus service at one stop.
 
