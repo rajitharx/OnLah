@@ -7,7 +7,7 @@ const sources = import.meta.glob(['./version.ts', '../../scripts/*.mjs'], {
 }) as Record<string, string>;
 
 function importSpecifiers(text: string): string[] {
-  return [...text.matchAll(/\bfrom\s+'([^']+)'/g)].map((match) => match[1]);
+  return [...text.matchAll(/\b(?:from\s*|import\s*\(?\s*)(['"])([^'"]+)\1/g)].map((match) => match[2]);
 }
 
 // Vite bundles version.ts for the browser, so nothing it imports may touch node. Tests and tsc run under node and miss this.
