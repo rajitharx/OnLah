@@ -48,6 +48,7 @@ export const releases: Release[] = [
     items: [
       { kind: 'fix', text: 'The top of this page shows "This build" and "Release notes cover up to" instead of a single version that looked newer than the latest release.' },
       { kind: 'improvement', text: 'A test checks that the build is never older than the newest release listed here.' },
+      { kind: 'improvement', text: 'The roadmap guard test now checks that it parses every open checkbox in the UI review document.' },
     ],
   },
   {

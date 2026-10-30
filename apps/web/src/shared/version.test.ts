@@ -43,6 +43,11 @@ describe('compareVersions', () => {
     expect(compareVersions('2.0', '1.99')).toBeGreaterThan(0);
   });
 
+  it('rejects a malformed version', () => {
+    expect(() => compareVersions('1.2.3', '1.2')).toThrow('major.minor');
+    expect(() => compareVersions('1.2', 'beta')).toThrow('major.minor');
+  });
+
   it('returns zero for equal versions', () => {
     expect(compareVersions('1.51', '1.51')).toBe(0);
   });
