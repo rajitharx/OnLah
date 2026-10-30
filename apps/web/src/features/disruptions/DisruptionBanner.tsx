@@ -58,6 +58,8 @@ interface DisruptionsProps {
   onDismiss: (key: string) => void;
 }
 
+// The status wrapper holds only static text so a new disruption is announced. display: contents
+// keeps the title, button and age laid out as one grid, and the ticking age stays outside it.
 function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: DisruptionsProps) {
   const { data, fetchedAt } = response;
   const { status, alerts: items } = data;
@@ -67,29 +69,29 @@ function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: 
   if (dismissedKey === key) return null;
 
   return (
-    <section className="banner" aria-label="MRT disruption">
-      <div className="banner-head">
+    <section className="banner banner-alert" aria-label="MRT disruption">
+      <div role="status" className="banner-alert-live">
         <span className="banner-title">
           <AlertIcon size={16} />
           MRT disruption
         </span>
-        <button
-          type="button"
-          className="btn btn-quiet"
-          onClick={() => onDismiss(key)}
-          aria-label="Hide MRT disruption notice"
-        >
-          Hide
-        </button>
+        {items.map((alert) => (
+          <div className="banner-item" key={`${alert.line}-${alert.createdAt}`}>
+            <p className="banner-line">
+              {alert.line} <span className="banner-direction">· {alert.direction}</span>
+            </p>
+            <p className="banner-message">{alert.message}</p>
+          </div>
+        ))}
       </div>
-      {items.map((alert) => (
-        <div className="banner-item" key={`${alert.line}-${alert.createdAt}`}>
-          <p className="banner-line">
-            {alert.line} <span className="banner-direction">· {alert.direction}</span>
-          </p>
-          <p className="banner-message">{alert.message}</p>
-        </div>
-      ))}
+      <button
+        type="button"
+        className="btn btn-quiet banner-dismiss"
+        onClick={() => onDismiss(key)}
+        aria-label="Hide MRT disruption notice"
+      >
+        Hide
+      </button>
       {!refreshFailed && <Freshness fetchedAt={fetchedAt} now={now} label="Checked" />}
     </section>
   );

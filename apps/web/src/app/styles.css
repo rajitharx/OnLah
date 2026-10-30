@@ -417,11 +417,32 @@ input {
   margin-bottom: var(--space-xs);
 }
 
-.banner-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.banner-alert {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--space-sm);
+}
+
+.banner-alert-live {
+  display: contents;
+}
+
+.banner-alert .banner-title {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  justify-self: start;
+}
+
+.banner-alert .banner-dismiss {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+}
+
+.banner-alert .banner-item,
+.banner-alert .freshness {
+  grid-column: 1 / -1;
 }
 
 .banner-title {
