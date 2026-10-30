@@ -9,7 +9,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 - The Route Tracker no longer shows the data age twice. When a refresh fails, the "Couldn't refresh. Showing data from Ns ago." notice carries the age and the header chip is hidden. Old data without a failed refresh, such as a hidden tab, still shows the "Stale" chip.
 - If a service alerts refresh fails after a good result, the page shows "Couldn't refresh service alerts." with "Last checked Ns ago", also when that result had no alerts. The notice is neutral and clears on the next success. The disruption card drops its own "Checked" line while this shows.
-- The alert notices now go into a status region that is always on the page, so screen readers announce them when they appear. The age is outside the region, so the announced text does not change every second.
+- The "unavailable" and "couldn't refresh" notices now sit in a status region that is always on the page. The disruption card's own status region appears together with the alerts, so announcing a newly appearing disruption is not guaranteed. This is not tested with a screen reader. The ticking age is kept outside every status region.
 
 ## 1.54
 

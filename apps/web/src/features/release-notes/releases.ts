@@ -48,7 +48,7 @@ export const releases: Release[] = [
     items: [
       { kind: 'fix', text: 'The Route Tracker shows the data age once when a refresh fails, in the "Couldn\'t refresh" notice, not again in the header.' },
       { kind: 'fix', text: 'If a service alerts refresh fails after a result, the page says "Couldn\'t refresh service alerts" with the time of the last check, whether or not that result had alerts. It clears on the next success.' },
-      { kind: 'fix', text: 'The alert notices go into a status region that is always on the page, so screen readers announce them when they appear.' },
+      { kind: 'fix', text: 'The "unavailable" and "couldn\'t refresh" notices sit in a status region that is always on the page. The disruption card\'s own status region appears with the alerts, so announcing a newly appearing disruption is not guaranteed. This is not tested with a screen reader. The ticking age is kept outside every status region.' },
     ],
   },
   {
