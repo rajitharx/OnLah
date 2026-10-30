@@ -43,6 +43,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.73',
+    pr: 38,
+    title: 'Release history in shipping order',
+    summary: 'This list now runs newest shipped first, and each entry shows the pull request that shipped it.',
+    items: [
+      { kind: 'fix', text: 'Versions 1.45 and 1.6 were listed out of order because the list followed the minor number. It now follows the pull request number.' },
+      { kind: 'improvement', text: 'A test checks that the pull request numbers descend here and in the changelog, and that early entries without a number stay at the end.' },
+      { kind: 'improvement', text: 'The check that stops browser code from importing node modules now follows every import form, not only single-quoted ones.' },
+    ],
+  },
+  {
     version: '1.67',
     pr: 37,
     title: 'Clearer stale and alert notices',

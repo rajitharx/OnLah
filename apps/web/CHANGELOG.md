@@ -5,6 +5,14 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when they shipped, newest first, not by version number: the minor number does not follow shipping order. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, and the numbers descend down the page. Early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `src/features/release-notes/releases.ts`.
 
+## 1.73 (#38)
+
+**Release history in shipping order.** The list followed the minor number, so 1.45 sat above 1.6 although 1.6 shipped later. It now runs newest shipped first.
+
+- Each release carries the number of the pull request that shipped it, in this file's headings and on `/notes`.
+- A test checks that the numbers descend in both places and that entries without a number stay at the end.
+- The guard that keeps node modules out of the browser bundle now follows double-quoted, side-effect, re-export and dynamic imports as well as single-quoted `from` imports.
+
 ## 1.67 (#37)
 
 **Clearer stale and alert notices.** Three small fixes to the failed-refresh messages.
