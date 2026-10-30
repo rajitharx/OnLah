@@ -15,10 +15,10 @@ function render(alerts: TrainAlertsState): string {
   return renderToStaticMarkup(<DisruptionBanner alerts={alerts} now={NOW} />).replace(/&#x27;/g, "'");
 }
 
-const EMPTY = '<div><div role="status" class="banner-live"></div></div>';
+const EMPTY = '<div><div role="status" aria-label="Service alerts" class="banner-live"></div></div>';
 
 function liveRegion(html: string): string | undefined {
-  return /<div role="status" class="banner-live">(.*?)<\/div>/.exec(html)?.[1];
+  return /<div role="status" aria-label="Service alerts" class="banner-live">(.*?)<\/div>/.exec(html)?.[1];
 }
 
 const alert: TrainAlertDetail = { stations: ['Tampines'], line: 'EWL', direction: 'Pasir Ris', message: 'Delay of 10 minutes', createdAt: '2026-10-26T09:50:00Z' };
@@ -35,7 +35,6 @@ describe('DisruptionBanner', () => {
 
   it('shows each alert as a labelled status with a Hide button and freshness', () => {
     const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} now={NOW} />);
-    expect(html).toContain('role="status"');
     expect(html).toContain('aria-label="MRT disruption"');
     expect(html).toContain('aria-label="Hide MRT disruption notice"');
     expect(html).toContain('Delay of 10 minutes');
@@ -93,6 +92,29 @@ describe('DisruptionBanner', () => {
     expect(liveRegion(later)).toBe(liveRegion(render(failed)));
     expect(liveRegion(later)).not.toMatch(/\d+s ago/);
     expect(later).toContain('Last checked 40s ago');
+  });
+
+  it('keeps every ticking age outside any live region, in every state', () => {
+    const states: TrainAlertsState[] = [
+      { status: 'loading' },
+      { status: 'unavailable' },
+      response(1, []),
+      response(1, [], true),
+      response(1, [alert]),
+      response(1, [alert], true),
+    ];
+    const liveContents = (state: TrainAlertsState, now: number) =>
+      [...renderToStaticMarkup(<DisruptionBanner alerts={state} now={now} />).matchAll(/<(\w+)[^>]*role="status"[^>]*>(.*?)<\/\1>/g)].map((m) => m[2]);
+    for (const state of states) {
+      const first = liveContents(state, NOW);
+      expect(liveContents(state, NOW + 10_000)).toEqual(first);
+      for (const content of first) expect(content).not.toMatch(/\d+s ago/);
+    }
+  });
+
+  it('gives the always-mounted live region an accessible name in every state', () => {
+    expect(render({ status: 'unavailable' })).toContain('role="status" aria-label="Service alerts"');
+    expect(render(response(1, []))).toContain('role="status" aria-label="Service alerts"');
   });
 
   it('adds no card chrome while there is nothing to say', () => {
