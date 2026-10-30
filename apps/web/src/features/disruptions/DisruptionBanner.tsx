@@ -23,12 +23,20 @@ export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
   }
   const { data, fetchedAt } = alerts.alerts;
   const { status, alerts: items } = data;
-  if (status !== 1 || items.length === 0) return null;
+  const failedNotice = alerts.refreshFailed ? (
+    <section className="banner" role="status" aria-label="Service alerts">
+      <p className="banner-message">Couldn't refresh service alerts.</p>
+      <Freshness fetchedAt={fetchedAt} now={now} label="Last checked" />
+    </section>
+  ) : null;
+  if (status !== 1 || items.length === 0) return failedNotice;
 
   const key = items.map((a) => `${a.line}|${a.createdAt}`).join(';');
-  if (dismissedKey === key) return null;
+  if (dismissedKey === key) return failedNotice;
 
   return (
+    <>
+    {failedNotice}
     <section className="banner" role="status" aria-label="MRT disruption">
       <div className="banner-head">
         <span className="banner-title">
@@ -52,7 +60,8 @@ export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
           <p className="banner-message">{alert.message}</p>
         </div>
       ))}
-      <Freshness fetchedAt={fetchedAt} now={now} label="Checked" />
+      {!alerts.refreshFailed && <Freshness fetchedAt={fetchedAt} now={now} label="Checked" />}
     </section>
+    </>
   );
 }

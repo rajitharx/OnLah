@@ -12,7 +12,7 @@ function response(status: TrainServiceStatus, alerts: TrainAlertDetail[], refres
 }
 
 function render(alerts: TrainAlertsState): string {
-  return renderToStaticMarkup(<DisruptionBanner alerts={alerts} now={NOW} />).replaceAll('&#x27;', "'");
+  return renderToStaticMarkup(<DisruptionBanner alerts={alerts} now={NOW} />).replace(/&#x27;/g, "'");
 }
 
 const alert: TrainAlertDetail = { stations: ['Tampines'], line: 'EWL', direction: 'Pasir Ris', message: 'Delay of 10 minutes', createdAt: '2026-10-26T09:50:00Z' };
