@@ -3,6 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
 
+## 1.54
+
+**Build and release labels.** The top of `/notes` read a single "Beta 1.53" version above a latest release of 1.51, which looked inconsistent. It now reads "This build: Beta <build>. Release notes cover up to <newest release>." and says that the build number rises with every change while the history lists milestones.
+
+- The newest release version comes from `releases[0]`, not from fixed text.
+- A test checks that the build version is not older than the newest release, comparing major and minor as numbers.
+- The roadmap guard test now checks that it parses every open checkbox in `Docs/onlah-ui-review.md`.
+
 ## 1.51
 
 **Release notes and roadmap.** A page at `/notes` (also `/about`) lists the app's features, a release history and a Shipped / Next / Later roadmap.

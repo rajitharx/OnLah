@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import changelog from '../../../CHANGELOG.md?raw';
 import reviewDoc from '../../../../../Docs/onlah-ui-review.md?raw';
+import { APP_VERSION, compareVersions } from '../../shared/version';
 import { ITEM_KINDS, features, releases, roadmap, ROADMAP_STATUSES } from './releases';
 
 function versionKey(version: string): [number, number] {
@@ -42,6 +43,10 @@ describe('releases', () => {
     }
   });
 
+  it('never lists a release newer than the build', () => {
+    expect(compareVersions(APP_VERSION, releases[0].version)).toBeGreaterThanOrEqual(0);
+  });
+
   it('includes the two latest fixes', () => {
     const text = JSON.stringify(releases);
     expect(text).toContain('Service alerts unavailable');
@@ -79,6 +84,12 @@ function openReviewItems(doc: string): string[] {
 
 describe('roadmap against the review document', () => {
   const planned = new Set(roadmap.filter((item) => item.status !== 'shipped').flatMap((item) => item.review ?? []));
+
+  it('parses every open checkbox in the review document', () => {
+    const checkboxes = reviewDoc.split('\n').filter((line) => /^\s*- \[ \]/.test(line));
+    expect(checkboxes.length).toBeGreaterThan(0);
+    expect(openReviewItems(reviewDoc)).toHaveLength(checkboxes.length);
+  });
 
   it('finds open items in both review sections', () => {
     const open = openReviewItems(reviewDoc);

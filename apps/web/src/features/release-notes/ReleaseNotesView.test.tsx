@@ -8,8 +8,19 @@ import { ITEM_KINDS, releases, ROADMAP_STATUSES } from './releases';
 describe('ReleaseNotesView', () => {
   const html = renderToStaticMarkup(<ReleaseNotesView version="1.49" />);
 
-  it('shows the current version', () => {
+  it('labels the version as this build', () => {
+    expect(html).toContain('This build');
     expect(html).toContain('Beta 1.49');
+    expect(html).not.toContain('Current version');
+  });
+
+  it('says how far the release notes go, from the newest release', () => {
+    expect(html).toContain(`Release notes cover up to <strong>${releases[0].version}</strong>`);
+  });
+
+  it('explains that builds rise with every change while notes list milestones', () => {
+    expect(html).toMatch(/build number rises with every change/i);
+    expect(html).toMatch(/milestones/i);
   });
 
   it('shows the latest release with its title', () => {

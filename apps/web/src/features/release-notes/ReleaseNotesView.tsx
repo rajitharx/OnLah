@@ -12,7 +12,10 @@ export function ReleaseNotesView({ version }: ReleaseNotesViewProps) {
         Release notes
       </h1>
       <p className="notes-version">
-        Current version <strong>{betaLabel(version)}</strong>
+        This build: <strong>{betaLabel(version)}</strong>. Release notes cover up to <strong>{releases[0].version}</strong>.
+      </p>
+      <p className="notes-summary">
+        The build number rises with every change. The release history lists milestones only, so its newest version can trail the build.
       </p>
 
       <section className="notes-section" aria-labelledby="notes-features">
