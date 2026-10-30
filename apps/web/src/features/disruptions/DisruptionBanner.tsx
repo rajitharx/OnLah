@@ -58,8 +58,8 @@ interface DisruptionsProps {
   onDismiss: (key: string) => void;
 }
 
-// The status wrapper holds only static text so a new disruption is announced. display: contents
-// keeps the title, button and age laid out as one grid, and the ticking age stays outside it.
+// The status wrapper holds only static text; the ticking age stays outside it. It is a real grid
+// item because display: contents can drop an element's role from the accessibility tree.
 function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: DisruptionsProps) {
   const { data, fetchedAt } = response;
   const { status, alerts: items } = data;
