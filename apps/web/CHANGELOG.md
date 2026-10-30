@@ -11,7 +11,7 @@ Entries are ordered by when their pull request merged into main, newest first, n
 
 - Pull request 33 merged a few minutes after 34, so 1.45 sits above 1.6. An earlier attempt to order by pull request number put them the other way round and was wrong.
 - A test checks that the merge times descend, that this file lists the same pull requests in the same order as `releases.ts`, and that only unmerged work at the top and early history at the end lack a merge time.
-- The guard that keeps node modules out of the browser bundle now follows double-quoted, side-effect, re-export and dynamic imports as well as single-quoted `from` imports.
+- The guard that keeps node code out of the browser bundle starts at `version.ts` and follows quoted `import`, `export ... from` and dynamic `import()` specifiers through files under `src/shared` and `scripts`. It fails on a `node:` specifier, on a bare built-in from a hardcoded list (`fs`, `path`, `url`, `os`, `child_process`, `crypto`, `util`, `stream`, `http`, `https`, `net`, `zlib`, `buffer`, `events`, `assert`, `module`, `worker_threads`, `readline`, `tty`, `vm`, and their subpaths such as `fs/promises`), and on `process.`. It does not follow computed specifiers, `require`, or imports from other folders, and it does not know built-ins outside that list.
 
 ## 1.67 (#37)
 

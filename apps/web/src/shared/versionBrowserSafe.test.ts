@@ -10,8 +10,30 @@ function importSpecifiers(text: string): string[] {
   return [...text.matchAll(/\b(?:from\s*|import\s*\(?\s*)(['"])([^'"]+)\1/g)].map((match) => match[2]);
 }
 
+const NODE_BUILTINS = new Set([
+  'fs', 'path', 'url', 'os', 'child_process', 'crypto', 'util', 'stream', 'http', 'https', 'net',
+  'zlib', 'buffer', 'events', 'assert', 'module', 'worker_threads', 'readline', 'tty', 'vm',
+]);
+
+// A hardcoded list of common built-ins, not every one node ships.
 function nodeModuleSpecifiers(text: string): string[] {
-  return importSpecifiers(text).filter((specifier) => specifier.startsWith('node:'));
+  return importSpecifiers(text).filter(
+    (specifier) => specifier.startsWith('node:') || NODE_BUILTINS.has(specifier.split('/')[0]),
+  );
+}
+
+function resolveImport(from: string, specifier: string, files: Record<string, string>): string | undefined {
+  if (!specifier.startsWith('.')) return undefined;
+  const parts = from.split('/').slice(0, -1).filter((part) => part !== '.');
+  for (const part of specifier.split('/')) {
+    if (part === '..') {
+      if (parts.length > 0 && parts[parts.length - 1] !== '..') parts.pop();
+      else parts.push('..');
+    } else if (part !== '.') parts.push(part);
+  }
+  const base = parts.join('/');
+  const prefix = base.startsWith('.') ? '' : './';
+  return ['', '.ts', '.tsx', '.mjs', '.js', '/index.ts'].map((suffix) => prefix + base + suffix).find((path) => path in files);
 }
 
 // Vite bundles version.ts for the browser, so nothing it imports may touch node. Tests and tsc run under node and miss this.
@@ -23,7 +45,8 @@ function reachableFrom(entry: string, files: Record<string, string>): Record<str
     if (path in found) continue;
     found[path] = files[path];
     for (const specifier of importSpecifiers(files[path])) {
-      if (specifier in files) queue.push(specifier);
+      const target = resolveImport(path, specifier, files);
+      if (target) queue.push(target);
     }
   }
   return found;
