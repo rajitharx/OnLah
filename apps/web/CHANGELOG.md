@@ -3,14 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
 
-Entries are ordered by when they shipped, newest first, not by version number: the minor number does not follow shipping order. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, and the numbers descend down the page. Early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `src/features/release-notes/releases.ts`.
+Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
 ## 1.73 (#38)
 
-**Release history in shipping order.** The list followed the minor number, so 1.45 sat above 1.6 although 1.6 shipped later. It now runs newest shipped first.
+**Release history by merge time.** The list is ordered newest merged first. Each release records the time its pull request merged, and the pull request number is shown as a reference.
 
-- Each release carries the number of the pull request that shipped it, in this file's headings and on `/notes`.
-- A test checks that the numbers descend in both places and that entries without a number stay at the end.
+- Pull request 33 merged a few minutes after 34, so 1.45 sits above 1.6. An earlier attempt to order by pull request number put them the other way round and was wrong.
+- A test checks that the merge times descend, that this file lists the same pull requests in the same order as `releases.ts`, and that only unmerged work at the top and early history at the end lack a merge time.
 - The guard that keeps node modules out of the browser bundle now follows double-quoted, side-effect, re-export and dynamic imports as well as single-quoted `from` imports.
 
 ## 1.67 (#37)
@@ -37,13 +37,6 @@ Entries are ordered by when they shipped, newest first, not by version number: t
 - The content is in `src/features/release-notes/releases.ts`. A test checks that its newest version matches the top entry here.
 - Each history item is tagged Feature, Improvement or Bug fix. The roadmap's Next and Later lists are the open items from `Docs/onlah-ui-review.md`.
 
-## 1.6 (#34)
-
-**Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
-
-- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
-- Try again reuses the existing manual refresh.
-
 ## 1.45 (#33)
 
 **Service alerts unavailable.** When the MRT alerts fail to load, the page now says "Service alerts unavailable" instead of showing nothing, which used to look the same as "no disruptions".
@@ -51,6 +44,13 @@ Entries are ordered by when they shipped, newest first, not by version number: t
 - The notice is neutral, without the red used for real disruptions. It is announced to screen readers as a status.
 - A failed refresh after alerts have loaded keeps the last result, as before.
 - With no alerts and no error the page still shows nothing.
+
+## 1.6 (#34)
+
+**Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
+
+- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
+- Try again reuses the existing manual refresh.
 
 ## 1.5 (#16)
 

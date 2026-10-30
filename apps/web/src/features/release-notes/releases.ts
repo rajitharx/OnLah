@@ -6,13 +6,20 @@ export interface ReleaseItem {
   text: string;
 }
 
-export interface Release {
+// `shipped` is the committer date of the PR's merge commit on main (git log --first-parent --format=%cI).
+// null with a pr means the PR is still open: fill it in after the merge. null without a pr is
+// history from before the pull request workflow. A merge time without a pr cannot exist.
+export type Shipping =
+  | { pr: number; shipped: string }
+  | { pr: number; shipped: null }
+  | { pr: null; shipped: null };
+
+export type Release = Shipping & {
   version: string;
-  pr: number | null;
   title: string;
   summary: string;
   items: ReleaseItem[];
-}
+};
 
 export interface RoadmapItem {
   status: RoadmapStatus;
@@ -45,17 +52,19 @@ export const releases: Release[] = [
   {
     version: '1.73',
     pr: 38,
-    title: 'Release history in shipping order',
-    summary: 'This list now runs newest shipped first, and each entry shows the pull request that shipped it.',
+    shipped: null,
+    title: 'Release history by merge time',
+    summary: 'This list runs newest merged first. Each entry records when its pull request merged and shows the pull request number.',
     items: [
-      { kind: 'fix', text: 'Versions 1.45 and 1.6 were listed out of order because the list followed the minor number. It now follows the pull request number.' },
-      { kind: 'improvement', text: 'A test checks that the pull request numbers descend here and in the changelog, and that early entries without a number stay at the end.' },
+      { kind: 'improvement', text: 'Releases are ordered by the time their pull request merged, not by version or pull request number. Pull request 33 merged just after 34, so 1.45 sits above 1.6.' },
+      { kind: 'improvement', text: 'A test checks that the merge times descend here, that the changelog lists the same pull requests in the same order, and that only unmerged work at the top and early history at the end lack a merge time.' },
       { kind: 'improvement', text: 'The check that stops browser code from importing node modules now follows every import form, not only single-quoted ones.' },
     ],
   },
   {
     version: '1.67',
     pr: 37,
+    shipped: null,
     title: 'Clearer stale and alert notices',
     summary: 'A failed refresh no longer repeats the data age, and a failed alerts refresh no longer reads as all clear.',
     items: [
@@ -67,6 +76,7 @@ export const releases: Release[] = [
   {
     version: '1.54',
     pr: 36,
+    shipped: '2026-10-30T11:26:36+08:00',
     title: 'Build and release labels',
     summary: 'This page now tells the build number apart from the release history.',
     items: [
@@ -78,6 +88,7 @@ export const releases: Release[] = [
   {
     version: '1.51',
     pr: 35,
+    shipped: '2026-10-30T11:18:37+08:00',
     title: 'Release notes and roadmap',
     summary: 'This page. It is not linked from the app, so open it by URL at /notes or /about.',
     items: [
@@ -85,8 +96,21 @@ export const releases: Release[] = [
     ],
   },
   {
+    version: '1.45',
+    pr: 33,
+    shipped: '2026-10-29T21:14:02+08:00',
+    title: 'Service alerts unavailable',
+    summary:
+      'When the MRT alerts fail to load, the page now says so instead of showing nothing, which used to look the same as "no disruptions".',
+    items: [
+      { kind: 'fix', text: 'A failed alerts load shows a "Service alerts unavailable" notice, announced to screen readers as a status.' },
+      { kind: 'improvement', text: 'The notice is neutral, without the red used for real disruptions.' },
+    ],
+  },
+  {
     version: '1.6',
     pr: 34,
+    shipped: '2026-10-29T21:10:46+08:00',
     title: 'Stale arrivals warning',
     summary:
       'When a refresh fails, the last times stay on screen and a notice says how old they are, with a Try again button.',
@@ -97,19 +121,9 @@ export const releases: Release[] = [
     ],
   },
   {
-    version: '1.45',
-    pr: 33,
-    title: 'Service alerts unavailable',
-    summary:
-      'When the MRT alerts fail to load, the page now says so instead of showing nothing, which used to look the same as "no disruptions".',
-    items: [
-      { kind: 'fix', text: 'A failed alerts load shows a "Service alerts unavailable" notice, announced to screen readers as a status.' },
-      { kind: 'improvement', text: 'The notice is neutral, without the red used for real disruptions.' },
-    ],
-  },
-  {
     version: '1.5',
     pr: 16,
+    shipped: '2026-10-21T23:35:41+08:00',
     title: 'Last bus',
     summary: 'The ETA tile for a service\'s last bus of the night carries a "LAST" tag.',
     items: [
@@ -121,6 +135,7 @@ export const releases: Release[] = [
   {
     version: '1.1',
     pr: 14,
+    shipped: '2026-10-21T13:38:11+08:00',
     title: 'Route Tracker',
     summary: 'Follow one bus service at one stop.',
     items: [
@@ -133,6 +148,7 @@ export const releases: Release[] = [
   {
     version: '0.4',
     pr: null,
+    shipped: null,
     title: 'Review fixes and polish',
     summary: 'Versions 0.1 to 0.4: the first round of fixes from the UI review.',
     items: [
