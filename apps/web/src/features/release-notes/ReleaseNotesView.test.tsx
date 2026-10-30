@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AppHeader } from '../../app/AppHeader';
@@ -36,8 +34,8 @@ describe('ReleaseNotesView', () => {
   });
 
   it('does not style fixes with the crowd red', () => {
-    const css = readFileSync(resolve(process.cwd(), 'src/app/styles.css'), 'utf8');
-    const rule = new RegExp(`\\.${ITEM_KINDS.fix.className}\\s*\\{([^}]*)\\}`).exec(css)?.[1];
+    const [styles] = Object.values(import.meta.glob<string>('/src/app/styles.css', { query: '?raw', import: 'default', eager: true }));
+    const rule = new RegExp(`\\.${ITEM_KINDS.fix.className}\\s*\\{([^}]*)\\}`).exec(styles)?.[1];
     expect(rule).toBeDefined();
     expect(rule).not.toMatch(/crowd|red|error/);
   });
@@ -56,14 +54,13 @@ describe('navigation stays unlinked from the notes page', () => {
   });
 
   it('mentions /notes or /about nowhere else in the app source', () => {
-    const src = resolve(process.cwd(), 'src');
+    const sources = import.meta.glob<string>('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true });
     const allowed = (file: string) =>
-      /\.test\.tsx?$/.test(file) || file.endsWith('.css') || file === 'app/routes.ts' || file.startsWith('features/release-notes/');
-    const offenders = (readdirSync(src, { recursive: true }) as string[])
-      .map((file) => file.split('\\').join('/'))
-      .filter((file) => /\.(ts|tsx)$/.test(file) && !allowed(file))
-      .filter((file) => /\/(notes|about)\b/.test(readFileSync(join(src, file), 'utf8')))
-      .map((file) => relative(src, join(src, file)));
+      /\.test\.tsx?$/.test(file) || file.endsWith('/app/routes.ts') || file.includes('/features/release-notes/');
+    const offenders = Object.entries(sources)
+      .filter(([file, text]) => !allowed(file) && /\/(notes|about)\b/.test(text))
+      .map(([file]) => file);
+    expect(Object.keys(sources).length).toBeGreaterThan(20);
     expect(offenders).toEqual([]);
   });
 

@@ -18,7 +18,7 @@ To point at another backend, set `VITE_API_BASE_URL` (default `http://localhost:
 
 ## Version
 
-The version is `major.minor` in `package.json`. The header shows it as "Beta <version>". `CHANGELOG.md` records what each milestone version added.
+The version is `major.minor` in `package.json`. The header shows it as "Beta <version>". `CHANGELOG.md` records what each release shown on the `/notes` page added. Every entry in `src/features/release-notes/releases.ts` needs a matching `CHANGELOG.md` heading.
 
 - Every commit raises the minor version by 0.1. `.githooks/pre-commit` runs `bump:minor` and stages `package.json` with the commit.
 - `npm install` points git at `.githooks` (the `prepare` script). Without it, run `git config core.hooksPath .githooks` once.

@@ -16,6 +16,7 @@ export interface Release {
 export interface RoadmapItem {
   status: RoadmapStatus;
   text: string;
+  review?: string[];
 }
 
 export const ITEM_KINDS: Record<ItemKind, { label: string; className: string }> = {
@@ -36,7 +37,7 @@ export const features: string[] = [
   'Save up to 20 buses and 10 stops. They stay on your device and refresh together on the Saved tab.',
   'Route Tracker: follow one service at one stop, with a "N stops away" countdown and a rail of every stop.',
   'A LAST tag on the final bus of the night, and a banner when the MRT is disrupted.',
-  'Works offline once loaded, and every screen has its own link you can bookmark.',
+  'The app opens offline once loaded; arrival times need a connection. Every screen has its own link you can bookmark.',
 ];
 
 export const releases: Release[] = [
@@ -65,7 +66,7 @@ export const releases: Release[] = [
       'When a refresh fails, the last times stay on screen and a notice says how old they are, with a Try again button. (PR #34)',
     items: [
       { kind: 'fix', text: 'A failed refresh shows "Couldn\'t refresh. Showing data from Ns ago." and clears on the next success.' },
-      { kind: 'improvement', text: 'One shared notice for the stop board, saved stops and the Route Tracker, with the amber border rather than the crowd-red error style.' },
+      { kind: 'improvement', text: 'One shared notice for the stop board, saved stops and the Route Tracker, with an amber border rather than a red one.' },
       { kind: 'improvement', text: 'Try again reuses the existing manual refresh.' },
     ],
   },
@@ -114,17 +115,18 @@ export const roadmap: RoadmapItem[] = [
   { status: 'shipped', text: 'Neutral wordmark dot (#20), crossed wheelchair only for inaccessible buses (#21), one refresh control per saved stop (#22).' },
   { status: 'shipped', text: 'Stale arrivals warning with Try again (#34).' },
   { status: 'shipped', text: 'Service alerts unavailable state (#33).' },
-  { status: 'next', text: 'Check the no-service state for late-night and not-operating services.' },
-  { status: 'next', text: 'Test Nearby on a real phone.' },
-  { status: 'next', text: 'Search by bus number as well as stop.' },
-  { status: 'next', text: 'Show the buses each search result serves, and the distance when location is known.' },
-  { status: 'next', text: 'Check the contrast of the search placeholder.' },
-  { status: 'next', text: 'Give the header dot a label for screen readers.' },
-  { status: 'next', text: 'In the service details sheet, highlight the direction that serves this stop and collapse the other.' },
-  { status: 'later', text: 'Decide the look on purpose and update the design spec, which still describes a dark-first design.' },
-  { status: 'later', text: 'Dark mode. Tried in #6, removed in #7.' },
-  { status: 'later', text: 'Neutral tiles with crowd bars. Tried in #6, reverted in #7.' },
-  { status: 'later', text: 'Make the next bus larger than the 2nd and 3rd. Tried in #6, undone in #9.' },
-  { status: 'later', text: 'Reorder saved buses and stops. Added in #6, removed in #8.' },
-  { status: 'later', text: 'One meaning and colour for the live dots. Changed in #6, restored in #7.' },
+  { status: 'next', text: 'Check the no-service state for late-night and not-operating services.', review: ['ui-16'] },
+  { status: 'next', text: 'Test Nearby on a real phone.', review: ['qa-4'] },
+  { status: 'next', text: 'Search by bus number as well as stop.', review: ['ui-39'] },
+  { status: 'next', text: 'Show the buses each search result serves, and the distance when location is known.', review: ['ui-37'] },
+  { status: 'next', text: 'Check the contrast of the search placeholder.', review: ['ui-40'] },
+  { status: 'next', text: 'Give the header dot a label for screen readers.', review: ['ui-45'] },
+  { status: 'next', text: 'In the service details sheet, highlight the direction that serves this stop and collapse the other.', review: ['ui-21'] },
+  { status: 'later', text: 'Decide the look on purpose and update the design spec, which still describes a dark-first design.', review: ['ui-51'] },
+  { status: 'later', text: 'Dark mode. Tried in #6, removed in #7.', review: ['ui-52'] },
+  { status: 'later', text: 'Neutral tiles with crowd bars. Tried in #6, reverted in #7.', review: ['ui-6'] },
+  { status: 'later', text: 'Make the next bus larger than the 2nd and 3rd. Tried in #6, undone in #9.', review: ['ui-8'] },
+  { status: 'later', text: 'Reorder saved buses and stops. Added in #6, removed in #8.', review: ['ui-33'] },
+  { status: 'later', text: 'Decide whether the dark bar inside the coloured tile stays, or commit to the split-flap look with a seam line and flatter colour.', review: ['ui-11'] },
+  { status: 'later', text: 'One meaning and colour for the live dots. Changed in #6, restored in #7.', review: ['ui-15'] },
 ];

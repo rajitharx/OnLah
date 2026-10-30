@@ -1,7 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import changelog from '../../../CHANGELOG.md?raw';
+import reviewDoc from '../../../../../Docs/onlah-ui-review.md?raw';
 import { ITEM_KINDS, features, releases, roadmap, ROADMAP_STATUSES } from './releases';
 
 function versionKey(version: string): [number, number] {
@@ -61,8 +60,6 @@ describe('roadmap and features', () => {
   });
 });
 
-const REVIEW_DOC = readFileSync(resolve(process.cwd(), '../../Docs/onlah-ui-review.md'), 'utf8');
-
 const SECTIONS: Record<string, string> = { 'UI Review': 'ui', 'QA Pass': 'qa' };
 
 // Open items that belong on no roadmap entry, with the reason. Keyed like "ui-12".
@@ -84,18 +81,18 @@ describe('roadmap against the review document', () => {
   const planned = new Set(roadmap.filter((item) => item.status !== 'shipped').flatMap((item) => item.review ?? []));
 
   it('finds open items in both review sections', () => {
-    const open = openReviewItems(REVIEW_DOC);
+    const open = openReviewItems(reviewDoc);
     expect(open.some((key) => key.startsWith('ui-'))).toBe(true);
     expect(open.some((key) => key.startsWith('qa-'))).toBe(true);
   });
 
   it('puts every open review item in Next or Later, or explains why not', () => {
-    const missing = openReviewItems(REVIEW_DOC).filter((key) => !planned.has(key) && !(key in NOT_ON_ROADMAP));
+    const missing = openReviewItems(reviewDoc).filter((key) => !planned.has(key) && !(key in NOT_ON_ROADMAP));
     expect(missing).toEqual([]);
   });
 
   it('does not plan work the review document marks done', () => {
-    const open = new Set(openReviewItems(REVIEW_DOC));
+    const open = new Set(openReviewItems(reviewDoc));
     const stale = [...planned].filter((key) => !open.has(key));
     expect(stale).toEqual([]);
   });
