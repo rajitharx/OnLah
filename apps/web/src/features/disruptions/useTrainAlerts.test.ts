@@ -32,7 +32,7 @@ describe('nextStateOnSuccess', () => {
     expect(nextStateOnSuccess(loaded)).toEqual({ status: 'ok', alerts: loaded, refreshFailed: false });
   });
 
-  it('clears a failed refresh flag when the next fetch succeeds', () => {
+  it('marks a failed refresh and builds a success state with the flag unset', () => {
     const failed = nextStateOnFailure(nextStateOnSuccess(loaded));
     expect(failed).toMatchObject({ refreshFailed: true });
     expect(nextStateOnSuccess(loaded)).toMatchObject({ refreshFailed: false });
