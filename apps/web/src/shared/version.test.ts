@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { bumpVersion, parseVersion } from '../../scripts/bump-version.mjs';
-import { APP_VERSION, betaLabel } from './version';
+import { APP_VERSION, betaLabel, compareVersions } from './version';
 
 describe('parseVersion', () => {
   it('reads a major.minor version', () => {
@@ -30,5 +30,20 @@ describe('betaLabel', () => {
   it('shows the shipped version as two digits', () => {
     expect(APP_VERSION).toMatch(/^\d+\.\d+$/);
     expect(betaLabel(APP_VERSION)).toBe(`Beta ${APP_VERSION}`);
+  });
+});
+
+describe('compareVersions', () => {
+  it('compares the minor number as a number, not as text', () => {
+    expect(compareVersions('1.9', '1.10')).toBeLessThan(0);
+    expect(compareVersions('1.53', '1.6')).toBeGreaterThan(0);
+  });
+
+  it('lets the major number outrank the minor number', () => {
+    expect(compareVersions('2.0', '1.99')).toBeGreaterThan(0);
+  });
+
+  it('returns zero for equal versions', () => {
+    expect(compareVersions('1.51', '1.51')).toBe(0);
   });
 });
