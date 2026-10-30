@@ -4,16 +4,31 @@ import reviewDoc from '../../../../../Docs/onlah-ui-review.md?raw';
 import { APP_VERSION, compareVersions } from '../../shared/version';
 import { ITEM_KINDS, features, releases, roadmap, ROADMAP_STATUSES } from './releases';
 
-function versionKey(version: string): [number, number] {
-  const [major, minor] = version.split('.').map(Number);
-  return [major, minor];
+const HEADING_PR = / \(#(\d+)\)$/;
+
+function changelogHeadings(): { version: string; pr: number | null }[] {
+  return [...changelog.matchAll(/^## (.+)$/gm)].map((match) => {
+    const pr = HEADING_PR.exec(match[1])?.[1];
+    return { version: match[1].replace(HEADING_PR, ''), pr: pr ? Number(pr) : null };
+  });
 }
 
 describe('releases', () => {
-  it('lists releases newest first', () => {
-    const keys = releases.map((release) => versionKey(release.version));
-    const sorted = [...keys].sort((a, b) => b[0] - a[0] || b[1] - a[1]);
-    expect(keys).toEqual(sorted);
+  it('lists releases by the pull request that shipped them, newest first', () => {
+    const prs = releases.map((release) => release.pr);
+    const numbered = prs.filter((pr): pr is number => pr !== null);
+    expect(prs.slice(0, numbered.length)).toEqual(numbered);
+    expect(numbered).toEqual([...numbered].sort((a, b) => b - a));
+    expect(new Set(numbered).size).toBe(numbered.length);
+  });
+
+  it('puts releases with no known pull request after every numbered one', () => {
+    const firstNull = releases.findIndex((release) => release.pr === null);
+    if (firstNull !== -1) expect(releases.slice(firstNull).every((release) => release.pr === null)).toBe(true);
+  });
+
+  it('lists the changelog in the same order, with the same pull request numbers', () => {
+    expect(changelogHeadings().map(({ pr }) => pr)).toEqual(releases.map((release) => release.pr));
   });
 
   it('gives every release a unique version', () => {
@@ -32,12 +47,11 @@ describe('releases', () => {
   });
 
   it('agrees with the changelog on the newest version', () => {
-    const top = /^## (\S+)/m.exec(changelog)?.[1];
-    expect(releases[0].version).toBe(top);
+    expect(releases[0].version).toBe(changelogHeadings()[0].version);
   });
 
   it('only lists versions the changelog also lists', () => {
-    const headings = [...changelog.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
+    const headings = changelogHeadings().map(({ version }) => version);
     for (const release of releases) {
       expect(headings.some((heading) => heading === release.version || heading.endsWith(` to ${release.version}`))).toBe(true);
     }

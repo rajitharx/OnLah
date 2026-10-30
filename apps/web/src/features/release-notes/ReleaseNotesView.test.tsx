@@ -28,6 +28,11 @@ describe('ReleaseNotesView', () => {
     expect(html).toContain(releases[0].title);
   });
 
+  it('shows the pull request that shipped each release that has one', () => {
+    for (const { pr } of releases) if (pr !== null) expect(html).toContain(`#${pr}`);
+    expect(html.match(/notes-release-pr/g)).toHaveLength(releases.filter((release) => release.pr !== null).length);
+  });
+
   it('labels each kind of item', () => {
     for (const { label } of Object.values(ITEM_KINDS)) expect(html).toContain(label);
   });
