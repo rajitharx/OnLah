@@ -1,7 +1,15 @@
 # Changelog
 
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
-Every commit raises the minor number by one through the pre-commit hook, so only milestone versions are listed here.
+Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
+
+## 1.51
+
+**Release notes and roadmap.** A page at `/notes` (also `/about`) lists the app's features, a release history and a Shipped / Next / Later roadmap.
+
+- It is reachable by URL only. No tab, button or header link points to it, and no tab shows as active on it.
+- The content is in `src/features/release-notes/releases.ts`. A test checks that its newest version matches the top entry here.
+- Each history item is tagged Feature, Improvement or Bug fix. The roadmap's Next and Later lists are the open items from `Docs/onlah-ui-review.md`.
 
 ## 1.45
 
@@ -15,7 +23,7 @@ Every commit raises the minor number by one through the pre-commit hook, so only
 
 **Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
 
-- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not the crowd-red error style.
+- One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
 - Try again reuses the existing manual refresh.
 
 ## 1.5

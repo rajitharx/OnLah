@@ -18,7 +18,7 @@ To point at another backend, set `VITE_API_BASE_URL` (default `http://localhost:
 
 ## Version
 
-The version is `major.minor` in `package.json`. The header shows it as "Beta <version>". `CHANGELOG.md` records what each milestone version added.
+The version is `major.minor` in `package.json`. The header shows it as "Beta <version>". `CHANGELOG.md` records what each release shown on the `/notes` page added. Every entry in `src/features/release-notes/releases.ts` needs a matching `CHANGELOG.md` heading.
 
 - Every commit raises the minor version by 0.1. `.githooks/pre-commit` runs `bump:minor` and stages `package.json` with the commit.
 - `npm install` points git at `.githooks` (the `prepare` script). Without it, run `git config core.hooksPath .githooks` once.
@@ -45,6 +45,7 @@ A service worker (`src/sw/sw.ts`, built to `dist/sw.js` by `scripts/offlineWorke
 ## What it does
 
 - **Routes**: each screen has a path (`/search`, `/nearby`, `/saved`, `/stop/01121`, `/stop/01121/bus/197`). Refresh, back and bookmarks keep the place. Vite serves the app for any path in dev. Cloudflare Pages uses `public/_redirects` to do the same in production.
+- **Release notes** (`/notes`, also `/about`): features, release history and roadmap. Nothing in the app links to it. The content is in `src/features/release-notes/releases.ts`. To add a release, put a new entry at the top of `releases` (newest first, same version as the new `CHANGELOG.md` heading), tag each item `feature`, `improvement` or `fix`, and move any finished roadmap item to `shipped`. A test fails if the newest release and the changelog's top entry disagree. The production host already serves the app for these paths (`public/_redirects`), and the service worker answers any navigation with the cached shell.
 - **Route Tracker** (`/track/:busStopCode/:serviceNo`): one service at one stop. A "N stops away" countdown, the ETA and crowd level, the later buses, and a vertical rail of every stop with the bus and the user's stop marked. It refreshes every 20 seconds, pauses while the tab is hidden, and never overlaps requests. A bus with no GPS fix shows the ETA only, and a timetable-only bus shows "Scheduled". There is no map. Open it from the Track link on any service row.
 - **Board**: stop name and road, then one row per service with three ETA tiles (minutes, crowd level, bus type, wheelchair access). The tile for a service's last bus carries a "LAST" tag. Refreshes every 20 seconds. A failed refresh keeps the last known times and says so.
 - **Search**: by stop code or road name. Backend limits apply: 2 to 50 characters, max 20 results.

@@ -4,11 +4,14 @@ export type Route =
   | { view: 'home' }
   | { view: TabView }
   | { view: 'board'; stopCode: string; serviceNo: string | null }
-  | { view: 'track'; stopCode: string; serviceNo: string };
+  | { view: 'track'; stopCode: string; serviceNo: string }
+  | { view: 'notes' };
 
 const TRACK_PATH = /^\/track\/(\d{5})\/([^/]+)\/?$/;
 const STOP_PATH = /^\/stop\/(\d{5})(?:\/bus\/([^/]+))?\/?$/;
 const TAB_PATHS: Record<string, TabView> = { '/saved': 'saved', '/search': 'search', '/nearby': 'nearby' };
+// Reachable by URL only. Nothing in the app links here.
+const NOTES_PATH = /^\/(?:notes|about)\/?$/;
 
 // Paths are the source of truth for the view, so refresh, back and bookmarks keep the place.
 export function parseRoute(pathname: string): Route {
@@ -23,6 +26,8 @@ export function parseRoute(pathname: string): Route {
 function matchRoute(pathname: string): Route {
   const tab = TAB_PATHS[pathname];
   if (tab !== undefined) return { view: tab };
+
+  if (NOTES_PATH.test(pathname)) return { view: 'notes' };
 
   const stop = STOP_PATH.exec(pathname);
   if (stop !== null) {

@@ -62,6 +62,24 @@ describe('formatRoute', () => {
   });
 });
 
+describe('release notes route', () => {
+  it('maps /notes and /about to the notes view, with or without a trailing slash', () => {
+    for (const path of ['/notes', '/notes/', '/about', '/about/']) {
+      expect(parseRoute(path)).toEqual({ view: 'notes' });
+    }
+  });
+
+  it('keeps unrelated and nested paths on home', () => {
+    for (const path of ['/note', '/notes/extra', '/about/us', '/aboutx']) {
+      expect(parseRoute(path)).toEqual({ view: 'home' });
+    }
+  });
+
+  it('formats the notes route as /notes', () => {
+    expect(formatRoute({ view: 'notes' })).toBe('/notes');
+  });
+});
+
 describe('defaultView', () => {
   it('opens Search for a visitor with nothing saved', () => {
     expect(defaultView(false)).toBe('search');

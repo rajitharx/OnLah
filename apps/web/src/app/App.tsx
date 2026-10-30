@@ -10,6 +10,7 @@ import { useSavedBuses } from '../features/saved-buses/useSavedBuses';
 import { NearbyView } from '../features/nearby/NearbyView';
 import { SearchView } from '../features/search/SearchView';
 import { StopBoard } from '../features/arrivals/StopBoard';
+import { ReleaseNotesView } from '../features/release-notes/ReleaseNotesView';
 import { RouteTrackerView } from '../features/route-tracker/RouteTrackerView';
 import { useBoardStop, type BoardStopStatus } from '../features/arrivals/useBoardStop';
 import { useStopArrivals } from '../features/arrivals/useStopArrivals';
@@ -43,7 +44,7 @@ export default function App() {
   const saved = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
   const hasSaved = savedBuses.buses.length > 0 || favourites.stops.length > 0;
-  const view: TabView | 'board' | 'track' = route.view === 'home' ? defaultView(hasSaved) : route.view;
+  const view: TabView | 'board' | 'track' | 'notes' = route.view === 'home' ? defaultView(hasSaved) : route.view;
 
   const openStop = (next: BusStop): void => {
     setKnownStop(next);
@@ -109,6 +110,7 @@ export default function App() {
         {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
           <EmptyState icon={<SearchIcon size={24} />} message={BOARD_MESSAGES[board.status]} />
         )}
+        {route.view === 'notes' && <ReleaseNotesView version={APP_VERSION} />}
         {view === 'search' && (
           <SearchView query={searchQuery} onQueryChange={setSearchQuery} onOpen={openStop} />
         )}
