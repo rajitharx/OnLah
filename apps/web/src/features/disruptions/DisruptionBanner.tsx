@@ -42,7 +42,7 @@ function noticeFor(alerts: TrainAlertsState): string | null {
 function NoticeSlot({ text, failedAt, now }: { text: string | null; failedAt: string | null; now: number }) {
   return (
     <div className={text === null ? undefined : 'banner'}>
-      <div role="status" className="banner-live">
+      <div role="status" aria-label="Service alerts" className="banner-live">
         {text !== null && <p className="banner-message">{text}</p>}
       </div>
       {text !== null && failedAt !== null && <Freshness fetchedAt={failedAt} now={now} label="Last checked" />}
@@ -67,7 +67,7 @@ function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: 
   if (dismissedKey === key) return null;
 
   return (
-    <section className="banner" role="status" aria-label="MRT disruption">
+    <section className="banner" aria-label="MRT disruption">
       <div className="banner-head">
         <span className="banner-title">
           <AlertIcon size={16} />

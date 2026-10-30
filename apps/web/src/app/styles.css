@@ -413,6 +413,10 @@ input {
   min-width: 0;
 }
 
+.banner:has(+ .banner) {
+  margin-bottom: var(--space-xs);
+}
+
 .banner-head {
   display: flex;
   align-items: center;
