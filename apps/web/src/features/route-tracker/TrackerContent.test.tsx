@@ -77,12 +77,20 @@ describe('TrackerContent states', () => {
     expect(html).toContain('>Try again<');
   });
 
-  it('keeps the last known tracker and says it is stale when a refresh fails', () => {
+  it('keeps the last known tracker and shows its age once when a refresh fails', () => {
     const html = render({ data: tracker(), failed: true }, true);
 
     expect(html).toContain('Showing data from 5s ago.');
-    expect(html).toContain('Stale');
+    expect(html.match(/5s ago/g)).toHaveLength(1);
+    expect(html).not.toContain('Stale');
     expect(html).toContain('3 stops away');
+  });
+
+  it('marks old data as stale without a failed refresh, such as a hidden tab', () => {
+    const html = render({ data: tracker() }, true);
+
+    expect(html).toContain('Stale · Updated 5s ago');
+    expect(html).not.toContain("Couldn't refresh");
   });
 });
 
