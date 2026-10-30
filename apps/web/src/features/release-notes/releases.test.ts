@@ -14,20 +14,24 @@ function changelogHeadings(): { version: string; pr: number | null }[] {
 }
 
 describe('releases', () => {
-  it('lists releases by the pull request that shipped them, newest first', () => {
-    const prs = releases.map((release) => release.pr);
-    const numbered = prs.filter((pr): pr is number => pr !== null);
-    expect(prs.slice(0, numbered.length)).toEqual(numbered);
-    expect(numbered).toEqual([...numbered].sort((a, b) => b - a));
+  it('lists releases by when they merged, newest first', () => {
+    const times = releases.flatMap((release) => (release.shipped === null ? [] : [Date.parse(release.shipped)]));
+    expect(times.every(Number.isFinite)).toBe(true);
+    expect(times).toEqual([...times].sort((a, b) => b - a));
+  });
+
+  it('allows a missing merge time only for unmerged work at the top and pre-pull-request history at the end', () => {
+    const phase = (release: (typeof releases)[number]) =>
+      release.shipped !== null ? 'M' : release.pr !== null ? 'U' : 'L';
+    expect(releases.map(phase).join('')).toMatch(/^U*M*L*$/);
+  });
+
+  it('lists each pull request once', () => {
+    const numbered = releases.flatMap((release) => (release.pr === null ? [] : [release.pr]));
     expect(new Set(numbered).size).toBe(numbered.length);
   });
 
-  it('puts releases with no known pull request after every numbered one', () => {
-    const firstNull = releases.findIndex((release) => release.pr === null);
-    if (firstNull !== -1) expect(releases.slice(firstNull).every((release) => release.pr === null)).toBe(true);
-  });
-
-  it('lists the changelog in the same order, with the same pull request numbers', () => {
+  it('lists the changelog in the same order as the releases, with the same pull request numbers', () => {
     expect(changelogHeadings().map(({ pr }) => pr)).toEqual(releases.map((release) => release.pr));
   });
 
