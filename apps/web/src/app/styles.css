@@ -424,23 +424,23 @@ input {
 }
 
 .banner-alert-live {
-  display: contents;
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
 .banner-alert .banner-title {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: center;
-  justify-self: start;
+  align-self: flex-start;
 }
 
 .banner-alert .banner-dismiss {
   grid-column: 2;
   grid-row: 1;
-  align-self: center;
+  align-self: start;
 }
 
-.banner-alert .banner-item,
 .banner-alert .freshness {
   grid-column: 1 / -1;
 }
