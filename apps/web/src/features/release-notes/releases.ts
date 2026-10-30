@@ -42,6 +42,15 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.54',
+    title: 'Build and release labels',
+    summary: 'This page now tells the build number apart from the release history.',
+    items: [
+      { kind: 'fix', text: 'The top of this page shows "This build" and "Release notes cover up to" instead of a single version that looked newer than the latest release.' },
+      { kind: 'improvement', text: 'A test checks that the build is never older than the newest release listed here.' },
+    ],
+  },
+  {
     version: '1.51',
     title: 'Release notes and roadmap',
     summary: 'This page. It is not linked from the app, so open it by URL at /notes or /about.',
