@@ -9,7 +9,7 @@ Entries are ordered by when their pull request merged into main, newest first, n
 
 **Release history by merge time.** The list is ordered newest merged first. Each release records the time its pull request merged, and the pull request number is shown as a reference.
 
-- Pull request 33 merged a few minutes after 34, so 1.45 sits above 1.6. An earlier attempt to order by pull request number put them the other way round and was wrong.
+- Pull request 33 merged a few minutes after 34, so 1.45 sits above 1.6.
 - A test checks that the merge times descend, that this file lists the same pull requests in the same order as `releases.ts`, and that only unmerged work at the top and early history at the end lack a merge time.
 - The guard that keeps node code out of the browser bundle starts at `version.ts` and follows quoted `import`, `export ... from` and dynamic `import()` specifiers, resolving relative ones, but only to files in `src/shared` and `scripts`. It checks only the files reachable that way; a file that `version.ts` does not import is not checked, even under `src/shared`. It fails on a `node:` specifier, on a bare built-in from a hardcoded list (`fs`, `path`, `url`, `os`, `child_process`, `crypto`, `util`, `stream`, `http`, `https`, `net`, `zlib`, `buffer`, `events`, `assert`, `module`, `worker_threads`, `readline`, `tty`, `vm`, and their subpaths such as `fs/promises`), and on the text `process.`, so a bare `process` is not flagged. It does not follow computed specifiers, `require`, or imports that resolve to folders other than `src/shared` and `scripts`, and it does not know built-ins outside that list.
 

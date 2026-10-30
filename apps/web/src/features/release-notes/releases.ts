@@ -58,7 +58,7 @@ export const releases: Release[] = [
     items: [
       { kind: 'improvement', text: 'Releases are ordered by the time their pull request merged, not by version or pull request number. Pull request 33 merged just after 34, so 1.45 sits above 1.6.' },
       { kind: 'improvement', text: 'A test checks that the merge times descend here, that the changelog lists the same pull requests in the same order, and that only unmerged work at the top and early history at the end lack a merge time.' },
-      { kind: 'improvement', text: 'A test checks that the files reachable from version.ts, within src/shared and scripts, do not import a common node built-in or contain the text "process." (a bare process is not flagged). It follows quoted import, export-from and dynamic import specifiers. A file that version.ts does not import is not checked. It does not follow computed specifiers or imports that resolve to other folders, and it does not know built-ins missing from its list.' },
+      { kind: 'improvement', text: 'A test checks that the files reachable from version.ts, within src/shared and scripts, do not import any node: specifier, whatever the module, or a bare built-in from its fixed list (fs, path, url, os, child_process, crypto, util, stream, http, https, net, zlib, buffer, events, assert, module, worker_threads, readline, tty, vm, and their subpaths), or contain the text "process." (a bare process is not flagged). It follows quoted import, export-from and dynamic import specifiers. A file that version.ts does not import is not checked. It does not follow computed specifiers or imports that resolve to other folders, and it does not know built-ins missing from its list.' },
     ],
   },
   {
