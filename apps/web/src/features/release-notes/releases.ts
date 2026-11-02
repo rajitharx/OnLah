@@ -42,6 +42,16 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.67',
+    title: 'Clearer stale and alert notices',
+    summary: 'A failed refresh no longer repeats the data age, and a failed alerts refresh no longer reads as all clear.',
+    items: [
+      { kind: 'fix', text: 'The Route Tracker shows the data age once when a refresh fails, in the "Couldn\'t refresh" notice, not again in the header.' },
+      { kind: 'fix', text: 'If a service alerts refresh fails after a result, the page says "Couldn\'t refresh service alerts" with the time of the last check, whether or not that result had alerts. It clears on the next success.' },
+      { kind: 'fix', text: 'The "unavailable" and "couldn\'t refresh" notices sit in a status region that is always on the page. The disruption card\'s own status region appears with the alerts, so announcing a newly appearing disruption is not guaranteed. This is not tested with a screen reader. The ticking age is kept outside every status region.' },
+    ],
+  },
+  {
     version: '1.54',
     title: 'Build and release labels',
     summary: 'This page now tells the build number apart from the release history.',
@@ -125,6 +135,7 @@ export const roadmap: RoadmapItem[] = [
   { status: 'shipped', text: 'Neutral wordmark dot (#20), crossed wheelchair only for inaccessible buses (#21), one refresh control per saved stop (#22).' },
   { status: 'shipped', text: 'Stale arrivals warning with Try again (#34).' },
   { status: 'shipped', text: 'Service alerts unavailable state (#33).' },
+  { status: 'shipped', text: 'Clearer stale and alert notices: one data age, a failed alerts refresh notice, and a live status region.' },
   { status: 'next', text: 'Check the no-service state for late-night and not-operating services.', review: ['ui-16'] },
   { status: 'next', text: 'Test Nearby on a real phone.', review: ['qa-4'] },
   { status: 'next', text: 'Search by bus number as well as stop.', review: ['ui-39'] },

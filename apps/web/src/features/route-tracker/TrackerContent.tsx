@@ -38,7 +38,7 @@ export function TrackerContent({ state, stopCode, serviceNo, now, stale, onRetry
 
   return (
     <div className="tracker-body">
-      <TrackerHeader tracker={data} now={now} stale={stale} />
+      <TrackerHeader tracker={data} now={now} stale={stale} showAge={!state.failed} />
       {state.failed && <StaleNotice fetchedAt={data.fetchedAt} now={now} onRetry={onRetry} />}
       {next === undefined ? <EmptyCountdown status={data.status} /> : <Countdown bus={next} />}
       <NextBusStrip buses={later} />

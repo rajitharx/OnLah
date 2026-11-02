@@ -6,9 +6,10 @@ interface TrackerHeaderProps {
   tracker: RouteTracker;
   now: number;
   stale: boolean;
+  showAge: boolean;
 }
 
-export function TrackerHeader({ tracker, now, stale }: TrackerHeaderProps) {
+export function TrackerHeader({ tracker, now, stale, showAge }: TrackerHeaderProps) {
   const userStop = tracker.stops[tracker.userStopIndex];
 
   return (
@@ -22,7 +23,7 @@ export function TrackerHeader({ tracker, now, stale }: TrackerHeaderProps) {
           <span className="tracker-stop-code">{userStop.busStopCode}</span>
         </p>
       </div>
-      <Freshness fetchedAt={tracker.fetchedAt} now={now} stale={stale} />
+      {showAge && <Freshness fetchedAt={tracker.fetchedAt} now={now} stale={stale} />}
     </header>
   );
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TrainAlertsResponse } from '../../types/domain';
-import { nextStateOnFailure, type TrainAlertsState } from './useTrainAlerts';
+import { nextStateOnFailure, nextStateOnSuccess, type TrainAlertsState } from './useTrainAlerts';
 
 const loaded: TrainAlertsResponse = {
   data: { status: 0, alerts: [] },
@@ -12,12 +12,29 @@ describe('nextStateOnFailure', () => {
     expect(nextStateOnFailure({ status: 'loading' })).toEqual({ status: 'unavailable' });
   });
 
-  it('keeps the last result when one already loaded', () => {
-    const current: TrainAlertsState = { status: 'ok', alerts: loaded };
-    expect(nextStateOnFailure(current)).toBe(current);
+  it('keeps the last result and flags the failed refresh when one already loaded', () => {
+    const current: TrainAlertsState = { status: 'ok', alerts: loaded, refreshFailed: false };
+    expect(nextStateOnFailure(current)).toEqual({ status: 'ok', alerts: loaded, refreshFailed: true });
+  });
+
+  it('keeps the flag across repeated failures', () => {
+    const failed: TrainAlertsState = { status: 'ok', alerts: loaded, refreshFailed: true };
+    expect(nextStateOnFailure(failed)).toEqual(failed);
   });
 
   it('stays unavailable', () => {
     expect(nextStateOnFailure({ status: 'unavailable' })).toEqual({ status: 'unavailable' });
+  });
+});
+
+describe('nextStateOnSuccess', () => {
+  it('loads the result with no failed refresh', () => {
+    expect(nextStateOnSuccess(loaded)).toEqual({ status: 'ok', alerts: loaded, refreshFailed: false });
+  });
+
+  it('marks a failed refresh and builds a success state with the flag unset', () => {
+    const failed = nextStateOnFailure(nextStateOnSuccess(loaded));
+    expect(failed).toMatchObject({ refreshFailed: true });
+    expect(nextStateOnSuccess(loaded)).toMatchObject({ refreshFailed: false });
   });
 });

@@ -4,15 +4,19 @@ import { api } from '../../shared/services/onlahApi';
 
 export type TrainAlertsState =
   | { status: 'loading' }
-  | { status: 'ok'; alerts: TrainAlertsResponse }
+  | { status: 'ok'; alerts: TrainAlertsResponse; refreshFailed: boolean }
   | { status: 'unavailable' };
 
 export function nextStateOnFailure(current: TrainAlertsState): TrainAlertsState {
-  return current.status === 'ok' ? current : { status: 'unavailable' };
+  return current.status === 'ok' ? { ...current, refreshFailed: true } : { status: 'unavailable' };
+}
+
+export function nextStateOnSuccess(alerts: TrainAlertsResponse): TrainAlertsState {
+  return { status: 'ok', alerts, refreshFailed: false };
 }
 
 // The backend polls LTA every 2 minutes, so the client refreshes at the same rate.
-// A failed refresh keeps the last result, and the banner's "Checked" time shows how old it is.
+// A failed refresh keeps the last result and flags it, so the banner can say the refresh failed.
 export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
   const [state, setState] = useState<TrainAlertsState>({ status: 'loading' });
 
@@ -22,7 +26,7 @@ export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
       api
         .getTrainAlerts(controller.signal)
         .then((value) => {
-          if (!controller.signal.aborted) setState({ status: 'ok', alerts: value });
+          if (!controller.signal.aborted) setState(nextStateOnSuccess(value));
         })
         .catch(() => {
           if (!controller.signal.aborted) {

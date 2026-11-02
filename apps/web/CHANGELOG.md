@@ -3,6 +3,14 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
 
+## 1.67
+
+**Clearer stale and alert notices.** Three small fixes to the failed-refresh messages.
+
+- The Route Tracker no longer shows the data age twice. When a refresh fails, the "Couldn't refresh. Showing data from Ns ago." notice carries the age and the header chip is hidden. Old data without a failed refresh, such as a hidden tab, still shows the "Stale" chip.
+- If a service alerts refresh fails after a good result, the page shows "Couldn't refresh service alerts." with "Last checked Ns ago", also when that result had no alerts. The notice is neutral and clears on the next success. The disruption card drops its own "Checked" line while this shows.
+- The "unavailable" and "couldn't refresh" notices now sit in a status region that is always on the page. The disruption card's own status region appears together with the alerts, so announcing a newly appearing disruption is not guaranteed. This is not tested with a screen reader. The ticking age is kept outside every status region.
+
 ## 1.54
 
 **Build and release labels.** The top of `/notes` read a single "Beta 1.53" version above a latest release of 1.51, which looked inconsistent. It now reads "This build: Beta <build>. Release notes cover up to <newest release>." and says that the build number rises with every change while the history lists milestones.
