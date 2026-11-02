@@ -38,6 +38,7 @@ export function ReleaseNotesView({ version }: ReleaseNotesViewProps) {
             <li key={release.version} className="notes-release">
               <h3 className="notes-release-title">
                 <span className="notes-release-version">{release.version}</span> {release.title}
+                {release.pr !== null && <span className="notes-release-pr"> #{release.pr}</span>}
               </h3>
               <p className="notes-summary">{release.summary}</p>
               <ul className="notes-items">

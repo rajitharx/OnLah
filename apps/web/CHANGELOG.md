@@ -3,7 +3,17 @@
 The version is `major.minor`, set in `package.json` and shown in the header as "Beta <version>".
 Every commit raises the minor number by one through the pre-commit hook, so this file lists only the versions shown on the /notes page: milestones and notable changes.
 
-## 1.67
+Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
+
+## 1.73 (#38)
+
+**Release history by merge time.** The list is ordered newest merged first. Each release records the time its pull request merged, and the pull request number is shown as a reference.
+
+- Pull request 33 merged a few minutes after 34, so 1.45 sits above 1.6.
+- A test checks that the merge times descend, that this file lists the same pull requests in the same order as `releases.ts`, and that only unmerged work at the top and early history at the end lack a merge time.
+- The guard that keeps node code out of the browser bundle starts at `version.ts` and follows quoted `import`, `export ... from` and dynamic `import()` specifiers, resolving relative ones, but only to files in `src/shared` and `scripts`. It checks only the files reachable that way; a file that `version.ts` does not import is not checked, even under `src/shared`. It fails on a `node:` specifier, on a bare built-in from a hardcoded list (`fs`, `path`, `url`, `os`, `child_process`, `crypto`, `util`, `stream`, `http`, `https`, `net`, `zlib`, `buffer`, `events`, `assert`, `module`, `worker_threads`, `readline`, `tty`, `vm`, and their subpaths such as `fs/promises`), and on the text `process.`, so a bare `process` is not flagged. It does not follow computed specifiers, `require`, or imports that resolve to folders other than `src/shared` and `scripts`, and it does not know built-ins outside that list.
+
+## 1.67 (#37)
 
 **Clearer stale and alert notices.** Three small fixes to the failed-refresh messages.
 
@@ -11,7 +21,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - If a service alerts refresh fails after a good result, the page shows "Couldn't refresh service alerts." with "Last checked Ns ago", also when that result had no alerts. The notice is neutral and clears on the next success. The disruption card drops its own "Checked" line while this shows.
 - The "unavailable" and "couldn't refresh" notices now sit in a status region that is always on the page. The disruption card's own status region appears together with the alerts, so announcing a newly appearing disruption is not guaranteed. This is not tested with a screen reader. The ticking age is kept outside every status region.
 
-## 1.54
+## 1.54 (#36)
 
 **Build and release labels.** The top of `/notes` read a single "Beta 1.53" version above a latest release of 1.51, which looked inconsistent. It now reads "This build: Beta <build>. Release notes cover up to <newest release>." and says that the build number rises with every change while the history lists milestones.
 
@@ -19,7 +29,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - A test checks that the build version is not older than the newest release, comparing major and minor as numbers.
 - The roadmap guard test now checks that it parses every open checkbox in `Docs/onlah-ui-review.md`.
 
-## 1.51
+## 1.51 (#35)
 
 **Release notes and roadmap.** A page at `/notes` (also `/about`) lists the app's features, a release history and a Shipped / Next / Later roadmap.
 
@@ -27,7 +37,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - The content is in `src/features/release-notes/releases.ts`. A test checks that its newest version matches the top entry here.
 - Each history item is tagged Feature, Improvement or Bug fix. The roadmap's Next and Later lists are the open items from `Docs/onlah-ui-review.md`.
 
-## 1.45
+## 1.45 (#33)
 
 **Service alerts unavailable.** When the MRT alerts fail to load, the page now says "Service alerts unavailable" instead of showing nothing, which used to look the same as "no disruptions".
 
@@ -35,14 +45,14 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - A failed refresh after alerts have loaded keeps the last result, as before.
 - With no alerts and no error the page still shows nothing.
 
-## 1.6
+## 1.6 (#34)
 
 **Stale arrivals warning.** When a refresh fails, the last times stay on screen and a notice says "Couldn't refresh. Showing data from Ns ago." with a Try again button. It clears on the next successful refresh.
 
 - One shared notice for the stop board, saved stops and the Route Tracker. It uses the amber border, not a red one.
 - Try again reuses the existing manual refresh.
 
-## 1.5
+## 1.5 (#16)
 
 **Last bus.** The ETA tile for a service's last bus of the night carries a "LAST" tag with a slowly pulsing dot, on the stop board and on saved buses. Screen readers hear "last bus".
 
@@ -50,7 +60,7 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 - Only the latest matching bus of a service is tagged.
 - With reduced motion the dot does not pulse.
 
-## 1.1
+## 1.1 (#14)
 
 **Route Tracker.** Follow one bus service at one stop.
 
