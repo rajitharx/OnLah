@@ -52,7 +52,7 @@ export const releases: Release[] = [
   {
     version: '1.73',
     pr: 38,
-    shipped: null,
+    shipped: '2026-11-02T09:00:54+08:00',
     title: 'Release history by merge time',
     summary: 'This list runs newest merged first. Each entry records when its pull request merged and shows the pull request number.',
     items: [
@@ -64,7 +64,7 @@ export const releases: Release[] = [
   {
     version: '1.67',
     pr: 37,
-    shipped: null,
+    shipped: '2026-11-02T08:58:14+08:00',
     title: 'Clearer stale and alert notices',
     summary: 'A failed refresh no longer repeats the data age, and a failed alerts refresh no longer reads as all clear.',
     items: [
