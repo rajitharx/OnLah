@@ -15,7 +15,9 @@ const stop = { busStopCode: '01012' } as BusStop;
 const origin = { latitude: 1.3, longitude: 103.8 };
 
 describe('useNearbyStops', () => {
-  beforeEach(() => getNearbyStops.mockReset());
+  beforeEach(() => {
+    getNearbyStops.mockReset();
+  });
   afterEach(cleanup);
 
   it('fetches nothing until there is a location', () => {

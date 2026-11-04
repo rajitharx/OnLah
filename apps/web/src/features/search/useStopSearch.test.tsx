@@ -15,7 +15,9 @@ const stop = { busStopCode: '01012' } as BusStop;
 const props = (attempt: number) => ({ query: 'Victoria', attempt });
 
 describe('useStopSearch', () => {
-  beforeEach(() => searchBusStops.mockReset());
+  beforeEach(() => {
+    searchBusStops.mockReset();
+  });
   afterEach(cleanup);
 
   it('searches the term once after the debounce', async () => {

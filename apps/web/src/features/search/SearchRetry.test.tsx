@@ -22,7 +22,9 @@ const stop = {
 const view = <SearchView query="Victoria" onQueryChange={() => undefined} onOpen={() => undefined} />;
 
 describe('SearchView retry', () => {
-  beforeEach(() => searchBusStops.mockReset());
+  beforeEach(() => {
+    searchBusStops.mockReset();
+  });
   afterEach(cleanup);
 
   it('Try again searches the same text again after a network failure', async () => {
@@ -34,7 +36,7 @@ describe('SearchView retry', () => {
   });
 
   it('offers no Try again when the text itself was rejected', async () => {
-    searchBusStops.mockRejectedValueOnce(new Error('odd body'));
+    searchBusStops.mockRejectedValue(new Error('odd body'));
     render(view);
     await screen.findByText("Couldn't search that text. Try different words.");
     expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();

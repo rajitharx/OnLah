@@ -14,7 +14,9 @@ import { useBoardStop } from './useBoardStop';
 const stop = { busStopCode: '01012' } as BusStop;
 
 describe('useBoardStop', () => {
-  beforeEach(() => searchBusStops.mockReset());
+  beforeEach(() => {
+    searchBusStops.mockReset();
+  });
   afterEach(cleanup);
 
   it('looks the stop up again when the attempt changes after a failure', async () => {
