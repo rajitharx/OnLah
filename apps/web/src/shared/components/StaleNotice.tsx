@@ -1,14 +1,15 @@
+import { useNow } from '../hooks/useNow';
 import { secondsSince } from '../utils/arrival';
 
 interface StaleNoticeProps {
   fetchedAt: string;
-  now: number;
   onRetry: () => void;
   // Several notices can show at once, such as one per saved stop, so those use 'status' instead of interrupting.
   tone?: 'alert' | 'status';
 }
 
-export function StaleNotice({ fetchedAt, now, onRetry, tone = 'alert' }: StaleNoticeProps) {
+export function StaleNotice({ fetchedAt, onRetry, tone = 'alert' }: StaleNoticeProps) {
+  const now = useNow();
   return (
     <div className="stale-notice">
       <p className="stale-notice-text" role={tone}>Couldn't refresh.</p>

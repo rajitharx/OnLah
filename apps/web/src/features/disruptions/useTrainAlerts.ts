@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { TrainAlertsResponse } from '../../types/domain';
 import { api } from '../../shared/services/onlahApi';
+import { startPoller } from '../../shared/services/poller';
 
 export type TrainAlertsState =
   | { status: 'loading' }
@@ -16,7 +17,7 @@ export function nextStateOnSuccess(alerts: TrainAlertsResponse): TrainAlertsStat
 }
 
 // The backend polls LTA every 2 minutes, so the client refreshes at the same rate.
-// A failed refresh keeps the last result and flags it, so the banner can say the refresh failed.
+// A failed refresh keeps the last result and flags it, so the banner can say the refresh failed. A hidden tab pauses it.
 export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
   const [state, setState] = useState<TrainAlertsState>({ status: 'loading' });
 
@@ -34,10 +35,9 @@ export function useTrainAlerts(refreshMs = 120_000): TrainAlertsState {
           }
         });
 
-    void load();
-    const id = window.setInterval(() => void load(), refreshMs);
+    const poller = startPoller(load, refreshMs);
     return () => {
-      window.clearInterval(id);
+      poller.stop();
       controller.abort();
     };
   }, [refreshMs]);

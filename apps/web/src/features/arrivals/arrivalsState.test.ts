@@ -29,6 +29,12 @@ describe('applyArrivalsResult', () => {
 
     expect(applyArrivalsResult(failed, { ok: true, value: second })).toEqual({ data: second, failed: false, slow: false });
   });
+
+  it('ignores a late response older than the data on screen', () => {
+    const current = { data: second, failed: false, slow: false };
+
+    expect(applyArrivalsResult(current, { ok: true, value: first })).toBe(current);
+  });
 });
 
 describe('markSlowLoad', () => {

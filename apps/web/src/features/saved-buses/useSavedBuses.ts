@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   SAVED_BUSES_KEY,
   addSavedBus,
@@ -10,11 +10,12 @@ import {
 } from './savedBusesStore';
 
 // localStorage can be blocked (private mode, disabled site data), so every access is guarded.
-function readSavedBuses(): SavedBus[] {
+// null means storage could not be read, so the caller keeps the list it has in memory.
+function readSavedBuses(): SavedBus[] | null {
   try {
     return parseSavedBuses(window.localStorage.getItem(SAVED_BUSES_KEY));
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -35,21 +36,35 @@ export interface SavedBuses {
   remove: (stopCode: string, serviceNo: string) => void;
 }
 
+// Another tab can change the list, so it reloads on the storage event and every change starts from what is stored.
 export function useSavedBuses(): SavedBuses {
-  const [buses, setBuses] = useState<SavedBus[]>(readSavedBuses);
+  const [buses, setBuses] = useState<SavedBus[]>(() => readSavedBuses() ?? []);
 
-  const update = (next: SavedBus[]): void => {
+  useEffect(() => {
+    const onStorage = (event: StorageEvent): void => {
+      if (event.key === SAVED_BUSES_KEY || event.key === null) setBuses(readSavedBuses() ?? []);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const save = (next: SavedBus[]): void => {
     setBuses(next);
     writeSavedBuses(next);
   };
+  const current = (): SavedBus[] => readSavedBuses() ?? buses;
 
   const toggle = (bus: SavedBus): boolean => {
-    if (hasSavedBus(buses, bus.stopCode, bus.serviceNo)) {
-      update(removeSavedBus(buses, bus.stopCode, bus.serviceNo));
+    const list = current();
+    if (hasSavedBus(list, bus.stopCode, bus.serviceNo)) {
+      save(removeSavedBus(list, bus.stopCode, bus.serviceNo));
       return true;
     }
-    if (isSavedBusesFull(buses)) return false;
-    update(addSavedBus(buses, bus));
+    if (isSavedBusesFull(list)) {
+      setBuses(list);
+      return false;
+    }
+    save(addSavedBus(list, bus));
     return true;
   };
 
@@ -58,6 +73,6 @@ export function useSavedBuses(): SavedBuses {
     isFull: isSavedBusesFull(buses),
     has: (stopCode, serviceNo) => hasSavedBus(buses, stopCode, serviceNo),
     toggle,
-    remove: (stopCode, serviceNo) => update(removeSavedBus(buses, stopCode, serviceNo)),
+    remove: (stopCode, serviceNo) => save(removeSavedBus(current(), stopCode, serviceNo)),
   };
 }

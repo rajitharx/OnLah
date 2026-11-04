@@ -16,7 +16,6 @@ import { useBoardStop, type BoardStopStatus } from '../features/arrivals/useBoar
 import { useStopArrivals } from '../features/arrivals/useStopArrivals';
 import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
-import { useNow } from '../shared/hooks/useNow';
 import { OfflineNotice } from '../shared/components/OfflineNotice';
 import { APP_VERSION, betaLabel } from '../shared/version';
 import { AppHeader } from './AppHeader';
@@ -40,7 +39,6 @@ export default function App() {
   const [knownStop, setKnownStop] = useState<BusStop | null>(null);
   const sheetPushedFromBoard = useRef(false);
   const [boardAttempt, setBoardAttempt] = useState(0);
-  const now = useNow();
   const alerts = useTrainAlerts();
 
   const board = useBoardStop(route.view === 'board' ? route.stopCode : null, knownStop, boardAttempt);
@@ -91,7 +89,7 @@ export default function App() {
     <div className="app">
       <AppHeader version={betaLabel(APP_VERSION)} onHome={() => push({ view: 'home' })} />
 
-      <DisruptionBanner alerts={alerts} now={now} />
+      <DisruptionBanner alerts={alerts} />
 
       <OfflineNotice />
 
@@ -102,7 +100,6 @@ export default function App() {
           <StopBoard
             stop={board.stop}
             arrivals={arrivals}
-            now={now}
             isFavourite={favourites.has(board.stop.busStopCode)}
             favouritesFull={favourites.isFull}
             onToggleFavourite={() => favourites.toggle(board.stop!)}
@@ -122,7 +119,7 @@ export default function App() {
           />
         )}
         {route.view === 'track' && (
-          <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} now={now} onBack={goBack} />
+          <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} onBack={goBack} />
         )}
         {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
           <EmptyState
@@ -144,7 +141,6 @@ export default function App() {
           <SavedView
             buses={savedBuses.buses}
             arrivals={saved.states}
-            now={now}
             stops={favourites.stops}
             onOpenStop={openStop}
             onRemoveBus={savedBuses.remove}

@@ -50,6 +50,21 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.93',
+    pr: 47,
+    shipped: null,
+    title: 'Steadier live refresh',
+    summary: 'Bus times refresh one request at a time, pause in a hidden tab, and stay in step across tabs.',
+    items: [
+      { kind: 'fix', text: 'A stop never has two arrival requests running at once, from the timer, Refresh or Re-sync, so a slow response cannot replace newer times. A response older than the one on screen is ignored.' },
+      { kind: 'fix', text: 'Bus arrivals, saved buses and service alerts pause while the tab is hidden and refresh as soon as it is visible again.' },
+      { kind: 'fix', text: 'The Route Tracker stops refreshing once the service is not found at the stop.' },
+      { kind: 'fix', text: 'Opening another stop no longer flashes the previous stop\'s times.' },
+      { kind: 'improvement', text: 'Only the ages, ETAs and the Route Tracker update every second, not the whole page.' },
+      { kind: 'fix', text: 'Saved buses and stops changed in another tab appear here, and saving in two tabs keeps both changes.' },
+    ],
+  },
+  {
     version: '1.92',
     pr: 42,
     shipped: null,

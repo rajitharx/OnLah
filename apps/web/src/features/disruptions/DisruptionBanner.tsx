@@ -5,24 +5,22 @@ import type { TrainAlertsState } from './useTrainAlerts';
 
 interface DisruptionBannerProps {
   alerts: TrainAlertsState;
-  now: number;
 }
 
 // Inline notice above the page content, not a modal. It can be hidden,
 // but it returns when the set of alerts changes.
-export function DisruptionBanner({ alerts, now }: DisruptionBannerProps) {
+export function DisruptionBanner({ alerts }: DisruptionBannerProps) {
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
 
   const failedAt = alerts.status === 'ok' && alerts.refreshFailed ? alerts.alerts.fetchedAt : null;
 
   return (
     <>
-      <NoticeSlot text={noticeFor(alerts)} failedAt={failedAt} now={now} />
+      <NoticeSlot text={noticeFor(alerts)} failedAt={failedAt} />
       {alerts.status === 'ok' && (
         <Disruptions
           response={alerts.alerts}
           refreshFailed={alerts.refreshFailed}
-          now={now}
           dismissedKey={dismissedKey}
           onDismiss={setDismissedKey}
         />
@@ -39,13 +37,13 @@ function noticeFor(alerts: TrainAlertsState): string | null {
 
 // The status container stays mounted so screen readers announce text added to it. Only static
 // text goes inside; the age ticks every second, so it sits outside the live region.
-function NoticeSlot({ text, failedAt, now }: { text: string | null; failedAt: string | null; now: number }) {
+function NoticeSlot({ text, failedAt }: { text: string | null; failedAt: string | null }) {
   return (
     <div className={text === null ? undefined : 'banner'}>
       <div role="status" aria-label="Service alerts" className="banner-live">
         {text !== null && <p className="banner-message">{text}</p>}
       </div>
-      {text !== null && failedAt !== null && <Freshness fetchedAt={failedAt} now={now} label="Last checked" />}
+      {text !== null && failedAt !== null && <Freshness fetchedAt={failedAt} label="Last checked" />}
     </div>
   );
 }
@@ -53,14 +51,13 @@ function NoticeSlot({ text, failedAt, now }: { text: string | null; failedAt: st
 interface DisruptionsProps {
   response: Extract<TrainAlertsState, { status: 'ok' }>['alerts'];
   refreshFailed: boolean;
-  now: number;
   dismissedKey: string | null;
   onDismiss: (key: string) => void;
 }
 
 // The status wrapper holds only static text; the ticking age stays outside it. It is a real grid
 // item because display: contents can drop an element's role from the accessibility tree.
-function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: DisruptionsProps) {
+function Disruptions({ response, refreshFailed, dismissedKey, onDismiss }: DisruptionsProps) {
   const { data, fetchedAt } = response;
   const { status, alerts: items } = data;
   if (status !== 1 || items.length === 0) return null;
@@ -92,7 +89,7 @@ function Disruptions({ response, refreshFailed, now, dismissedKey, onDismiss }: 
       >
         Hide
       </button>
-      {!refreshFailed && <Freshness fetchedAt={fetchedAt} now={now} label="Checked" />}
+      {!refreshFailed && <Freshness fetchedAt={fetchedAt} label="Checked" />}
     </section>
   );
 }

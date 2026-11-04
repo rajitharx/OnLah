@@ -4,8 +4,9 @@ import { focusHeading } from './viewTitle';
 export const FOCUS_WAIT_MS = 4000;
 
 // Sets the tab title, and moves focus to the heading when the screen changes after the first load.
-// The heading can arrive later than the route (a stop loaded from a link), so focus waits for it,
-// but only for FOCUS_WAIT_MS: a screen that never gets a heading must not pull focus later.
+// The heading can arrive later than the route (a stop loaded from a link), and from a child's own render,
+// so a DOM observer waits for it, but only for FOCUS_WAIT_MS: a screen that never gets a heading must not
+// pull focus later.
 export function useViewAnnouncement(key: string, title: string): void {
   const previousKey = useRef(key);
   const pendingFocus = useRef(false);
@@ -21,13 +22,23 @@ export function useViewAnnouncement(key: string, title: string): void {
 
   useEffect(() => {
     if (!pendingFocus.current) return;
-    const timer = setTimeout(() => {
+    if (focusHeading(document)) {
       pendingFocus.current = false;
-    }, FOCUS_WAIT_MS);
-    return () => clearTimeout(timer);
+      return;
+    }
+    const stop = (): void => {
+      pendingFocus.current = false;
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+    const observer = new MutationObserver(() => {
+      if (focusHeading(document)) stop();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const timer = setTimeout(stop, FOCUS_WAIT_MS);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
   }, [key]);
-
-  useEffect(() => {
-    if (pendingFocus.current && focusHeading(document)) pendingFocus.current = false;
-  });
 }

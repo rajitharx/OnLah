@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { BusArrival, BusStop } from '../../types/domain';
 import { StopBoard } from './StopBoard';
@@ -11,6 +11,15 @@ const stop: BusStop = {
   longitude: 103.8,
   distanceMeters: 0,
 };
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(Date.parse('2026-10-19T10:00:05Z'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 function service(serviceNo: string, routes: BusArrival['routes'] = []): BusArrival {
   return { serviceNo, operator: 'GAS', nextBus: null, nextBus2: null, nextBus3: null, routes };
@@ -25,7 +34,6 @@ function render(services: BusArrival[], failed = false): string {
         failed,
         slow: false,
       }}
-      now={Date.parse('2026-10-19T10:00:05Z')}
       isFavourite={false}
       favouritesFull={false}
       onToggleFavourite={() => undefined}

@@ -1,10 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { RouteTracker, TrackedBus, TrackerStop } from '../../types/routeTracker';
 import { TrackerContent } from './TrackerContent';
 import { EMPTY_TRACKER, type TrackerState } from './trackerState';
 
 const NOW = Date.parse('2026-10-21T12:00:05Z');
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(NOW);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 const stops: TrackerStop[] = Array.from({ length: 5 }, (_, i) => ({
   sequence: i + 1,
@@ -49,7 +58,6 @@ function render(state: Partial<TrackerState>, stale = false): string {
       state={{ ...EMPTY_TRACKER, ...state, receivedAt: state.data ? NOW : null }}
       stopCode="67009"
       serviceNo="161"
-      now={NOW}
       stale={stale}
       onRetry={() => undefined}
     />,

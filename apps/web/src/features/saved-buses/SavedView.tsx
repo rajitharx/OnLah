@@ -12,7 +12,6 @@ import { groupByStop } from './savedBusView';
 interface SavedViewProps {
   buses: SavedBus[];
   arrivals: Record<string, ArrivalsState>;
-  now: number;
   stops: BusStop[];
   onOpenStop: (stop: BusStop) => void;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
@@ -26,7 +25,6 @@ interface SavedViewProps {
 export function SavedView({
   buses,
   arrivals,
-  now,
   stops,
   onOpenStop,
   onOpenService,
@@ -62,7 +60,6 @@ export function SavedView({
               key={group.stopCode}
               group={group}
               state={arrivals[group.stopCode]}
-              now={now}
               onOpenStop={onOpenStop}
               onOpenService={onOpenService}
               onRemoveBus={onRemoveBus}

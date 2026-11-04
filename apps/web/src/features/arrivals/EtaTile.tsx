@@ -1,14 +1,15 @@
 import type { ArrivalTiming } from '../../types/domain';
 import { busTypeLabel, crowdClass, crowdLabel, minutesUntil } from '../../shared/utils/arrival';
 import { WheelchairIcon } from '../../shared/components/Icons';
+import { useNow } from '../../shared/hooks/useNow';
 
 interface EtaTileProps {
   timing: ArrivalTiming | null;
-  now: number;
 }
 
 // One split-flap tile: the ETA in minutes, then crowd bars, bus type and wheelchair access when a bus has none.
-export function EtaTile({ timing, now }: EtaTileProps) {
+export function EtaTile({ timing }: EtaTileProps) {
+  const now = useNow();
   if (timing === null) {
     return (
       <div className="eta-tile eta-tile-empty" role="group" aria-label="No bus due">

@@ -11,14 +11,13 @@ import { hasBusesDue, pickSavedServices, toBusStop, type SavedStopGroup, type Sa
 interface SavedStopCardProps {
   group: SavedStopGroup;
   state: ArrivalsState | undefined;
-  now: number;
   onOpenStop: (stop: BusStop) => void;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
   onResync: (stopCode: string) => void;
 }
 
-export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, onRemoveBus, onResync }: SavedStopCardProps) {
+export function SavedStopCard({ group, state, onOpenStop, onOpenService, onRemoveBus, onResync }: SavedStopCardProps) {
   const current = state ?? EMPTY_ARRIVALS;
   const rows = pickSavedServices(current.data, group.serviceNos);
   const stop = toBusStop(group);
@@ -34,10 +33,10 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
         <ResyncButton label={`Re-sync ${group.stopName}`} onClick={() => onResync(group.stopCode)} />
       </div>
       <p className="caption">{group.roadName}</p>
-      {current.data !== null && !current.failed && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
+      {current.data !== null && !current.failed && <Freshness fetchedAt={current.data.fetchedAt} />}
 
       {current.data !== null && current.failed && (
-        <StaleNotice fetchedAt={current.data.fetchedAt} now={now} onRetry={() => onResync(group.stopCode)} tone="status" />
+        <StaleNotice fetchedAt={current.data.fetchedAt} onRetry={() => onResync(group.stopCode)} tone="status" />
       )}
       {!current.data && current.failed && (
         <p className="error" role="status">Bus times are unavailable right now.</p>
@@ -53,7 +52,6 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
             <SavedBusRow
               key={row.serviceNo}
               row={row}
-              now={now}
               stop={stop}
               onOpenService={onOpenService}
               onRemove={onRemoveBus}
@@ -67,13 +65,12 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
 
 interface SavedBusRowProps {
   row: SavedServiceRow;
-  now: number;
   stop: BusStop;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemove: (stopCode: string, serviceNo: string) => void;
 }
 
-function SavedBusRow({ row, now, stop, onOpenService, onRemove }: SavedBusRowProps) {
+function SavedBusRow({ row, stop, onOpenService, onRemove }: SavedBusRowProps) {
   const { serviceNo, service } = row;
 
   return (
@@ -100,7 +97,7 @@ function SavedBusRow({ row, now, stop, onOpenService, onRemove }: SavedBusRowPro
       {hasBusesDue(service) && service ? (
         <div className="eta-grid">
           {[service.nextBus, service.nextBus2, service.nextBus3].map((timing, index) => (
-            <EtaTile key={index} timing={timing} now={now} />
+            <EtaTile key={index} timing={timing} />
           ))}
         </div>
       ) : (

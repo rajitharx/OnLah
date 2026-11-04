@@ -12,12 +12,11 @@ interface TrackerContentProps {
   state: TrackerState;
   stopCode: string;
   serviceNo: string;
-  now: number;
   stale: boolean;
   onRetry: () => void;
 }
 
-export function TrackerContent({ state, stopCode, serviceNo, now, stale, onRetry }: TrackerContentProps) {
+export function TrackerContent({ state, stopCode, serviceNo, stale, onRetry }: TrackerContentProps) {
   const { data } = state;
 
   if (state.notFound) {
@@ -38,8 +37,8 @@ export function TrackerContent({ state, stopCode, serviceNo, now, stale, onRetry
 
   return (
     <div className="tracker-body">
-      <TrackerHeader tracker={data} now={now} stale={stale} showAge={!state.failed} />
-      {state.failed && <StaleNotice fetchedAt={data.fetchedAt} now={now} onRetry={onRetry} />}
+      <TrackerHeader tracker={data} stale={stale} showAge={!state.failed} />
+      {state.failed && <StaleNotice fetchedAt={data.fetchedAt} onRetry={onRetry} />}
       {next === undefined ? <EmptyCountdown status={data.status} /> : <Countdown bus={next} />}
       <NextBusStrip buses={later} />
       <Rail nodes={rail} />

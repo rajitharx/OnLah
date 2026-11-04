@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BusStop } from '../../types/domain';
 import { api } from '../../shared/services/onlahApi';
+import { startPoller, type Poller } from '../../shared/services/poller';
 import { EMPTY_ARRIVALS, SLOW_LOAD_MS, applyArrivalsResult, markSlowLoad, type ArrivalsState } from './arrivalsState';
 
 export interface StopArrivals extends ArrivalsState {
@@ -8,44 +9,49 @@ export interface StopArrivals extends ArrivalsState {
   refresh: () => void;
 }
 
+// The state remembers which stop it belongs to, so the first render for a new stop never shows the old stop's times.
+interface StopState {
+  stopCode: string | null;
+  arrivals: ArrivalsState;
+}
+
 // Silent refresh: the data swaps in place with no loading state. A failed refresh keeps the last good times.
 export function useStopArrivals(stop: BusStop | null, refreshMs = 20_000): StopArrivals {
   const stopCode = stop?.busStopCode ?? null;
-  const [state, setState] = useState<ArrivalsState>(EMPTY_ARRIVALS);
-  const loadRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const [state, setState] = useState<StopState>({ stopCode: null, arrivals: EMPTY_ARRIVALS });
+  const pollerRef = useRef<Poller | null>(null);
 
   useEffect(() => {
-    if (stopCode === null) {
-      setState(EMPTY_ARRIVALS);
-      return;
-    }
+    if (stopCode === null) return;
 
     const controller = new AbortController();
-    const load = (): Promise<void> =>
-      api
-        .getArrivals(stopCode, controller.signal)
-        .then((value) => {
-          if (!controller.signal.aborted) setState((prev) => applyArrivalsResult(prev, { ok: true, value }));
-        })
-        .catch(() => {
-          if (!controller.signal.aborted) setState((prev) => applyArrivalsResult(prev, { ok: false }));
-        });
+    const update = (change: (previous: ArrivalsState) => ArrivalsState): void => {
+      if (controller.signal.aborted) return;
+      setState((previous) => ({
+        stopCode,
+        arrivals: change(previous.stopCode === stopCode ? previous.arrivals : EMPTY_ARRIVALS),
+      }));
+    };
 
-    loadRef.current = load;
-    setState(EMPTY_ARRIVALS);
-    void load();
-    const slowId = window.setTimeout(() => setState((prev) => markSlowLoad(prev)), SLOW_LOAD_MS);
-    const id = window.setInterval(() => void load(), refreshMs);
+    setState({ stopCode, arrivals: EMPTY_ARRIVALS });
+    const poller = startPoller(
+      () =>
+        api
+          .getArrivals(stopCode, controller.signal)
+          .then((value) => update((previous) => applyArrivalsResult(previous, { ok: true, value })))
+          .catch(() => update((previous) => applyArrivalsResult(previous, { ok: false }))),
+      refreshMs,
+    );
+    pollerRef.current = poller;
+    const slowId = window.setTimeout(() => update(markSlowLoad), SLOW_LOAD_MS);
     return () => {
       window.clearTimeout(slowId);
-      window.clearInterval(id);
+      poller.stop();
       controller.abort();
     };
   }, [stopCode, refreshMs]);
 
-  const refresh = useCallback((): void => {
-    void loadRef.current();
-  }, []);
+  const refresh = useCallback((): void => pollerRef.current?.poll(), []);
 
-  return { ...state, refresh };
+  return { ...(state.stopCode === stopCode ? state.arrivals : EMPTY_ARRIVALS), refresh };
 }
