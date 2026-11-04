@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OnLah.Application.Common.Interfaces;
@@ -104,6 +105,7 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
     [Fact]
     public async Task SyncBusNetwork_CorrectAdminKey_ReturnsCounts()
     {
+        await ClearBusNetworkAsync();
         factory.LtaBusNetworkClient.GetAllServicesAsync(Arg.Any<CancellationToken>())
             .Returns(StreamOf(BusService.Create("102M", 1, "SBST", "TRUNK", "64009", "64009", "9-11", "09-13", "10-12", "12-16", null)));
         factory.LtaBusNetworkClient.GetAllRoutesAsync(Arg.Any<CancellationToken>())
@@ -138,6 +140,7 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
     [Fact]
     public async Task SyncBusNetwork_AnotherSyncIsWriting_Returns409()
     {
+        await ClearBusNetworkAsync();
         factory.LtaBusNetworkClient.GetAllServicesAsync(Arg.Any<CancellationToken>())
             .Returns(StreamOf(BusService.Create("102M", 1, "SBST", "TRUNK", "64009", "64009", "9-11", "09-13", "10-12", "12-16", null)));
         factory.LtaBusNetworkClient.GetAllRoutesAsync(Arg.Any<CancellationToken>())
@@ -149,6 +152,15 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
         var response = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    // A sync that would shrink the stored network by more than 20% is refused, so rows left by other tests must go first.
+    private async Task ClearBusNetworkAsync()
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<OnLahDbContext>();
+        await db.BusRoutes.ExecuteDeleteAsync();
+        await db.BusServices.ExecuteDeleteAsync();
     }
 
     private async Task SeedService102Async()
