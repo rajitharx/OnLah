@@ -6,7 +6,7 @@ using OnLah.Domain.Common;
 
 namespace OnLah.Api.Endpoints.BusServices;
 
-internal static class BusServiceEndpoints
+internal static partial class BusServiceEndpoints
 {
     private static readonly TimeSpan ReferenceDataMaxAge = TimeSpan.FromHours(1);
 
@@ -29,7 +29,7 @@ internal static class BusServiceEndpoints
                 detail: string.Join("; ", validation.Errors.Select(e => e.ErrorMessage)),
                 statusCode: StatusCodes.Status422UnprocessableEntity);
 
-        var result = await service.GetAsync(serviceNo.ToUpperInvariant(), cancellationToken);
+        var result = await service.GetAsync(serviceNo, cancellationToken);
         if (result.IsFailure)
             return TypedResults.Problem(
                 detail: result.Error.Description,
@@ -42,19 +42,24 @@ internal static class BusServiceEndpoints
 
     private static async Task<Results<Ok<BusNetworkSyncResult>, ProblemHttpResult>> SyncAsync(
         BusNetworkSyncService syncService,
+        ILogger<BusNetworkSyncService> logger,
         CancellationToken cancellationToken)
     {
         try
         {
             return TypedResults.Ok(await syncService.SyncAsync(cancellationToken));
         }
-        catch (Exception)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            LogSyncFailed(logger, ex);
             return TypedResults.Problem(
                 detail: "Bus network sync failed. Check server logs for details.",
                 statusCode: StatusCodes.Status502BadGateway);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Bus network sync failed")]
+    private static partial void LogSyncFailed(ILogger logger, Exception exception);
 }
 
 internal sealed record GetBusServiceRequest(string ServiceNo);

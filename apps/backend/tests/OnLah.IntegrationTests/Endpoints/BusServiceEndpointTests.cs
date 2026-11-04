@@ -57,6 +57,43 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
     }
 
     [Fact]
+    public async Task GetBusService_ServicePublishedInLowercase_Returns200()
+    {
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<OnLahDbContext>();
+            db.BusServices.Add(BusService.Create("10e", 1, "SBST", "TRUNK", "64009", "64009", "9-11", "09-13", "10-12", "12-16", null));
+            await db.SaveChangesAsync();
+        }
+
+        var body = await _client.GetFromJsonAsync<ServiceBody>("/api/v1/bus-services/10e");
+
+        Assert.Equal("10e", body!.ServiceNo);
+    }
+
+    [Fact]
+    public async Task SyncBusNetwork_LtaFails_Returns502()
+    {
+        factory.LtaBusNetworkClient.GetAllServicesAsync(Arg.Any<CancellationToken>())
+            .Returns(Throwing<BusService>(new HttpRequestException("boom")));
+
+        var response = await SendSyncAsync();
+
+        Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SyncBusNetwork_Cancelled_IsNotReportedAsBadGateway()
+    {
+        factory.LtaBusNetworkClient.GetAllServicesAsync(Arg.Any<CancellationToken>())
+            .Returns(Throwing<BusService>(new OperationCanceledException()));
+
+        var response = await SendSyncAsync();
+
+        Assert.NotEqual(HttpStatusCode.BadGateway, response.StatusCode);
+    }
+
+    [Fact]
     public async Task SyncBusNetwork_NoAdminKey_Returns401()
     {
         var response = await _client.PostAsync("/api/v1/admin/bus-network/sync", null);
@@ -80,6 +117,22 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(1, body!.ServicesSynced);
         Assert.Equal(1, body.RoutesSynced);
+    }
+
+    private Task<HttpResponseMessage> SendSyncAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/bus-network/sync");
+        request.Headers.Add("X-Admin-Key", ApiFactory.AdminKey);
+        return _client.SendAsync(request);
+    }
+
+    private static async IAsyncEnumerable<T> Throwing<T>(Exception exception)
+    {
+        await Task.CompletedTask;
+        throw exception;
+#pragma warning disable CS0162
+        yield break;
+#pragma warning restore CS0162
     }
 
     private async Task SeedService102Async()

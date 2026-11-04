@@ -19,6 +19,13 @@ public sealed partial class GetBusServiceDetailsService
     public async Task<Result<BusServiceDetailsDto>> GetAsync(string serviceNo, CancellationToken cancellationToken = default)
     {
         var services = await _network.GetServicesAsync(serviceNo, cancellationToken);
+        var uppercase = serviceNo.ToUpperInvariant();
+        if (services.Count == 0 && uppercase != serviceNo)
+        {
+            services = await _network.GetServicesAsync(uppercase, cancellationToken);
+            serviceNo = uppercase;
+        }
+
         if (services.Count == 0)
             return DomainError.NotFound("BusService");
 
