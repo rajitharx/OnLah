@@ -90,6 +90,36 @@ public sealed class LtaBusClientTests
         Assert.Empty(result.Value!);
     }
 
+    [Fact]
+    public async Task GetArrivalsAsync_UnparseableTimestamp_LeavesThatBusOut()
+    {
+        var body = ValidBody.Replace("2026-10-17T10:05:00+08:00", "not-a-time");
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, body)));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsSuccess);
+        Assert.Null(Assert.Single(result.Value!).NextBus);
+    }
+
+    [Fact]
+    public async Task GetArrivalsAsync_MissingLaterBuses_ReturnsFirstBusOnly()
+    {
+        const string body = """
+            {"BusStopCode":"83139","Services":[{"ServiceNo":"15","Operator":"GAS",
+            "NextBus":{"EstimatedArrival":"2026-10-17T10:05:00+08:00","Monitored":1,"Load":"SEA","Feature":"","Type":"SD"}}]}
+            """;
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, body)));
+
+        var result = await client.GetArrivalsAsync("83139");
+
+        Assert.True(result.IsSuccess);
+        var service = Assert.Single(result.Value!);
+        Assert.NotNull(service.NextBus);
+        Assert.Null(service.NextBus2);
+        Assert.Null(service.NextBus3);
+    }
+
     private static LtaBusClient CreateClient(FakeHttpMessageHandler handler)
     {
         var options = Options.Create(new LtaOptions

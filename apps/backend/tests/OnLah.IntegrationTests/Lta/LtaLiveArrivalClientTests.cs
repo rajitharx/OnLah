@@ -102,6 +102,34 @@ public sealed class LtaLiveArrivalClientTests
         Assert.Equal(2, handler.Requests.Count);
     }
 
+    [Fact]
+    public async Task GetLiveArrivalsAsync_UnparseableTimestamp_LeavesThatBusOut()
+    {
+        var body = MonitoredBody.Replace("2026-10-21T12:10:00+08:00", "not-a-time");
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, body)));
+
+        var result = await client.GetLiveArrivalsAsync("67009");
+
+        Assert.True(result.IsSuccess);
+        var bus = Assert.Single(result.Value!.Single().Buses);
+        Assert.Equal(DateTimeOffset.Parse("2026-10-21T12:20:00+08:00"), bus.EstimatedArrival);
+    }
+
+    [Fact]
+    public async Task GetLiveArrivalsAsync_MissingLaterBuses_ReturnsFirstBusOnly()
+    {
+        const string body = """
+            {"BusStopCode":"67009","Services":[{"ServiceNo":"161","Operator":"SBST",
+            "NextBus":{"EstimatedArrival":"2026-10-21T12:10:00+08:00","Monitored":0,"Load":"SEA","Feature":"","Type":"SD"}}]}
+            """;
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, body)));
+
+        var result = await client.GetLiveArrivalsAsync("67009");
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value!.Single().Buses);
+    }
+
     private static LtaBusClient CreateClient(FakeHttpMessageHandler handler)
     {
         var options = Options.Create(new LtaOptions { AccountKey = "test-account-key", BaseUrl = "https://lta.test/" });

@@ -73,6 +73,52 @@ public sealed class LtaTrainAlertClientTests
         Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
     }
 
+    [Fact]
+    public async Task GetAlertsAsync_HtmlBodyWithSuccessStatus_ReturnsUnavailable()
+    {
+        var client = CreateClient("<html><body>Service temporarily unavailable</body></html>");
+
+        var result = await client.GetAlertsAsync();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    [Fact]
+    public async Task GetAlertsAsync_NullFeed_ReturnsUnavailable()
+    {
+        var client = CreateClient("""{"odata.metadata":"meta","value":null}""");
+
+        var result = await client.GetAlertsAsync();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorKind.Unavailable, result.Error.Kind);
+    }
+
+    [Fact]
+    public async Task GetAlertsAsync_DisruptedFeedWithoutSegmentsOrMessages_ReturnsDisruptedWithNoAlerts()
+    {
+        var client = CreateClient("""{"odata.metadata":"meta","value":{"Status":2,"AffectedSegments":null,"Message":null}}""");
+
+        var result = await client.GetAlertsAsync();
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(TrainServiceStatus.Disrupted, result.Value!.Status);
+        Assert.Empty(result.Value.Alerts);
+    }
+
+    [Fact]
+    public async Task GetAlertsAsync_SegmentWithoutStations_ReturnsAlertWithNoStations()
+    {
+        var body = DisruptedBody.Replace("\"Stations\":\"NS1,NS2\"", "\"Stations\":null");
+        var client = CreateClient(body);
+
+        var result = await client.GetAlertsAsync();
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(Assert.Single(result.Value!.Alerts).Stations);
+    }
+
     private static LtaTrainAlertClient CreateClient(string body, HttpStatusCode status = HttpStatusCode.OK)
     {
         var handler = new FakeHttpMessageHandler(_ => Task.FromResult(new HttpResponseMessage(status)

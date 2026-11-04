@@ -26,12 +26,12 @@ internal sealed partial class LtaBusClient
 
     private static LiveBus? MapLiveBus(LtaArrivalTiming? timing)
     {
-        if (timing is null || string.IsNullOrEmpty(timing.EstimatedArrival))
+        if (timing is null || !TryParseArrival(timing.EstimatedArrival, out var estimatedArrival))
             return null;
 
         var monitored = timing.Monitored == 1;
         return new LiveBus(
-            DateTimeOffset.Parse(timing.EstimatedArrival, CultureInfo.InvariantCulture),
+            estimatedArrival,
             monitored,
             monitored ? ParseLocation(timing.Latitude, timing.Longitude) : null,
             string.IsNullOrEmpty(timing.DestinationCode) ? null : timing.DestinationCode,
