@@ -49,6 +49,42 @@ public sealed class BusStopSyncEndpointTests(ApiFactory factory) : IClassFixture
         Assert.Equal(2, body!.StopsSynced);
     }
 
+    [Fact]
+    public async Task SyncBusStops_LtaFails_Returns502()
+    {
+        factory.LtaBusStopClient.GetAllStopsAsync(Arg.Any<CancellationToken>()).Returns(Throwing(new HttpRequestException("boom")));
+
+        var response = await SendSyncAsync();
+
+        Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SyncBusStops_Cancelled_IsNotReportedAsBadGateway()
+    {
+        factory.LtaBusStopClient.GetAllStopsAsync(Arg.Any<CancellationToken>()).Returns(Throwing(new OperationCanceledException()));
+
+        var response = await SendSyncAsync();
+
+        Assert.NotEqual(HttpStatusCode.BadGateway, response.StatusCode);
+    }
+
+    private Task<HttpResponseMessage> SendSyncAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, SyncPath);
+        request.Headers.Add("X-Admin-Key", ApiFactory.AdminKey);
+        return _client.SendAsync(request);
+    }
+
+    private static async IAsyncEnumerable<LtaBusStop> Throwing(Exception exception)
+    {
+        await Task.CompletedTask;
+        throw exception;
+#pragma warning disable CS0162
+        yield break;
+#pragma warning restore CS0162
+    }
+
     private sealed record SyncBody(int StopsSynced);
 
     private static async IAsyncEnumerable<LtaBusStop> StreamOf(params LtaBusStop[] stops)

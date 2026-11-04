@@ -107,6 +107,32 @@ public sealed class GetBusServiceDetailsServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_ServicePublishedInLowercase_FindsItAsGiven()
+    {
+        _network.GetServicesAsync("10e", Arg.Any<CancellationToken>()).Returns(new List<BusService> { Service102("10e") });
+        _network.GetRoutesAsync("10e", Arg.Any<CancellationToken>()).Returns(new List<BusRoute> { Route("10e", 1, 1, "64009", "0530", "2355") });
+
+        var result = await _sut.GetAsync("10e");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("10e", result.Value!.ServiceNo);
+        Assert.Equal(1, Assert.Single(result.Value.Directions).StopCount);
+    }
+
+    [Fact]
+    public async Task GetAsync_LowercaseInputForUppercaseService_FallsBackToUppercase()
+    {
+        _network.GetServicesAsync("102m", Arg.Any<CancellationToken>()).Returns(new List<BusService>());
+        _network.GetServicesAsync("102M", Arg.Any<CancellationToken>()).Returns(new List<BusService> { Service102("102M") });
+        _network.GetRoutesAsync("102M", Arg.Any<CancellationToken>()).Returns(new List<BusRoute>());
+
+        var result = await _sut.GetAsync("102m");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("102M", result.Value!.ServiceNo);
+    }
+
+    [Fact]
     public async Task GetAsync_UnknownService_ReturnsNotFound()
     {
         _network.GetServicesAsync("999", Arg.Any<CancellationToken>()).Returns(new List<BusService>());
@@ -117,8 +143,8 @@ public sealed class GetBusServiceDetailsServiceTests
         Assert.Equal(ErrorKind.NotFound, result.Error.Kind);
     }
 
-    private static BusService Service102() => BusService.Create(
-        serviceNo: "102",
+    private static BusService Service102(string serviceNo = "102") => BusService.Create(
+        serviceNo: serviceNo,
         direction: 1,
         operatorCode: "SBST",
         category: "TRUNK",

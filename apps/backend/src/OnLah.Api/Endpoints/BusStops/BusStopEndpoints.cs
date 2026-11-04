@@ -5,7 +5,7 @@ using OnLah.Application.BusStops;
 
 namespace OnLah.Api.Endpoints.BusStops;
 
-internal static class BusStopEndpoints
+internal static partial class BusStopEndpoints
 {
     private static readonly TimeSpan ReferenceDataMaxAge = TimeSpan.FromHours(1);
 
@@ -65,6 +65,7 @@ internal static class BusStopEndpoints
 
     private static async Task<Results<Ok<BusStopSyncResponse>, ProblemHttpResult>> TriggerSyncAsync(
         BusStopSyncService syncService,
+        ILogger<BusStopSyncService> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -72,13 +73,17 @@ internal static class BusStopEndpoints
             var count = await syncService.SyncAsync(cancellationToken);
             return TypedResults.Ok(new BusStopSyncResponse(count));
         }
-        catch (Exception)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            LogSyncFailed(logger, ex);
             return TypedResults.Problem(
                 detail: "Bus stop sync failed. Check server logs for details.",
                 statusCode: StatusCodes.Status502BadGateway);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Bus stop sync failed")]
+    private static partial void LogSyncFailed(ILogger logger, Exception exception);
 }
 
 internal sealed record GetNearbyStopsRequest(double Lat, double Lng, double RadiusMeters);
