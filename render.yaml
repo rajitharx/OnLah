@@ -20,3 +20,5 @@ services:
         sync: false
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: ForwardedHeaders__KnownNetworks
+        value: 0.0.0.0/0,::/0

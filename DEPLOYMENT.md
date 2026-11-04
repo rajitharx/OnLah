@@ -30,8 +30,20 @@ Set these in the service's Environment tab. `render.yaml` marks each one `sync: 
 | `Lta__AccountKey` | LTA DataMall account key | The app will not start without it. |
 | `Admin__ApiKey` | Random string for the admin sync endpoints | Generate a long random value. |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | Set in `render.yaml`. |
+| `ForwardedHeaders__KnownNetworks` | `0.0.0.0/0,::/0` | Set in `render.yaml`. See [Client IPs and rate limiting](#client-ips-and-rate-limiting). |
+| `RateLimiting__PermitLimit` | Optional, default `120` | Requests each client IP may make to `/api/v1` per window. |
+| `RateLimiting__WindowSeconds` | Optional, default `60` | Length of the rate-limit window. |
+| `Lta__TrainAlertCacheSeconds` | Optional, default `30` | How long one LTA train-alert response is shared by all callers. |
 
 Render sets `PORT` itself. The container listens on it.
+
+### Client IPs and rate limiting
+
+`/api/v1` allows each client IP `RateLimiting__PermitLimit` requests per window and returns 429 with `Retry-After` past that. `/health` is not limited.
+
+The API reads the client IP from `X-Forwarded-For` only when the connection comes from a network in `ForwardedHeaders__KnownNetworks` (comma-separated CIDRs). When it is unset, only loopback is trusted. It reads just the last hop, the one the nearest proxy appended, so a client cannot spoof its IP by sending its own header.
+
+Render's proxy addresses are not published, so `render.yaml` trusts every network. That is safe only because Render's proxy is the sole way in and appends the real client IP. If every client starts getting 429 together, the API is seeing the proxy's IP as the client IP. Check the trusted networks first. To narrow the setting, log `RemoteIpAddress` on Render and set the CIDR of the proxy range you see.
 
 Health check path: `/health`. It returns 503 when the database cannot be reached within 5 seconds.
 
