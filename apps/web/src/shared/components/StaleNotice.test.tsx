@@ -49,6 +49,14 @@ describe('StaleNotice', () => {
     expect(text(root)).toMatch(/Showing data from 60s ago\./);
   });
 
+  it('can announce politely, so many cards failing at once do not each interrupt', () => {
+    const root = StaleNotice({ fetchedAt: '2026-10-26T10:00:00Z', now: NOW, onRetry: () => undefined, tone: 'status' }) as ReactElement<Props>;
+    const roles = elements(root).map((el) => el.props.role);
+
+    expect(roles).toContain('status');
+    expect(roles).not.toContain('alert');
+  });
+
   it('never shows a negative or NaN age for an unreadable timestamp', () => {
     expect(text(notice('not a date'))).toContain('Showing data from 0s ago.');
   });

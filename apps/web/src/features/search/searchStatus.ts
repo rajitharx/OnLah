@@ -26,6 +26,18 @@ export function searchStatusMessage({ check, loading, slow }: SearchStatusInput)
   return slow ? 'Waking up the server… the first search can take up to a minute.' : 'Searching…';
 }
 
+// What the always-present status region says: progress while searching, then the count or the lack of matches.
+export function searchAnnouncement(input: SearchStatusInput, resultCount: number): string {
+  const progress = searchStatusMessage(input);
+  if (progress !== null) return progress;
+  if (input.check.kind !== 'ok' || input.failure !== null) return '';
+  return resultCount === 0 ? noMatchMessage(input.check.term) : resultCountMessage(resultCount);
+}
+
+export function noMatchMessage(term: string): string {
+  return `No stops match "${term}".`;
+}
+
 // The backend stops at its limit without saying how many more matched, so a full page means there may be more.
 export function resultCountMessage(count: number): string {
   if (count >= MAX_SEARCH_RESULTS) return `Showing the top ${MAX_SEARCH_RESULTS}. Add a word to narrow it down.`;

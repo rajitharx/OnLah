@@ -22,6 +22,8 @@ import { APP_VERSION, betaLabel } from '../shared/version';
 import { AppHeader } from './AppHeader';
 import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
+import { useViewAnnouncement } from './useViewAnnouncement';
+import { viewKey, viewTitle } from './viewTitle';
 import { defaultView, formatRoute, type TabView } from './routes';
 
 const BOARD_MESSAGES: Record<Exclude<BoardStopStatus, 'idle' | 'ready'>, string> = {
@@ -46,6 +48,9 @@ export default function App() {
 
   const hasSaved = savedBuses.buses.length > 0 || favourites.stops.length > 0;
   const view: TabView | 'board' | 'track' | 'notes' = route.view === 'home' ? defaultView(hasSaved) : route.view;
+
+  const resolved = route.view === 'home' ? { view: defaultView(hasSaved) } : route;
+  useViewAnnouncement(viewKey(resolved), viewTitle(resolved, route.view === 'board' ? board.stop : null));
 
   const openStop = (next: BusStop): void => {
     setKnownStop(next);

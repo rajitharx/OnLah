@@ -11,6 +11,11 @@ describe('SearchView', () => {
     expect(render('Victoria')).toContain('Searching…');
   });
 
+  it('keeps one status region on the page, also before there is anything to say', () => {
+    expect(render('Victoria').match(/role="status"/g)).toHaveLength(1);
+    expect(render('').match(/role="status"/g)).toHaveLength(1);
+  });
+
   it('offers a Clear control once there is something to clear', () => {
     expect(render('Victoria')).toContain('aria-label="Clear search"');
     expect(render('')).not.toContain('aria-label="Clear search"');

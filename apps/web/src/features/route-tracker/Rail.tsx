@@ -9,6 +9,8 @@ const TAGS: Partial<Record<RailNode['state'], string>> = { user: "You're here" }
 export function Rail({ nodes }: { nodes: RailNode[] }) {
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const focusRef = useRef<HTMLLIElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  const revealed = useRef<number | null>(null);
   const focusIndex = nodes.findIndex((node) => node.hasBus);
 
   useEffect(() => {
@@ -16,14 +18,23 @@ export function Rail({ nodes }: { nodes: RailNode[] }) {
     focusRef.current?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   }, [focusIndex]);
 
-  const expand = (key: string): void => setExpanded((previous) => new Set(previous).add(key));
+  useEffect(() => {
+    if (revealed.current === null) return;
+    listRef.current?.querySelector<HTMLElement>(`[data-sequence="${revealed.current}"]`)?.focus();
+    revealed.current = null;
+  }, [expanded]);
+
+  const expand = (key: string, firstSequence: number): void => {
+    revealed.current = firstSequence;
+    setExpanded((previous) => new Set(previous).add(key));
+  };
 
   return (
-    <ol className="rail" aria-label="Stops on this route">
+    <ol ref={listRef} className="rail" aria-label="Stops on this route">
       {collapseRail(nodes, expanded).map((item) =>
         item.kind === 'gap' ? (
           <li key={`gap-${item.key}`} className="rail-gap">
-            <button type="button" className="rail-gap-btn" aria-expanded="false" onClick={() => expand(item.key)}>
+            <button type="button" className="rail-gap-btn" aria-expanded="false" onClick={() => expand(item.key, item.nodes[0].stop.sequence)}>
               +{item.count} stops
             </button>
           </li>
@@ -44,6 +55,8 @@ function RailStop({ node, refCallback }: { node: RailNode; refCallback: RefObjec
   return (
     <li
       ref={refCallback}
+      tabIndex={-1}
+      data-sequence={stop.sequence}
       className={classes.filter(Boolean).join(' ')}
       aria-current={state === 'user' ? 'location' : undefined}
     >

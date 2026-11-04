@@ -36,6 +36,7 @@ export function SavedView({
   onNavigate,
 }: SavedViewProps) {
   const groups = groupByStop(buses);
+  const allFailed = groups.length > 0 && groups.every((group) => arrivals[group.stopCode]?.failed === true);
 
   return (
     <section className="view" aria-labelledby="saved-title">
@@ -46,6 +47,8 @@ export function SavedView({
         {isNearLimit(buses.length, MAX_SAVED_BUSES) && (
           <p className="caption">{buses.length} of {MAX_SAVED_BUSES} buses saved on this device</p>
         )}
+
+        {allFailed && <p className="error" role="alert">Couldn't load bus times for your saved stops.</p>}
 
         {groups.length === 0 ? (
           <EmptyState
