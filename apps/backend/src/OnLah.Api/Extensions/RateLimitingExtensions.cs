@@ -9,6 +9,8 @@ internal sealed class RateLimitingOptions
 {
     public const string SectionName = "RateLimiting";
 
+    public bool Enabled { get; init; }
+    public bool LogClientIp { get; init; }
     public int PermitLimit { get; init; } = 120;
     public int WindowSeconds { get; init; } = 60;
 }
@@ -17,6 +19,7 @@ internal static class RateLimitingExtensions
 {
     internal const string PerClientPolicy = "per-client";
     private const string UnknownClient = "unknown";
+    private const string DisabledPartition = "disabled";
 
     internal static IServiceCollection AddPerClientRateLimiting(
         this IServiceCollection services,
@@ -31,6 +34,9 @@ internal static class RateLimitingExtensions
             options.AddPolicy(PerClientPolicy, context =>
             {
                 var limits = context.RequestServices.GetRequiredService<IOptions<RateLimitingOptions>>().Value;
+                if (!limits.Enabled)
+                    return RateLimitPartition.GetNoLimiter(DisabledPartition);
+
                 return RateLimitPartition.GetFixedWindowLimiter(
                     context.Connection.RemoteIpAddress?.ToString() ?? UnknownClient,
                     _ => new FixedWindowRateLimiterOptions

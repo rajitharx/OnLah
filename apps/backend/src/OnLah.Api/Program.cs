@@ -8,6 +8,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseClientIpDiagnostics();
 app.UseForwardedHeaders();
 app.UseSecurityHeaders();
 app.UseExceptionHandler();

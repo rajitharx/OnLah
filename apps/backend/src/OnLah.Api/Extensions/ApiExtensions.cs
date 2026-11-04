@@ -15,6 +15,8 @@ namespace OnLah.Api.Extensions;
 internal static class ApiExtensions
 {
     private const string KnownNetworksKey = "ForwardedHeaders:KnownNetworks";
+    private const string ForwardLimitKey = "ForwardedHeaders:ForwardLimit";
+    private const string ForwardedForHeaderNameKey = "ForwardedHeaders:ForwardedForHeaderName";
 
     internal static IServiceCollection AddApiServices(
         this IServiceCollection services,
@@ -63,11 +65,15 @@ internal static class ApiExtensions
     }
 
     // With no networks configured the framework default (loopback only) applies.
-    // ForwardLimit = 1 reads only the hop the nearest trusted proxy appended, so a client cannot spoof it.
+    // The default ForwardLimit of 1 reads only the hop the nearest trusted proxy appended, so a client cannot spoof it.
     private static void ConfigureForwardedHeaders(ForwardedHeadersOptions options, IConfiguration configuration)
     {
         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        options.ForwardLimit = 1;
+        options.ForwardLimit = configuration.GetValue(ForwardLimitKey, 1);
+
+        var headerName = configuration[ForwardedForHeaderNameKey];
+        if (!string.IsNullOrWhiteSpace(headerName))
+            options.ForwardedForHeaderName = headerName.Trim();
 
         var networks = (configuration[KnownNetworksKey] ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

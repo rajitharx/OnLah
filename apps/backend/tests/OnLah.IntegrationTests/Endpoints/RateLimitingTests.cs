@@ -16,6 +16,7 @@ public sealed class RateLimitingTests : IClassFixture<ApiFactory>
     private const string TrustedProxy = "10.0.0.1";
     private const string UntrustedPeer = "203.0.113.9";
 
+    private readonly ApiFactory _factory;
     private readonly HttpClient _client;
 
     public RateLimitingTests(ApiFactory factory)
@@ -23,13 +24,36 @@ public sealed class RateLimitingTests : IClassFixture<ApiFactory>
         factory.LtaTrainAlertClient.GetAlertsAsync(Arg.Any<CancellationToken>())
             .Returns(Result.Success(new TrainAlertsResult(TrainServiceStatus.Normal, [])));
 
-        _client = factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("RateLimiting:PermitLimit", "2");
-            builder.UseSetting("RateLimiting:WindowSeconds", "60");
-            builder.UseSetting("ForwardedHeaders:KnownNetworks", "10.0.0.0/8");
-            builder.ConfigureServices(services => services.AddSingleton<IStartupFilter, PeerAddressFromHeader>());
-        }).CreateClient();
+        _factory = factory;
+        _client = CreateClient(("RateLimiting:Enabled", "true"));
+    }
+
+    [Fact]
+    public async Task ApiRequest_RateLimitingNotEnabled_IsNeverLimited()
+    {
+        var client = CreateClient();
+
+        var statuses = new List<HttpStatusCode>();
+        for (var i = 0; i < 4; i++)
+            statuses.Add((await SendAsync(client, UntrustedPeer)).StatusCode);
+
+        Assert.All(statuses, status => Assert.Equal(HttpStatusCode.OK, status));
+    }
+
+    [Fact]
+    public async Task ApiRequest_ForwardedForHeaderNameConfigured_LimitsByThatHeader()
+    {
+        var client = CreateClient(
+            ("RateLimiting:Enabled", "true"),
+            ("ForwardedHeaders:ForwardedForHeaderName", "CF-Connecting-IP"));
+        await SendAsync(client, TrustedProxy, cfConnectingIp: "198.51.100.1", forwardedFor: "10.9.9.9");
+        await SendAsync(client, TrustedProxy, cfConnectingIp: "198.51.100.1", forwardedFor: "10.9.9.9");
+
+        var limited = await SendAsync(client, TrustedProxy, cfConnectingIp: "198.51.100.1", forwardedFor: "10.9.9.9");
+        var other = await SendAsync(client, TrustedProxy, cfConnectingIp: "198.51.100.2", forwardedFor: "10.9.9.9");
+
+        Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, other.StatusCode);
     }
 
     [Fact]
@@ -81,13 +105,30 @@ public sealed class RateLimitingTests : IClassFixture<ApiFactory>
         Assert.NotEqual(HttpStatusCode.TooManyRequests, response.StatusCode);
     }
 
-    private async Task<HttpResponseMessage> SendAsync(string peer, string? forwardedFor = null)
+    private HttpClient CreateClient(params (string Key, string Value)[] settings) =>
+        _factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("RateLimiting:PermitLimit", "2");
+            builder.UseSetting("RateLimiting:WindowSeconds", "60");
+            builder.UseSetting("ForwardedHeaders:KnownNetworks", "10.0.0.0/8");
+            foreach (var (key, value) in settings)
+                builder.UseSetting(key, value);
+            builder.ConfigureServices(services => services.AddSingleton<IStartupFilter, PeerAddressFromHeader>());
+        }).CreateClient();
+
+    private Task<HttpResponseMessage> SendAsync(string peer, string? forwardedFor = null) =>
+        SendAsync(_client, peer, forwardedFor);
+
+    private static async Task<HttpResponseMessage> SendAsync(
+        HttpClient client, string peer, string? forwardedFor = null, string? cfConnectingIp = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/train-alerts");
         request.Headers.Add(PeerHeader, peer);
         if (forwardedFor is not null)
             request.Headers.Add("X-Forwarded-For", forwardedFor);
-        return await _client.SendAsync(request);
+        if (cfConnectingIp is not null)
+            request.Headers.Add("CF-Connecting-IP", cfConnectingIp);
+        return await client.SendAsync(request);
     }
 
     private sealed class PeerAddressFromHeader : IStartupFilter
