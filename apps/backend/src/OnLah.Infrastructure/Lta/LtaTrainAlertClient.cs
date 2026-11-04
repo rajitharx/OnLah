@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OnLah.Application.Common.Interfaces;
@@ -37,10 +38,10 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
             }
 
             var raw = await response.Content.ReadFromJsonAsync<LtaTrainAlertResponse>(cancellationToken: cancellationToken);
-            if (raw is null)
+            if (raw?.Value is null)
                 return DomainError.Unavailable("TrainAlerts");
 
-            return Map(raw);
+            return Map(raw.Value);
         }
         catch (HttpRequestException ex)
         {
@@ -52,21 +53,25 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
             LogTimeout(ex);
             return DomainError.Unavailable("TrainAlerts");
         }
+        catch (JsonException ex)
+        {
+            LogMalformedResponse(ex);
+            return DomainError.Unavailable("TrainAlerts");
+        }
     }
 
-    private static TrainAlertsResult Map(LtaTrainAlertResponse raw)
+    private static TrainAlertsResult Map(LtaTrainAlertFeed feed)
     {
-        var feed = raw.Value;
         if (feed.Status != 2)
             return new TrainAlertsResult(TrainServiceStatus.Normal, []);
 
-        var message = feed.Message.Count > 0 ? feed.Message[0] : null;
+        var message = feed.Message is { Count: > 0 } messages ? messages[0] : null;
         var createdAt = ParseCreatedDate(message?.CreatedDate);
-        var alerts = feed.AffectedSegments
+        var alerts = (feed.AffectedSegments ?? [])
             .Select(s => new TrainAlertDetail(
                 s.Line,
                 s.Direction,
-                s.Stations.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                (s.Stations ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                 message?.Content ?? string.Empty,
                 createdAt))
             .ToList();
@@ -94,4 +99,7 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "LTA train alerts request timed out")]
     private partial void LogTimeout(Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "LTA returned a malformed train alerts response")]
+    private partial void LogMalformedResponse(Exception exception);
 }

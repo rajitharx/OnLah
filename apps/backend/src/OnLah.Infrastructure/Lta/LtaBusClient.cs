@@ -72,7 +72,7 @@ internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClien
             LogLtaTimeout(ex, stopCode);
             return DomainError.Unavailable("BusArrival");
         }
-        catch (Exception ex) when (ex is JsonException or FormatException)
+        catch (JsonException ex)
         {
             LogLtaMalformedResponse(ex, stopCode);
             return DomainError.Unavailable("BusArrival");
@@ -93,13 +93,13 @@ internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClien
         MapTiming(s.NextBus3)
     );
 
-    private static ArrivalTiming? MapTiming(LtaArrivalTiming t)
+    private static ArrivalTiming? MapTiming(LtaArrivalTiming? t)
     {
-        if (string.IsNullOrEmpty(t.EstimatedArrival))
+        if (t is null || !TryParseArrival(t.EstimatedArrival, out var estimatedArrival))
             return null;
 
         return new ArrivalTiming(
-            DateTimeOffset.Parse(t.EstimatedArrival, CultureInfo.InvariantCulture),
+            estimatedArrival,
             MapLoad(t.Load),
             t.Feature == "WAB",
             MapType(t.Type),
@@ -107,6 +107,10 @@ internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClien
             IsLastBus: false
         );
     }
+
+    // LTA sends an empty string for a bus slot it has no estimate for.
+    private static bool TryParseArrival(string? raw, out DateTimeOffset arrival) =>
+        DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out arrival);
 
     private static CrowdLevel MapLoad(string load) => load switch
     {
