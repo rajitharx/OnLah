@@ -16,14 +16,28 @@ interface ServiceSheetProps {
 export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps) {
   const { details, loading, failed } = useBusServiceDetails(serviceNo);
   const touchStartY = useRef<number | null>(null);
+  const sheetRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeRef.current?.focus();
+    return () => opener?.focus();
+  }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        onCloseRef.current();
+        return;
+      }
+      if (event.key === 'Tab') trapTab(event, sheetRef.current);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   const deckSummary = summarizeDeckTypes(collectDeckTypes(arrivals, serviceNo));
 
@@ -40,6 +54,7 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <section
+        ref={sheetRef}
         className="sheet"
         role="dialog"
         aria-modal="true"
@@ -52,7 +67,7 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
             <span className="service-badge">{serviceNo}</span>
             Service details
           </h2>
-          <button type="button" className="btn btn-quiet" onClick={onClose} aria-label="Close bus details">
+          <button ref={closeRef} type="button" className="btn btn-quiet" onClick={onClose} aria-label="Close bus details">
             Close
           </button>
         </header>
@@ -74,6 +89,28 @@ export function ServiceSheet({ serviceNo, arrivals, onClose }: ServiceSheetProps
       </section>
     </div>
   );
+}
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function trapTab(event: KeyboardEvent, sheet: HTMLElement | null): void {
+  if (sheet === null) return;
+  const items = Array.from(sheet.querySelectorAll<HTMLElement>(FOCUSABLE));
+  const first = items[0];
+  const last = items[items.length - 1];
+  if (first === undefined || last === undefined) return;
+
+  const active = document.activeElement;
+  if (!sheet.contains(active)) {
+    event.preventDefault();
+    first.focus();
+  } else if (event.shiftKey && active === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function DirectionBlock({ direction }: { direction: ServiceDirection }) {

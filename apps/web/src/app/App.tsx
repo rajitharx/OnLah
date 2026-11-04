@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { BusStop } from '../types/domain';
 import { DisruptionBanner } from '../features/disruptions/DisruptionBanner';
 import { useTrainAlerts } from '../features/disruptions/useTrainAlerts';
@@ -36,6 +36,7 @@ export default function App() {
   const { route, push, replace } = useRoute();
   const [searchQuery, setSearchQuery] = useState('');
   const [knownStop, setKnownStop] = useState<BusStop | null>(null);
+  const sheetPushedFromBoard = useRef(false);
   const now = useNow();
   const alerts = useTrainAlerts();
 
@@ -57,8 +58,15 @@ export default function App() {
   };
 
   const openService = (next: BusStop, serviceNo: string): void => {
+    sheetPushedFromBoard.current = false;
     setKnownStop(next);
     push({ view: 'board', stopCode: next.busStopCode, serviceNo });
+  };
+
+  const closeService = (): void => {
+    if (route.view !== 'board') return;
+    if (sheetPushedFromBoard.current && cameFromInApp()) window.history.back();
+    else replace({ view: 'board', stopCode: route.stopCode, serviceNo: null });
   };
 
   const toggleBus = (serviceNo: string): void => {
@@ -96,8 +104,11 @@ export default function App() {
             savedBusesFull={savedBuses.isFull}
             onToggleBus={toggleBus}
             openService={route.serviceNo}
-            onOpenService={(serviceNo) => push({ view: 'board', stopCode: route.stopCode, serviceNo })}
-            onCloseService={() => replace({ view: 'board', stopCode: route.stopCode, serviceNo: null })}
+            onOpenService={(serviceNo) => {
+              sheetPushedFromBoard.current = true;
+              push({ view: 'board', stopCode: route.stopCode, serviceNo });
+            }}
+            onCloseService={closeService}
             onBack={goBack}
             onRefresh={arrivals.refresh}
             trackHref={(serviceNo) => formatRoute({ view: 'track', stopCode: route.stopCode, serviceNo })}
