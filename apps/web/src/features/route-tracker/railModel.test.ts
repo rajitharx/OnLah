@@ -106,6 +106,18 @@ describe('collapseRail', () => {
     expect(items.filter((i) => i.kind === 'gap')).toHaveLength(2);
   });
 
+  it('keys a hidden stretch by its first stop, so it stays expanded when the bus moves', () => {
+    const before = buildRail(stops(30), 22, 'S11');
+    const after = buildRail(stops(30), 22, 'S12');
+    const first = collapseRail(before, new Set()).find((i) => i.kind === 'gap')!;
+    expect(first.key).toBe('2');
+
+    const items = collapseRail(after, new Set([first.key]));
+
+    expect(items.filter(isStop).map((i) => i.node.stop.sequence)).toContain(2);
+    expect(items.filter((i) => i.kind === 'gap').map((g) => g.key)).not.toContain('2');
+  });
+
   it('does not hide a stretch of only one or two stops', () => {
     const short = buildRail(stops(12), 8, 'S2');
 

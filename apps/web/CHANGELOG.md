@@ -5,6 +5,15 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.88 (#43)
+
+**Announcements and focus.** Screen changes, search results and failed refreshes are now announced to screen readers, and focus follows the screen.
+
+- After a screen change (not the first load), focus moves to the new screen's heading and the tab title names the screen, such as "Stop 01012 · Hotel Grand Pacific · OnLah". Opening or closing a service sheet on a board does not count as a new screen. Not tested with a screen reader.
+- Search has one status region that is always on the page: "Searching…", then the result count, or the no-match text. The no-match text is hidden visually there because the empty state already shows it.
+- In the Route Tracker, "+N stops" is keyed by the first stop's sequence, so an opened section stays open as the bus moves. Focus moves to the first revealed stop. The button is removed once opened, so `aria-expanded` is only ever rendered as false.
+- On Saved, each card's failed-refresh notice is a polite status. One alert appears above the cards when every saved stop failed to refresh. The board and the tracker keep their alert.
+
 ## 1.87 (#41)
 
 **Bus details sheet: Back and keyboard focus.** Two fixes to the sheet that opens from a service number on the board.

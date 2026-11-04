@@ -50,6 +50,19 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.88',
+    pr: 43,
+    shipped: null,
+    title: 'Announcements and focus',
+    summary: 'Screen changes, search results and failed refreshes are now announced, and focus no longer falls to the top of the page.',
+    items: [
+      { kind: 'fix', text: 'Moving to another screen puts focus on its heading and sets the tab title, such as "Stop 01012 · Hotel Grand Pacific · OnLah". The first page load is left alone.' },
+      { kind: 'fix', text: 'Search has one status line that says "Searching…", then the result count or that nothing matches.' },
+      { kind: 'fix', text: 'Opening "+N stops" in the Route Tracker moves focus to the first stop it reveals, and the section stays open when the bus moves.' },
+      { kind: 'fix', text: 'On Saved, a failed refresh is announced politely per stop, and one alert appears when every saved stop failed.' },
+    ],
+  },
+  {
     version: '1.87',
     pr: 41,
     shipped: null,

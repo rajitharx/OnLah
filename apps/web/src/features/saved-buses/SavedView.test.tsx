@@ -74,6 +74,24 @@ describe('SavedView', () => {
     expect(render([bus('12')], withData)).toContain('Updated 5s ago');
   });
 
+  it('raises one alert, not one per card, when every stop failed', () => {
+    const failed = (data: ArrivalsState['data']): ArrivalsState => ({ data, failed: true, slow: false });
+    const arrivals = { '01012': failed(null), '01013': failed(withData['01012'].data) };
+    const buses = [bus('12'), { ...bus('2'), stopCode: '01013' }];
+
+    const html = render(buses, arrivals);
+
+    expect(html.match(/role="alert"/g)).toHaveLength(1);
+    expect(html).toContain('load bus times for your saved stops.');
+  });
+
+  it('raises no alert when only some stops failed', () => {
+    const buses = [bus('12'), { ...bus('2'), stopCode: '01013' }];
+    const arrivals = { '01012': { data: null, failed: true, slow: false }, '01013': withData['01012'] };
+
+    expect(render(buses, arrivals)).not.toContain('role="alert"');
+  });
+
   it('opens the bus details from the bus number, as a button', () => {
     expect(buttonTag(render([bus('12')], withData), 'Bus 12 details')).toContain('type="button"');
   });

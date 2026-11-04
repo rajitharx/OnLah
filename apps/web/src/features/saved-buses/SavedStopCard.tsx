@@ -37,10 +37,10 @@ export function SavedStopCard({ group, state, now, onOpenStop, onOpenService, on
       {current.data !== null && !current.failed && <Freshness fetchedAt={current.data.fetchedAt} now={now} />}
 
       {current.data !== null && current.failed && (
-        <StaleNotice fetchedAt={current.data.fetchedAt} now={now} onRetry={() => onResync(group.stopCode)} />
+        <StaleNotice fetchedAt={current.data.fetchedAt} now={now} onRetry={() => onResync(group.stopCode)} tone="status" />
       )}
       {!current.data && current.failed && (
-        <p className="error" role="alert">Bus times are unavailable right now.</p>
+        <p className="error" role="status">Bus times are unavailable right now.</p>
       )}
       {!current.data && !current.failed && (
         <p className="caption" role="status">

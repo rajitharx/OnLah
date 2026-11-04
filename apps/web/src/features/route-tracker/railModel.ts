@@ -81,13 +81,15 @@ export function collapseRail(nodes: RailNode[], expanded: ReadonlySet<string>): 
 
     let end = index;
     while (end < nodes.length && !anchors.has(end)) end += 1;
-    items.push(...hiddenRun(nodes.slice(index, end), String(index), expanded));
+    items.push(...hiddenRun(nodes.slice(index, end), expanded));
     index = end;
   }
   return items;
 }
 
-function hiddenRun(run: RailNode[], key: string, expanded: ReadonlySet<string>): RailItem[] {
+// Keyed by the first stop's sequence, not its position, because the anchors move with the bus.
+function hiddenRun(run: RailNode[], expanded: ReadonlySet<string>): RailItem[] {
+  const key = String(run[0].stop.sequence);
   if (run.length < MIN_HIDDEN_RUN || expanded.has(key)) {
     return run.map((node): RailItem => ({ kind: 'stop', node }));
   }

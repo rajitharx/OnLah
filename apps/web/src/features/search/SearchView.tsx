@@ -3,7 +3,7 @@ import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
 import { StopCard } from '../../shared/components/StopCard';
 import { useStopSearch } from './useStopSearch';
-import { resultCountMessage, searchFailureMessage, searchStatusMessage } from './searchStatus';
+import { noMatchMessage, searchAnnouncement, searchFailureMessage } from './searchStatus';
 
 interface SearchViewProps {
   query: string;
@@ -15,7 +15,8 @@ interface SearchViewProps {
 export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
   const search = useStopSearch(query);
   const { check, results, loading, failure } = search;
-  const status = searchStatusMessage(search);
+  const status = searchAnnouncement(search, results.length);
+  const noMatch = check.kind === 'ok' && !loading && failure === null && results.length === 0;
 
   return (
     <section className="view" aria-labelledby="search-title">
@@ -41,7 +42,7 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
         </span>
       </label>
 
-      {status !== null && <p className="caption" role="status">{status}</p>}
+      <p className={noMatch ? 'sr-only' : 'caption'} role="status">{status}</p>
       {check.kind === 'code-too-long' && <p className="error" role="alert">Stop codes are 5 digits.</p>}
       {check.kind === 'too-short' && <p className="caption">Type at least 2 characters.</p>}
       {check.kind === 'empty' && (
@@ -50,13 +51,10 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
 
       {failure !== null && <p className="error" role="alert">{searchFailureMessage(failure)}</p>}
 
-      {check.kind === 'ok' && !loading && failure === null && results.length === 0 && (
-        <EmptyState icon={<SearchIcon size={24} />} message={`No stops match "${check.term}".`} />
-      )}
+      {noMatch && <EmptyState icon={<SearchIcon size={24} />} message={noMatchMessage(check.term)} />}
 
       {results.length > 0 && (
         <>
-          <p className="caption">{resultCountMessage(results.length)}</p>
           <div className="stop-list">
             {results.map((stop) => (
               <StopCard key={stop.busStopCode} stop={stop} onOpen={onOpen} highlight={check.kind === 'ok' ? check.term : ''} />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../../shared/services/onlahApi';
-import { classifySearchFailure, resultCountMessage, searchFailureMessage, searchStatusMessage } from './searchStatus';
+import { classifySearchFailure, resultCountMessage, searchAnnouncement, searchFailureMessage, searchStatusMessage } from './searchStatus';
 
 describe('resultCountMessage', () => {
   it('counts the results below the limit', () => {
@@ -44,5 +44,26 @@ describe('search failures', () => {
   it('keeps the retry message when the backend answered with an error', () => {
     const failure = classifySearchFailure(new ApiError(503, 'LTA DataMall is unreachable.'));
     expect(searchFailureMessage(failure)).toBe('Search is unavailable right now. Try again.');
+  });
+});
+
+describe('searchAnnouncement', () => {
+  const done = { check: { kind: 'ok', term: 'Victoria' } as const, failure: null, slow: false, loading: false };
+
+  it('announces searching while a query is in flight', () => {
+    expect(searchAnnouncement({ ...done, loading: true }, 0)).toBe('Searching…');
+  });
+
+  it('announces the result count when results arrive', () => {
+    expect(searchAnnouncement(done, 3)).toBe('3 results');
+  });
+
+  it('announces when nothing matches', () => {
+    expect(searchAnnouncement(done, 0)).toBe('No stops match "Victoria".');
+  });
+
+  it('says nothing for an unfinished query or a failure, which have their own messages', () => {
+    expect(searchAnnouncement({ ...done, check: { kind: 'too-short' } }, 0)).toBe('');
+    expect(searchAnnouncement({ ...done, failure: 'unavailable' }, 0)).toBe('');
   });
 });
