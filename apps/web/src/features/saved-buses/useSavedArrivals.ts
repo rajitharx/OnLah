@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../../shared/services/onlahApi';
+import { startPoller, type Poller } from '../../shared/services/poller';
 import {
   SLOW_LOAD_MS,
   markSlowLoad,
@@ -14,30 +15,27 @@ export interface SavedArrivals {
   resync: (stopCode: string) => void;
 }
 
-// One request per stop, refreshed together. Each stop keeps its own last good data.
+// One poller per stop, started together. Each stop keeps its own last good data and its own request in flight.
 export function useSavedArrivals(stopCodes: string[], refreshMs = 20_000): SavedArrivals {
   const key = stopCodes.join(',');
   const [states, setStates] = useState<Record<string, ArrivalsState>>({});
-
-  const fetchStop = useCallback((code: string, signal?: AbortSignal): void => {
-    const apply = (result: ArrivalsResult): void => {
-      if (signal?.aborted) return;
-      setStates((prev) => setStopState(prev, code, result));
-    };
-    api
-      .getArrivals(code, signal)
-      .then((value) => apply({ ok: true, value }))
-      .catch(() => apply({ ok: false }));
-  }, []);
+  const pollersRef = useRef(new Map<string, Poller>());
 
   useEffect(() => {
     const codes = key === '' ? [] : key.split(',');
     const controller = new AbortController();
-    const load = (): void => {
-      for (const code of codes) fetchStop(code, controller.signal);
+    const fetchStop = (code: string): Promise<void> => {
+      const apply = (result: ArrivalsResult): void => {
+        if (!controller.signal.aborted) setStates((prev) => setStopState(prev, code, result));
+      };
+      return api
+        .getArrivals(code, controller.signal)
+        .then((value) => apply({ ok: true, value }))
+        .catch(() => apply({ ok: false }));
     };
 
-    load();
+    const pollers = new Map(codes.map((code) => [code, startPoller(() => fetchStop(code), refreshMs)]));
+    pollersRef.current = pollers;
     const slowId = window.setTimeout(() => {
       if (controller.signal.aborted) return;
       setStates((prev) => {
@@ -46,16 +44,15 @@ export function useSavedArrivals(stopCodes: string[], refreshMs = 20_000): Saved
         return next;
       });
     }, SLOW_LOAD_MS);
-    const id = window.setInterval(load, refreshMs);
 
     return () => {
       window.clearTimeout(slowId);
-      window.clearInterval(id);
+      for (const poller of pollers.values()) poller.stop();
       controller.abort();
     };
-  }, [key, refreshMs, fetchStop]);
+  }, [key, refreshMs]);
 
-  const resync = useCallback((stopCode: string): void => fetchStop(stopCode), [fetchStop]);
+  const resync = useCallback((stopCode: string): void => pollersRef.current.get(stopCode)?.poll(), []);
 
   return { states, resync };
 }

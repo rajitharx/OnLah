@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { BusStop } from '../../types/domain';
 import { SavedView } from './SavedView';
@@ -7,6 +7,15 @@ import type { ArrivalsState } from '../arrivals/arrivalsState';
 
 const noop = (): void => undefined;
 const now = Date.parse('2026-10-19T10:00:05Z');
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(now);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 function bus(serviceNo: string): SavedBus {
   return { stopCode: '01012', serviceNo, stopName: 'Victoria Lane', roadName: 'Victoria St', latitude: 1.3, longitude: 103.8 };
@@ -34,7 +43,6 @@ function render(buses: SavedBus[], arrivals: Record<string, ArrivalsState> = {},
     <SavedView
       buses={buses}
       arrivals={arrivals}
-      now={now}
       stops={stops}
       onOpenStop={noop}
       onOpenService={noop}

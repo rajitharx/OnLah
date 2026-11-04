@@ -1,9 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ArrivalTiming, BusType } from '../../types/domain';
 import { EtaTile } from './EtaTile';
 
 const now = Date.parse('2026-10-19T10:00:00Z');
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(now);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 function timing(overrides: Partial<ArrivalTiming> = {}): ArrivalTiming {
   return {
@@ -18,7 +27,7 @@ function timing(overrides: Partial<ArrivalTiming> = {}): ArrivalTiming {
 }
 
 function render(t: ArrivalTiming | null): string {
-  return renderToStaticMarkup(<EtaTile timing={t} now={now} />);
+  return renderToStaticMarkup(<EtaTile timing={t} />);
 }
 
 describe('EtaTile', () => {

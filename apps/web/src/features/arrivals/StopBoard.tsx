@@ -15,7 +15,6 @@ import { busAdvisories } from './busAdvisories';
 interface StopBoardProps {
   stop: BusStop;
   arrivals: ArrivalsState;
-  now: number;
   isFavourite: boolean;
   favouritesFull: boolean;
   onToggleFavourite: () => void;
@@ -35,7 +34,6 @@ interface StopBoardProps {
 export function StopBoard({
   stop,
   arrivals,
-  now,
   isFavourite,
   favouritesFull,
   onToggleFavourite,
@@ -84,13 +82,13 @@ export function StopBoard({
       </header>
 
       <div className="board-meta">
-        {data && !failed && <Freshness fetchedAt={data.fetchedAt} now={now} />}
+        {data && !failed && <Freshness fetchedAt={data.fetchedAt} />}
         <span className="caption">LTA DataMall · every 20s</span>
         <ResyncButton label="Refresh bus times" onClick={onRefresh} />
         {saveDisabled && <span className="caption">Favourites are full ({MAX_FAVOURITES})</span>}
       </div>
 
-      {failed && data && <StaleNotice fetchedAt={data.fetchedAt} now={now} onRetry={onRefresh} />}
+      {failed && data && <StaleNotice fetchedAt={data.fetchedAt} onRetry={onRefresh} />}
       {failed && !data && (
         <p className="error" role="alert">Bus times are unavailable right now. Retrying every 20 seconds.</p>
       )}
@@ -115,7 +113,6 @@ export function StopBoard({
               <ServiceRow
                 key={service.serviceNo}
                 service={service}
-                now={now}
                 onOpenService={onOpenService}
                 isSaved={isBusSaved(service.serviceNo)}
                 saveDisabled={!isBusSaved(service.serviceNo) && savedBusesFull}

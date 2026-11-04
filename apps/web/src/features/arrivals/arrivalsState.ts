@@ -1,6 +1,6 @@
 import type { BusArrivalsResponse } from '../../types/domain';
 
-// Last known good data stays on screen while a refresh fails.
+// Last known good data stays on screen while a refresh fails. A response older than the data on screen is ignored.
 // `slow` marks a first load still waiting after the cold-start threshold, so the board can explain the wait.
 export interface ArrivalsState {
   data: BusArrivalsResponse | null;
@@ -16,6 +16,9 @@ export const SLOW_LOAD_MS = 3_000;
 export const EMPTY_ARRIVALS: ArrivalsState = { data: null, failed: false, slow: false };
 
 export function applyArrivalsResult(previous: ArrivalsState, result: ArrivalsResult): ArrivalsState {
+  if (result.ok && previous.data && Date.parse(result.value.fetchedAt) < Date.parse(previous.data.fetchedAt)) {
+    return previous;
+  }
   if (result.ok) return { data: result.value, failed: false, slow: false };
   return { data: previous.data, failed: true, slow: previous.slow };
 }

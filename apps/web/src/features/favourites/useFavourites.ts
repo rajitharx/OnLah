@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { BusStop } from '../../types/domain';
 import {
   FAVOURITES_KEY,
@@ -9,11 +9,12 @@ import {
 } from './favouritesStore';
 
 // localStorage can be blocked (private mode, disabled site data), so every access is guarded.
-function readFavourites(): BusStop[] {
+// null means storage could not be read, so the caller keeps the list it has in memory.
+function readFavourites(): BusStop[] | null {
   try {
     return parseFavourites(window.localStorage.getItem(FAVOURITES_KEY));
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -34,21 +35,35 @@ export interface Favourites {
   remove: (stopCode: string) => void;
 }
 
+// Another tab can change the list, so it reloads on the storage event and every change starts from what is stored.
 export function useFavourites(): Favourites {
-  const [stops, setStops] = useState<BusStop[]>(readFavourites);
+  const [stops, setStops] = useState<BusStop[]>(() => readFavourites() ?? []);
 
-  const update = (next: BusStop[]): void => {
+  useEffect(() => {
+    const onStorage = (event: StorageEvent): void => {
+      if (event.key === FAVOURITES_KEY || event.key === null) setStops(readFavourites() ?? []);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const save = (next: BusStop[]): void => {
     setStops(next);
     writeFavourites(next);
   };
+  const current = (): BusStop[] => readFavourites() ?? stops;
 
   const toggle = (stop: BusStop): boolean => {
-    if (stops.some((s) => s.busStopCode === stop.busStopCode)) {
-      update(removeFavourite(stops, stop.busStopCode));
+    const list = current();
+    if (list.some((s) => s.busStopCode === stop.busStopCode)) {
+      save(removeFavourite(list, stop.busStopCode));
       return true;
     }
-    if (isFavouritesFull(stops)) return false;
-    update(addFavourite(stops, stop));
+    if (isFavouritesFull(list)) {
+      setStops(list);
+      return false;
+    }
+    save(addFavourite(list, stop));
     return true;
   };
 
@@ -57,6 +72,6 @@ export function useFavourites(): Favourites {
     isFull: isFavouritesFull(stops),
     has: (stopCode) => stops.some((s) => s.busStopCode === stopCode),
     toggle,
-    remove: (stopCode) => update(removeFavourite(stops, stopCode)),
+    remove: (stopCode) => save(removeFavourite(current(), stopCode)),
   };
 }

@@ -5,7 +5,6 @@ import { EtaTile } from './EtaTile';
 
 interface ServiceRowProps {
   service: BusArrival;
-  now: number;
   onOpenService: (serviceNo: string) => void;
   isSaved: boolean;
   saveDisabled: boolean;
@@ -16,7 +15,6 @@ interface ServiceRowProps {
 
 export function ServiceRow({
   service,
-  now,
   onOpenService,
   isSaved,
   saveDisabled,
@@ -73,7 +71,7 @@ export function ServiceRow({
       ))}
       <div className="eta-grid">
         {timings.map((timing, index) => (
-          <EtaTile key={index} timing={timing} now={now} />
+          <EtaTile key={index} timing={timing} />
         ))}
       </div>
     </li>

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { TrainAlertDetail, TrainAlertsResponse, TrainServiceStatus } from '../../types/domain';
 import { DisruptionBanner } from './DisruptionBanner';
@@ -6,13 +6,23 @@ import type { TrainAlertsState } from './useTrainAlerts';
 
 const NOW = Date.parse('2026-10-26T10:00:30Z');
 
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(NOW);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 function response(status: TrainServiceStatus, alerts: TrainAlertDetail[], refreshFailed = false): TrainAlertsState {
   const value: TrainAlertsResponse = { data: { status, alerts }, fetchedAt: '2026-10-26T10:00:00Z' };
   return { status: 'ok', alerts: value, refreshFailed };
 }
 
-function render(alerts: TrainAlertsState): string {
-  return renderToStaticMarkup(<DisruptionBanner alerts={alerts} now={NOW} />).replace(/&#x27;/g, "'");
+function render(alerts: TrainAlertsState, now = NOW): string {
+  vi.setSystemTime(now);
+  return renderToStaticMarkup(<DisruptionBanner alerts={alerts} />).replace(/&#x27;/g, "'");
 }
 
 const EMPTY = '<div><div role="status" aria-label="Service alerts" class="banner-live"></div></div>';
@@ -53,7 +63,7 @@ describe('DisruptionBanner', () => {
   });
 
   it('shows each alert as a labelled status with a Hide button and freshness', () => {
-    const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} now={NOW} />);
+    const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} />);
     expect(html).toContain('aria-label="MRT disruption"');
     expect(html).toContain('aria-label="Hide MRT disruption notice"');
     expect(html).toContain('Delay of 10 minutes');
@@ -61,7 +71,7 @@ describe('DisruptionBanner', () => {
   });
 
   it('says service alerts are unavailable, neutrally, when the fetch failed', () => {
-    const html = renderToStaticMarkup(<DisruptionBanner alerts={{ status: 'unavailable' }} now={NOW} />);
+    const html = renderToStaticMarkup(<DisruptionBanner alerts={{ status: 'unavailable' }} />);
     expect(html).toContain('role="status"');
     expect(html).toContain('Service alerts unavailable');
     expect(html).not.toContain('MRT disruption');
@@ -107,7 +117,7 @@ describe('DisruptionBanner', () => {
 
   it('keeps the ticking age out of the live region', () => {
     const failed = response(1, [], true);
-    const later = renderToStaticMarkup(<DisruptionBanner alerts={failed} now={NOW + 10_000} />).replace(/&#x27;/g, "'");
+    const later = render(failed, NOW + 10_000);
     expect(liveRegion(later)).toBe(liveRegion(render(failed)));
     expect(liveRegion(later)).not.toMatch(/\d+s ago/);
     expect(later).toContain('Last checked 40s ago');
@@ -122,8 +132,7 @@ describe('DisruptionBanner', () => {
       response(1, [alert]),
       response(1, [alert], true),
     ];
-    const liveContents = (state: TrainAlertsState, now: number) =>
-      statusContents(renderToStaticMarkup(<DisruptionBanner alerts={state} now={now} />));
+    const liveContents = (state: TrainAlertsState, now: number) => statusContents(render(state, now));
     for (const state of states) {
       const first = liveContents(state, NOW);
       expect(liveContents(state, NOW + 10_000)).toEqual(first);
@@ -132,7 +141,7 @@ describe('DisruptionBanner', () => {
   });
 
   it('announces the disruption card title and alert text from inside a status element', () => {
-    const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} now={NOW} />);
+    const html = renderToStaticMarkup(<DisruptionBanner alerts={response(1, [alert])} />);
     const card = statusContents(html).find((content) => content.includes('MRT disruption'));
     expect(card).toBeDefined();
     expect(card).toContain('Delay of 10 minutes');

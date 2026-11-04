@@ -5,6 +5,17 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.93 (#47)
+
+**Steadier live refresh.** Six fixes to how the board, the Saved tab, the alerts banner and the Route Tracker refresh.
+
+- A stop never has two arrival requests running at once. The 20-second timer, the Refresh button and Re-sync skip a stop whose last request has not finished, so a slow response cannot replace newer times. An arrivals response older than the data on screen is also ignored. Re-sync requests are cancelled when the Saved tab goes away.
+- Bus arrivals, saved buses and service alerts pause while the tab is hidden and refresh as soon as it is visible again, as the Route Tracker already did.
+- The Route Tracker stops refreshing once the service is not found at the stop.
+- Opening another stop shows no times from the previous stop, not even for one frame, while the new ones load.
+- The "Updated Ns ago" chips, the stale notices, the ETA tiles and the Route Tracker keep their own one-second clock, so the rest of the page no longer re-renders every second.
+- Saved buses and favourite stops changed in another tab appear here straight away, and a save in this tab starts from what is stored, so two tabs no longer overwrite each other's saves.
+
 ## 1.92 (#42)
 
 **Retry after a failed lookup.** Three screens could fail and then give no way to try again.

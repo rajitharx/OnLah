@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, api } from '../../shared/services/onlahApi';
 import { serverClock } from '../../shared/services/serverClock';
+import { startPoller, type Poller } from '../../shared/services/poller';
 import { EMPTY_TRACKER, applyTrackerResult, type TrackerResult, type TrackerState } from './trackerState';
 
 export interface UseRouteTracker extends TrackerState {
@@ -8,62 +9,37 @@ export interface UseRouteTracker extends TrackerState {
 }
 
 // Silent refresh with no spinner. It pauses while the tab is hidden, refetches when the tab returns,
-// and never starts a request while the last one is still running.
+// never starts a request while the last one is still running, and stops once the service is not found.
 export function useRouteTracker(stopCode: string, serviceNo: string, refreshMs = 20_000): UseRouteTracker {
   const [state, setState] = useState<TrackerState>(EMPTY_TRACKER);
-  const loadRef = useRef<() => void>(() => undefined);
+  const pollerRef = useRef<Poller | null>(null);
 
   useEffect(() => {
     setState(EMPTY_TRACKER);
     const controller = new AbortController();
-    let inFlight = false;
-    let timer: number | undefined;
 
     const apply = (result: TrackerResult): void => {
-      if (!controller.signal.aborted) setState((previous) => applyTrackerResult(previous, result, serverClock.now()));
+      if (controller.signal.aborted) return;
+      if (!result.ok && result.notFound) poller.stop();
+      setState((previous) => applyTrackerResult(previous, result, serverClock.now()));
     };
 
-    const load = (): void => {
-      if (inFlight) return;
-      inFlight = true;
-      api
-        .getRouteTracker(stopCode, serviceNo, controller.signal)
-        .then((value) => apply({ ok: true, value }))
-        .catch((error: unknown) => apply({ ok: false, notFound: error instanceof ApiError && error.status === 404 }))
-        .finally(() => {
-          inFlight = false;
-        });
-    };
-
-    const stopTimer = (): void => {
-      if (timer !== undefined) window.clearInterval(timer);
-      timer = undefined;
-    };
-    const startTimer = (): void => {
-      stopTimer();
-      timer = window.setInterval(load, refreshMs);
-    };
-    const onVisibility = (): void => {
-      if (document.hidden) {
-        stopTimer();
-      } else {
-        load();
-        startTimer();
-      }
-    };
-
-    loadRef.current = load;
-    load();
-    if (!document.hidden) startTimer();
-    document.addEventListener('visibilitychange', onVisibility);
+    const poller = startPoller(
+      () =>
+        api
+          .getRouteTracker(stopCode, serviceNo, controller.signal)
+          .then((value) => apply({ ok: true, value }))
+          .catch((error: unknown) => apply({ ok: false, notFound: error instanceof ApiError && error.status === 404 })),
+      refreshMs,
+    );
+    pollerRef.current = poller;
     return () => {
       controller.abort();
-      stopTimer();
-      document.removeEventListener('visibilitychange', onVisibility);
+      poller.stop();
     };
   }, [stopCode, serviceNo, refreshMs]);
 
-  const retry = useCallback((): void => loadRef.current(), []);
+  const retry = useCallback((): void => pollerRef.current?.poll(), []);
 
   return { ...state, retry };
 }
