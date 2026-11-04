@@ -8,10 +8,12 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseClientIpDiagnostics();
 app.UseForwardedHeaders();
-app.UseExceptionHandler();
 app.UseSecurityHeaders();
+app.UseExceptionHandler();
 app.UseCors("AllowedOrigins");
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();

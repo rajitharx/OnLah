@@ -45,7 +45,11 @@ public static class InfrastructureExtensions
         services.AddTransient<ILtaLiveArrivalClient>(sp => sp.GetRequiredService<LtaBusClient>());
         services.AddHttpClient<ILtaBusStopClient, LtaBusStopClient>();
         services.AddHttpClient<ILtaBusNetworkClient, LtaBusNetworkClient>();
-        services.AddHttpClient<ILtaTrainAlertClient, LtaTrainAlertClient>();
+        services.AddHttpClient<LtaTrainAlertClient>();
+        services.AddSingleton<ILtaTrainAlertClient>(sp => new CachedTrainAlertClient(
+            sp.GetRequiredService<LtaTrainAlertClient>(),
+            sp.GetRequiredService<IClock>(),
+            TimeSpan.FromSeconds(sp.GetRequiredService<IOptions<LtaOptions>>().Value.TrainAlertCacheSeconds)));
 
         services.AddScoped<IBusStopRepository, BusStopRepository>();
         services.AddScoped<IBusNetworkRepository, BusNetworkRepository>();

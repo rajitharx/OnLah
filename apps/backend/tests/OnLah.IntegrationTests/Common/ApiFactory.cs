@@ -11,7 +11,7 @@ using Xunit;
 
 namespace OnLah.IntegrationTests.Common;
 
-public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string AdminKey = "test-admin-key";
 
@@ -67,12 +67,17 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.RemoveAll<ILtaBusStopClient>();
             services.AddSingleton(LtaBusStopClient);
 
-            services.RemoveAll<ILtaTrainAlertClient>();
-            services.AddSingleton(LtaTrainAlertClient);
+            ReplaceTrainAlertClient(services);
 
             services.RemoveAll<ILtaBusNetworkClient>();
             services.AddSingleton(LtaBusNetworkClient);
         });
+    }
+
+    protected virtual void ReplaceTrainAlertClient(IServiceCollection services)
+    {
+        services.RemoveAll<ILtaTrainAlertClient>();
+        services.AddSingleton(LtaTrainAlertClient);
     }
 
     public new async Task DisposeAsync() => await _postgres.DisposeAsync();

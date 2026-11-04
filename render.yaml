@@ -20,3 +20,5 @@ services:
         sync: false
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      # Rate limiting stays off (RateLimiting__Enabled unset) until the client IP is confirmed on Render.
+      # Follow "Client IPs and rate limiting" in DEPLOYMENT.md before turning it on.
