@@ -83,7 +83,12 @@ internal static class ApiExtensions
         options.KnownProxies.Clear();
         options.KnownIPNetworks.Clear();
         foreach (var network in networks)
-            options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+        {
+            if (!System.Net.IPNetwork.TryParse(network, out var parsed))
+                throw new InvalidOperationException(
+                    $"{KnownNetworksKey} contains '{network}', which is not a valid CIDR network (for example 10.0.0.0/8).");
+            options.KnownIPNetworks.Add(parsed);
+        }
     }
 
     internal static WebApplication MapApiEndpoints(this WebApplication app)

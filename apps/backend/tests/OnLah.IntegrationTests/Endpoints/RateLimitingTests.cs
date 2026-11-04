@@ -10,13 +10,14 @@ using Xunit;
 
 namespace OnLah.IntegrationTests.Endpoints;
 
-public sealed class RateLimitingTests : IClassFixture<ApiFactory>
+public sealed class RateLimitingTests : IClassFixture<ApiFactory>, IDisposable
 {
     private const string PeerHeader = "X-Test-Peer";
     private const string TrustedProxy = "10.0.0.1";
     private const string UntrustedPeer = "203.0.113.9";
 
     private readonly ApiFactory _factory;
+    private readonly List<IDisposable> _disposables = [];
     private readonly HttpClient _client;
 
     public RateLimitingTests(ApiFactory factory)
@@ -105,8 +106,40 @@ public sealed class RateLimitingTests : IClassFixture<ApiFactory>
         Assert.NotEqual(HttpStatusCode.TooManyRequests, response.StatusCode);
     }
 
-    private HttpClient CreateClient(params (string Key, string Value)[] settings) =>
-        _factory.WithWebHostBuilder(builder =>
+    [Theory]
+    [InlineData("RateLimiting:PermitLimit", "0")]
+    [InlineData("RateLimiting:WindowSeconds", "0")]
+    public void Startup_RateLimitingEnabledWithNonPositiveSetting_FailsNamingTheSetting(string key, string value)
+    {
+        using var host = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("RateLimiting:Enabled", "true");
+            builder.UseSetting(key, value);
+        });
+
+        var exception = Assert.ThrowsAny<Exception>(() => host.Services);
+
+        Assert.Contains(key, exception.ToString());
+    }
+
+    [Fact]
+    public void Startup_RateLimitingDisabledWithZeroPermitLimit_Starts()
+    {
+        using var host = _factory.WithWebHostBuilder(builder =>
+            builder.UseSetting("RateLimiting:PermitLimit", "0"));
+
+        Assert.NotNull(host.Services);
+    }
+
+    public void Dispose()
+    {
+        foreach (var disposable in _disposables)
+            disposable.Dispose();
+    }
+
+    private HttpClient CreateClient(params (string Key, string Value)[] settings)
+    {
+        var host = _factory.WithWebHostBuilder(builder =>
         {
             builder.UseSetting("RateLimiting:PermitLimit", "2");
             builder.UseSetting("RateLimiting:WindowSeconds", "60");
@@ -114,7 +147,12 @@ public sealed class RateLimitingTests : IClassFixture<ApiFactory>
             foreach (var (key, value) in settings)
                 builder.UseSetting(key, value);
             builder.ConfigureServices(services => services.AddSingleton<IStartupFilter, PeerAddressFromHeader>());
-        }).CreateClient();
+        });
+        var client = host.CreateClient();
+        _disposables.Add(client);
+        _disposables.Add(host);
+        return client;
+    }
 
     private Task<HttpResponseMessage> SendAsync(string peer, string? forwardedFor = null) =>
         SendAsync(_client, peer, forwardedFor);

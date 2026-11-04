@@ -36,4 +36,17 @@ public sealed class ForwardedHeadersTests(ApiFactory factory) : IClassFixture<Ap
             [System.Net.IPNetwork.Parse("10.0.0.0/8"), System.Net.IPNetwork.Parse("fd00::/8")],
             options.KnownIPNetworks);
     }
+
+    [Fact]
+    public void ForwardedHeaders_MalformedKnownNetwork_FailsNamingTheSettingAndValue()
+    {
+        using var configured = factory.WithWebHostBuilder(builder =>
+            builder.UseSetting("ForwardedHeaders:KnownNetworks", "10.0.0.0/8, not-a-network"));
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => configured.Services.GetRequiredService<IOptions<ForwardedHeadersOptions>>().Value);
+
+        Assert.Contains("ForwardedHeaders:KnownNetworks", exception.Message);
+        Assert.Contains("not-a-network", exception.Message);
+    }
 }

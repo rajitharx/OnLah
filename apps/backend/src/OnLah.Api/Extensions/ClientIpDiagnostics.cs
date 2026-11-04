@@ -13,7 +13,9 @@ internal sealed partial class ClientIpDiagnostics(ILogger<ClientIpDiagnostics> l
 
     internal async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (Volatile.Read(ref _logged) >= MaxLoggedRequests)
+        // Only API traffic counts, so the host's own /health polls cannot use up the slots.
+        if (!context.Request.Path.StartsWithSegments("/api/v1")
+            || Volatile.Read(ref _logged) >= MaxLoggedRequests)
         {
             await next(context);
             return;

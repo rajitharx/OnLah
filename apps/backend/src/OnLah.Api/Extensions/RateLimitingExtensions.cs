@@ -25,7 +25,13 @@ internal static class RateLimitingExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddOptions<RateLimitingOptions>().Bind(configuration.GetSection(RateLimitingOptions.SectionName));
+        services.AddOptions<RateLimitingOptions>()
+            .Bind(configuration.GetSection(RateLimitingOptions.SectionName))
+            .Validate(o => !o.Enabled || o.PermitLimit > 0,
+                "RateLimiting:PermitLimit must be greater than 0 when RateLimiting:Enabled is true.")
+            .Validate(o => !o.Enabled || o.WindowSeconds > 0,
+                "RateLimiting:WindowSeconds must be greater than 0 when RateLimiting:Enabled is true.")
+            .ValidateOnStart();
 
         services.AddRateLimiter(options =>
         {

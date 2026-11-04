@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OnLah.IntegrationTests.Common;
@@ -15,7 +16,8 @@ public sealed class ClientIpDiagnosticsTests(ApiFactory factory) : IClassFixture
     public async Task Request_LogClientIpEnabled_LogsRawHeadersForFirstFiftyRequests()
     {
         var logs = new CapturingLoggerProvider();
-        var client = CreateClient(logs, logClientIp: true);
+        await using var host = CreateHost(logs, logClientIp: true);
+        using var client = host.CreateClient();
 
         for (var i = 0; i < 52; i++)
             await SendAsync(client);
@@ -31,23 +33,40 @@ public sealed class ClientIpDiagnosticsTests(ApiFactory factory) : IClassFixture
     public async Task Request_LogClientIpNotEnabled_LogsNothing()
     {
         var logs = new CapturingLoggerProvider();
-        var client = CreateClient(logs, logClientIp: false);
+        await using var host = CreateHost(logs, logClientIp: false);
+        using var client = host.CreateClient();
 
         await SendAsync(client);
 
         Assert.Empty(logs.Messages(Category));
     }
 
-    private HttpClient CreateClient(CapturingLoggerProvider logs, bool logClientIp) =>
+    [Fact]
+    public async Task Request_HealthPolls_DoNotConsumeDiagnosticSlots()
+    {
+        var logs = new CapturingLoggerProvider();
+        await using var host = CreateHost(logs, logClientIp: true);
+        using var client = host.CreateClient();
+
+        for (var i = 0; i < 60; i++)
+            await client.GetAsync("/health");
+        await SendAsync(client);
+
+        var entries = logs.Messages(Category);
+        Assert.Single(entries);
+        Assert.Contains("Client IP diagnostic 1/50", entries[0]);
+    }
+
+    private WebApplicationFactory<Program> CreateHost(CapturingLoggerProvider logs, bool logClientIp) =>
         factory.WithWebHostBuilder(builder =>
         {
             builder.UseSetting("RateLimiting:LogClientIp", logClientIp.ToString());
             builder.ConfigureServices(services => services.AddLogging(logging => logging.AddProvider(logs)));
-        }).CreateClient();
+        });
 
     private static async Task SendAsync(HttpClient client)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/not-a-route");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/not-a-route");
         request.Headers.Add("X-Forwarded-For", "198.51.100.1, 172.64.0.1");
         request.Headers.Add("CF-Connecting-IP", "198.51.100.1");
         request.Headers.TryAddWithoutValidation("True-Client-IP", "198.51.100.1<script>");

@@ -33,7 +33,7 @@ Set these in the service's Environment tab. `render.yaml` marks each one `sync: 
 | `RateLimiting__Enabled` | Optional, default `false` | Turns on the per-client limit for `/api/v1`. Read [Client IPs and rate limiting](#client-ips-and-rate-limiting) first. |
 | `RateLimiting__PermitLimit` | Optional, default `120` | Requests each client IP may make to `/api/v1` per window. |
 | `RateLimiting__WindowSeconds` | Optional, default `60` | Length of the rate-limit window. |
-| `RateLimiting__LogClientIp` | Optional, default `false` | Logs the client IP headers of the first 50 requests after each start. |
+| `RateLimiting__LogClientIp` | Optional, default `false` | Logs the client IP headers of the first 50 `/api/v1` requests after each start (`/health` polls are not counted). |
 | `ForwardedHeaders__KnownNetworks` | Optional, default loopback only | Comma-separated CIDRs of proxies allowed to set the client IP. |
 | `ForwardedHeaders__ForwardedForHeaderName` | Optional, default `X-Forwarded-For` | Header to read the client IP from, for example `CF-Connecting-IP`. |
 | `ForwardedHeaders__ForwardLimit` | Optional, default `1` | How many proxy hops to read back from the end of the header. |
@@ -53,7 +53,7 @@ To find the right settings:
 
 1. Set `RateLimiting__LogClientIp=true` and redeploy.
 2. Open the app from two different networks, for example home Wi-Fi and mobile data.
-3. In the Render logs, find the `Client IP diagnostic` lines. Each shows the connection's peer address, the resolved client IP, and the raw `X-Forwarded-For`, `CF-Connecting-IP` and `True-Client-IP` values. Only the first 50 requests after each start are logged.
+3. In the Render logs, find the `Client IP diagnostic` lines. Each shows the connection's peer address, the resolved client IP, and the raw `X-Forwarded-For`, `CF-Connecting-IP` and `True-Client-IP` values. Only the first 50 `/api/v1` requests after each start are logged. `/health` polls are not counted, so Render's health checks do not use up the slots.
 4. Pick the source that holds your real public IP on each network:
    - If `CF-Connecting-IP` does, set `ForwardedHeaders__ForwardedForHeaderName=CF-Connecting-IP`.
    - If the real IP sits further back in `X-Forwarded-For`, set `ForwardedHeaders__ForwardLimit` to the number of entries from the end, and add every proxy hop between it and the API to `ForwardedHeaders__KnownNetworks`.
