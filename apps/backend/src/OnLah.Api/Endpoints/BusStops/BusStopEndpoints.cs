@@ -70,8 +70,8 @@ internal static partial class BusStopEndpoints
     {
         try
         {
-            var count = await syncService.SyncAsync(cancellationToken);
-            return TypedResults.Ok(new BusStopSyncResponse(count));
+            var result = await syncService.SyncAsync(cancellationToken);
+            return result.IsSuccess ? TypedResults.Ok(new BusStopSyncResponse(result.Value)) : SyncProblem.From(result.Error);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

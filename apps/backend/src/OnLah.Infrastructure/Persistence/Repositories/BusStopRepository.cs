@@ -40,17 +40,19 @@ internal sealed class BusStopRepository : IBusStopRepository
             : s => Regex.IsMatch(s.Description + " " + s.RoadName, pattern, RegexOptions.IgnoreCase);
     }
 
-    public async Task ReplaceAllAsync(IEnumerable<BusStop> stops, CancellationToken cancellationToken = default)
-    {
-        await _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
+    public Task<bool> ReplaceAllAsync(IEnumerable<BusStop> stops, CancellationToken cancellationToken = default) =>
+        _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+            if (!await _context.Database.TryAcquireForTransactionAsync(SyncLocks.BusStops, ct))
+                return false;
+
             await _context.BusStops.ExecuteDeleteAsync(ct);
             await _context.BusStops.AddRangeAsync(stops, ct);
             await _context.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
+            return true;
         }, cancellationToken);
-    }
 
     public async Task<IReadOnlyList<BusStop>> GetByCodesAsync(IEnumerable<string> busStopCodes, CancellationToken cancellationToken = default)
     {

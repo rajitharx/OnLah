@@ -135,6 +135,22 @@ public sealed class BusServiceEndpointTests(ApiFactory factory) : IClassFixture<
 #pragma warning restore CS0162
     }
 
+    [Fact]
+    public async Task SyncBusNetwork_AnotherSyncIsWriting_Returns409()
+    {
+        factory.LtaBusNetworkClient.GetAllServicesAsync(Arg.Any<CancellationToken>())
+            .Returns(StreamOf(BusService.Create("102M", 1, "SBST", "TRUNK", "64009", "64009", "9-11", "09-13", "10-12", "12-16", null)));
+        factory.LtaBusNetworkClient.GetAllRoutesAsync(Arg.Any<CancellationToken>())
+            .Returns(StreamOf(BusRoute.Create("102M", 1, 1, "64009", "SBST", 0, "0530", "2355", "0530", "2355", "-", "")));
+        await using var heldLock = await SyncLockHolder.HoldAsync(factory, SyncLocks.BusNetwork);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/bus-network/sync");
+        request.Headers.Add("X-Admin-Key", ApiFactory.AdminKey);
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
     private async Task SeedService102Async()
     {
         using var scope = factory.Services.CreateScope();

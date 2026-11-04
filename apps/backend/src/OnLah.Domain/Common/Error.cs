@@ -19,8 +19,8 @@ public sealed record DomainError(string Code, string Description, ErrorKind Kind
     public static DomainError Validation(string field, string message) =>
         new($"Validation.{field}", message, ErrorKind.Validation);
 
-    public static DomainError Conflict(string resource) =>
-        new($"{resource}.Conflict", $"{resource} already exists.", ErrorKind.Conflict);
+    public static DomainError Conflict(string resource, string description) =>
+        new($"{resource}.Conflict", description, ErrorKind.Conflict);
 
     public static DomainError Unavailable(string resource) =>
         new($"{resource}.Unavailable", $"{resource} is temporarily unavailable.", ErrorKind.Unavailable);
