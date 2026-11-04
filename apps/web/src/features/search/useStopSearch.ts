@@ -17,7 +17,8 @@ export interface StopSearchState {
 }
 
 // Debounces typing so each keystroke does not hit the backend.
-export function useStopSearch(query: string): StopSearchState {
+// A new `attempt` searches the same term again, so a failed search can be retried.
+export function useStopSearch(query: string, attempt = 0): StopSearchState {
   const check = checkSearchQuery(query);
   const term = check.kind === 'ok' ? check.term : null;
   const [state, setState] = useState<Omit<StopSearchState, 'check'>>({
@@ -54,7 +55,7 @@ export function useStopSearch(query: string): StopSearchState {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [term]);
+  }, [term, attempt]);
 
   return { check, ...state };
 }

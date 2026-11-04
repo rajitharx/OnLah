@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../shared/services/onlahApi';
 import { classifySearchFailure, resultCountMessage, searchAnnouncement, searchFailureMessage, searchStatusMessage } from './searchStatus';
 
@@ -36,8 +36,22 @@ describe('searchStatusMessage', () => {
 });
 
 describe('search failures', () => {
-  it('tells the user to change their text when the request got no answer at all', () => {
+  it('treats a network error as unavailable, since the same text can work once the connection is back', () => {
     const failure = classifySearchFailure(new TypeError('Failed to fetch'));
+    expect(searchFailureMessage(failure)).toBe('Search is unavailable right now. Try again.');
+  });
+
+  it('treats any failure while the browser is offline as unavailable', () => {
+    vi.stubGlobal('navigator', { onLine: false });
+    try {
+      expect(classifySearchFailure(new Error('timeout'))).toBe('unavailable');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('tells the user to change their text when an online request fails in a way that is not a network or API error', () => {
+    const failure = classifySearchFailure(new SyntaxError('Unexpected token < in JSON'));
     expect(searchFailureMessage(failure)).toBe("Couldn't search that text. Try different words.");
   });
 
