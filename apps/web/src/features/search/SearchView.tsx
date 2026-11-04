@@ -52,9 +52,11 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
       )}
 
       {failure !== null && (
-        <div className="nearby-error">
+        <div className="retry-notice">
           <p className="error" role="alert">{searchFailureMessage(failure)}</p>
-          <button type="button" className="btn" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+          {failure === 'unavailable' && (
+            <button type="button" className="btn" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+          )}
         </div>
       )}
 

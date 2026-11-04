@@ -2,7 +2,8 @@ import { ApiError } from '../../shared/services/onlahApi';
 import { MAX_SEARCH_RESULTS, type SearchQueryCheck } from '../../shared/utils/search';
 
 // 'unavailable': the backend answered with an error, or the network failed, so trying again can work.
-// 'rejected': the request failed while online with no answer, which for search can mean a WAF dropped that exact text.
+// 'rejected': any other failure. A browser fetch that gets no answer throws TypeError, so this is left for
+// non-JSON or otherwise odd success bodies, where the same text is unlikely to work.
 export type SearchFailure = 'unavailable' | 'rejected';
 
 export function classifySearchFailure(error: unknown): SearchFailure {

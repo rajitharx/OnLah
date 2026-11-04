@@ -61,7 +61,7 @@ export function NearbyView({ onOpen, onNavigate }: NearbyViewProps) {
       )}
 
       {locationError && (
-        <div className="nearby-error">
+        <div className="retry-notice">
           <p className="error" role="alert">{locationError}</p>
           <button type="button" className="btn" onClick={() => onNavigate('search')}>
             <SearchIcon size={14} />
@@ -70,7 +70,7 @@ export function NearbyView({ onOpen, onNavigate }: NearbyViewProps) {
         </div>
       )}
       {failed && (
-        <div className="nearby-error">
+        <div className="retry-notice">
           <p className="error" role="alert">Nearby stops are unavailable right now. Try again.</p>
           <button type="button" className="btn" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
         </div>

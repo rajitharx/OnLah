@@ -50,8 +50,8 @@ describe('search failures', () => {
     }
   });
 
-  it('tells the user to change their text when an online request fails some other way', () => {
-    const failure = classifySearchFailure(new Error('blocked'));
+  it('tells the user to change their text when an online request fails in a way that is not a network or API error', () => {
+    const failure = classifySearchFailure(new SyntaxError('Unexpected token < in JSON'));
     expect(searchFailureMessage(failure)).toBe("Couldn't search that text. Try different words.");
   });
 
