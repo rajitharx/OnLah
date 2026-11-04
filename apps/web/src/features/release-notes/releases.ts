@@ -50,6 +50,18 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.92',
+    pr: 42,
+    shipped: null,
+    title: 'Retry after a failed lookup',
+    summary: 'Nearby, search and stop links now have a way to try again after a failure, and a network error no longer says "Try different words".',
+    items: [
+      { kind: 'fix', text: 'Nearby: "Use my location" again, or "Try again", fetches again. Before, the same coordinates never refetched.' },
+      { kind: 'fix', text: 'Search: "Try again" searches the same text again. A network error, or any failure while offline, reads "Search is unavailable right now. Try again."' },
+      { kind: 'fix', text: 'A stop opened from a link that fails to load has a "Try again" button.' },
+    ],
+  },
+  {
     version: '1.89',
     pr: 43,
     shipped: null,

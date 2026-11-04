@@ -12,7 +12,8 @@ export interface NearbyState {
 }
 
 // Nothing is fetched until the visitor shares a location.
-export function useNearbyStops(origin: LatLng | null): NearbyState {
+// A new `attempt` fetches again for the same origin, so a failed lookup can be retried.
+export function useNearbyStops(origin: LatLng | null, attempt = 0): NearbyState {
   const [state, setState] = useState<NearbyState>({ stops: [], loading: false, failed: false });
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function useNearbyStops(origin: LatLng | null): NearbyState {
       });
 
     return () => controller.abort();
-  }, [origin?.latitude, origin?.longitude]);
+  }, [origin?.latitude, origin?.longitude, attempt]);
 
   return state;
 }

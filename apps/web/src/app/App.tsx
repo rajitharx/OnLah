@@ -39,10 +39,11 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [knownStop, setKnownStop] = useState<BusStop | null>(null);
   const sheetPushedFromBoard = useRef(false);
+  const [boardAttempt, setBoardAttempt] = useState(0);
   const now = useNow();
   const alerts = useTrainAlerts();
 
-  const board = useBoardStop(route.view === 'board' ? route.stopCode : null, knownStop);
+  const board = useBoardStop(route.view === 'board' ? route.stopCode : null, knownStop, boardAttempt);
   const arrivals = useStopArrivals(board.stop);
   const saved = useSavedArrivals(groupByStop(savedBuses.buses).map((group) => group.stopCode));
 
@@ -124,7 +125,15 @@ export default function App() {
           <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} now={now} onBack={goBack} />
         )}
         {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
-          <EmptyState icon={<SearchIcon size={24} />} message={BOARD_MESSAGES[board.status]} />
+          <EmptyState
+            icon={<SearchIcon size={24} />}
+            message={BOARD_MESSAGES[board.status]}
+            action={
+              board.status === 'failed' ? (
+                <button type="button" className="btn" onClick={() => setBoardAttempt((n) => n + 1)}>Try again</button>
+              ) : undefined
+            }
+          />
         )}
         {route.view === 'notes' && <ReleaseNotesView version={APP_VERSION} />}
         {view === 'search' && (

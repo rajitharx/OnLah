@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { BusStop } from '../../types/domain';
 import { EmptyState } from '../../shared/components/EmptyState';
 import { SearchIcon } from '../../shared/components/Icons';
@@ -13,7 +14,8 @@ interface SearchViewProps {
 
 // The query lives in the app shell, so it survives a trip to another tab.
 export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
-  const search = useStopSearch(query);
+  const [attempt, setAttempt] = useState(0);
+  const search = useStopSearch(query, attempt);
   const { check, results, loading, failure } = search;
   const status = searchAnnouncement(search, results.length);
   const noMatch = check.kind === 'ok' && !loading && failure === null && results.length === 0;
@@ -49,7 +51,12 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
         <EmptyState icon={<SearchIcon size={24} />} message="Type a stop code or road to search." />
       )}
 
-      {failure !== null && <p className="error" role="alert">{searchFailureMessage(failure)}</p>}
+      {failure !== null && (
+        <div className="nearby-error">
+          <p className="error" role="alert">{searchFailureMessage(failure)}</p>
+          <button type="button" className="btn" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+        </div>
+      )}
 
       {noMatch && <EmptyState icon={<SearchIcon size={24} />} message={noMatchMessage(check.term)} />}
 

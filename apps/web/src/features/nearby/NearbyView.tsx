@@ -19,7 +19,8 @@ export function NearbyView({ onOpen, onNavigate }: NearbyViewProps) {
   const [origin, setOrigin] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const { stops, loading, failed } = useNearbyStops(origin);
+  const [attempt, setAttempt] = useState(0);
+  const { stops, loading, failed } = useNearbyStops(origin, attempt);
   const nearest = sortByDistance(stops);
 
   const locate = (): void => {
@@ -32,6 +33,7 @@ export function NearbyView({ onOpen, onNavigate }: NearbyViewProps) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setOrigin({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        setAttempt((n) => n + 1);
         setLocating(false);
       },
       (error) => {
@@ -67,7 +69,12 @@ export function NearbyView({ onOpen, onNavigate }: NearbyViewProps) {
           </button>
         </div>
       )}
-      {failed && <p className="error" role="alert">Nearby stops are unavailable right now. Try again.</p>}
+      {failed && (
+        <div className="nearby-error">
+          <p className="error" role="alert">Nearby stops are unavailable right now. Try again.</p>
+          <button type="button" className="btn" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+        </div>
+      )}
 
       {origin === null && (
         <EmptyState icon={<PinIcon size={24} />} message="Nearby stops appear once you share your location." />
