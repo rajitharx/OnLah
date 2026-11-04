@@ -52,7 +52,7 @@ export const releases: Release[] = [
   {
     version: '1.93',
     pr: 47,
-    shipped: null,
+    shipped: '2026-11-04T09:25:31+08:00',
     title: 'Steadier live refresh',
     summary: 'Bus times refresh one request at a time, pause in a hidden tab, and stay in step across tabs.',
     items: [
@@ -67,7 +67,7 @@ export const releases: Release[] = [
   {
     version: '1.92',
     pr: 42,
-    shipped: null,
+    shipped: '2026-11-04T09:21:47+08:00',
     title: 'Retry after a failed lookup',
     summary: 'Nearby, search and stop links now have a way to try again after a failure, and a network error no longer says "Try different words".',
     items: [
@@ -79,7 +79,7 @@ export const releases: Release[] = [
   {
     version: '1.89',
     pr: 43,
-    shipped: null,
+    shipped: '2026-11-04T09:11:12+08:00',
     title: 'Announcements and focus',
     summary: 'Screen changes, search results and failed refreshes are now announced, and focus no longer falls to the top of the page.',
     items: [
@@ -92,7 +92,7 @@ export const releases: Release[] = [
   {
     version: '1.87',
     pr: 41,
-    shipped: null,
+    shipped: '2026-11-04T09:06:49+08:00',
     title: 'Bus details sheet: Back and keyboard focus',
     summary: 'Closing the bus details sheet no longer leaves a duplicate board in the history, and the sheet now handles keyboard focus.',
     items: [
