@@ -47,6 +47,7 @@ describe('App service sheet history', () => {
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
     window.history.replaceState(null, '', '/');
   });
 
@@ -64,6 +65,28 @@ describe('App service sheet history', () => {
 
     await goBack();
     await settle('/search');
+  });
+
+  it('closing a sheet opened from the Saved tab replaces the entry so Back reaches Saved', async () => {
+    const saved = JSON.stringify([
+      { stopCode: '01121', serviceNo: '10', stopName: 'Aft Victoria Lane', roadName: 'Aft Victoria Lane', latitude: 1.3, longitude: 103.8 },
+    ]);
+    vi.stubGlobal('localStorage', { getItem: () => saved, setItem: () => undefined, removeItem: () => undefined });
+    window.history.replaceState({ inApp: true }, '', '/saved');
+    render(<App />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Bus 10 details' }));
+    await settle('/stop/01121/bus/10');
+    await screen.findByRole('dialog');
+    const length = window.history.length;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close bus details' }));
+    await settle('/stop/01121');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(window.history.length).toBe(length);
+
+    await goBack();
+    await settle('/saved');
   });
 
   it('closing a sheet opened from a direct link replaces the entry', async () => {

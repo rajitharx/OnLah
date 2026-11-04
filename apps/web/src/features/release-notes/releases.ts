@@ -56,7 +56,7 @@ export const releases: Release[] = [
     title: 'Bus details sheet: Back and keyboard focus',
     summary: 'Closing the bus details sheet no longer leaves a duplicate board in the history, and the sheet now handles keyboard focus.',
     items: [
-      { kind: 'fix', text: 'Closing a bus details sheet opened from the board steps back, so Back and the on-screen back arrow leave the board instead of landing on the same board again. A sheet opened from a direct link still closes in place.' },
+      { kind: 'fix', text: 'Closing a bus details sheet opened from the board steps back, so Back and the on-screen back arrow leave the board instead of landing on the same board again. A sheet opened from a direct link or from the Saved tab still closes in place.' },
       { kind: 'fix', text: 'The sheet moves focus to its Close button when it opens, keeps Tab inside it, and returns focus to the control that opened it when it closes.' },
     ],
   },
