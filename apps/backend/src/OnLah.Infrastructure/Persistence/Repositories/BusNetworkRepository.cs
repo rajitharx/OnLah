@@ -35,17 +35,22 @@ internal sealed class BusNetworkRepository : IBusNetworkRepository
             .ThenBy(s => s.Direction)
             .ToListAsync(cancellationToken);
 
-    public async Task ReplaceAllAsync(IEnumerable<BusService> services, IEnumerable<BusRoute> routes, CancellationToken cancellationToken = default)
-    {
-        await _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
+    public async Task<(int Services, int Routes)> CountAsync(CancellationToken cancellationToken = default) =>
+        (await _context.BusServices.CountAsync(cancellationToken), await _context.BusRoutes.CountAsync(cancellationToken));
+
+    public Task<bool> ReplaceAllAsync(IEnumerable<BusService> services, IEnumerable<BusRoute> routes, CancellationToken cancellationToken = default) =>
+        _context.Database.CreateExecutionStrategy().ExecuteAsync(async ct =>
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+            if (!await _context.Database.TryAcquireForTransactionAsync(SyncLocks.BusNetwork, ct))
+                return false;
+
             await _context.BusRoutes.ExecuteDeleteAsync(ct);
             await _context.BusServices.ExecuteDeleteAsync(ct);
             await _context.BusServices.AddRangeAsync(services, ct);
             await _context.BusRoutes.AddRangeAsync(routes, ct);
             await _context.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
+            return true;
         }, cancellationToken);
-    }
 }

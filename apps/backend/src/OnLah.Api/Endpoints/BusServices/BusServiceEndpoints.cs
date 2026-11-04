@@ -47,7 +47,8 @@ internal static partial class BusServiceEndpoints
     {
         try
         {
-            return TypedResults.Ok(await syncService.SyncAsync(cancellationToken));
+            var result = await syncService.SyncAsync(cancellationToken);
+            return result.IsSuccess ? TypedResults.Ok(result.Value!) : SyncProblem.From(result.Error);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

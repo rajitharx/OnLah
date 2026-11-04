@@ -25,25 +25,8 @@ public sealed class Result<T>
     public static implicit operator Result<T>(DomainError error) => new(error);
 }
 
-public sealed class Result
+public static class Result
 {
-    private Result() => IsSuccess = true;
-
-    private Result(DomainError error)
-    {
-        IsSuccess = false;
-        Error = error;
-    }
-
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
-    public DomainError Error { get; } = DomainError.None;
-
-    public static Result Success() => new();
-    public static Result Failure(DomainError error) => new(error);
-
     public static Result<T> Success<T>(T value) => new(value);
     public static Result<T> Failure<T>(DomainError error) => new(error);
-
-    public static implicit operator Result(DomainError error) => Failure(error);
 }

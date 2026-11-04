@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OnLah.Application.Common.Interfaces;
+using OnLah.Domain.BusStops;
+using OnLah.Infrastructure.Persistence;
 using OnLah.IntegrationTests.Common;
 using Xunit;
 
@@ -83,6 +86,50 @@ public sealed class BusStopSyncEndpointTests(ApiFactory factory) : IClassFixture
 #pragma warning disable CS0162
         yield break;
 #pragma warning restore CS0162
+    }
+
+    [Fact]
+    public async Task SyncBusStops_LtaReturnsNoStops_Returns502AndKeepsStoredStops()
+    {
+        await SeedStopAsync("83139");
+        factory.LtaBusStopClient.GetAllStopsAsync(Arg.Any<CancellationToken>()).Returns(StreamOf());
+
+        var response = await _client.SendAsync(AdminSyncRequest());
+
+        Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
+        using var scope = factory.Services.CreateScope();
+        Assert.True(await scope.ServiceProvider.GetRequiredService<IBusStopRepository>().CountAsync() > 0);
+    }
+
+    [Fact]
+    public async Task SyncBusStops_AnotherSyncIsWriting_Returns409()
+    {
+        factory.LtaBusStopClient.GetAllStopsAsync(Arg.Any<CancellationToken>()).Returns(StreamOf(
+            new LtaBusStop("83139", "Sengkang Av 2", "Blk 123", 1.39, 103.89),
+            new LtaBusStop("01012", "Victoria St", "Hotel Grand", 1.29, 103.85)));
+        await using var heldLock = await SyncLockHolder.HoldAsync(factory, SyncLocks.BusStops);
+
+        var response = await _client.SendAsync(AdminSyncRequest());
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    private static HttpRequestMessage AdminSyncRequest()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, SyncPath);
+        request.Headers.Add("X-Admin-Key", ApiFactory.AdminKey);
+        return request;
+    }
+
+    private async Task SeedStopAsync(string code)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<OnLahDbContext>();
+        if (await db.BusStops.FindAsync(code) is null)
+        {
+            db.BusStops.Add(BusStop.Create(code, "Victoria St", "Seeded stop", 1.29, 103.85));
+            await db.SaveChangesAsync();
+        }
     }
 
     private sealed record SyncBody(int StopsSynced);
