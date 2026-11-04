@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.85 (#41)
+
+**Bus details sheet: Back and keyboard focus.** Two fixes to the sheet that opens from a service number on the board.
+
+- Closing a sheet that was opened from the board steps back one history entry instead of replacing it, so Back and the on-screen back arrow leave the board rather than landing on the same board again. A sheet opened from a direct link or from the Saved tab still closes in place.
+- The sheet moves focus to its Close button when it opens, keeps Tab inside it, and returns focus to the control that opened it when it closes. Its Escape listener is no longer re-added on every render.
+
 ## 1.73 (#38)
 
 **Release history by merge time.** The list is ordered newest merged first. Each release records the time its pull request merged, and the pull request number is shown as a reference.
