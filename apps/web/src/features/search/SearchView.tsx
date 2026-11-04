@@ -42,7 +42,7 @@ export function SearchView({ query, onQueryChange, onOpen }: SearchViewProps) {
         </span>
       </label>
 
-      <p className={noMatch ? 'sr-only' : 'caption'} role="status">{status}</p>
+      <p className={noMatch || status === '' ? 'sr-only' : 'caption'} role="status">{status}</p>
       {check.kind === 'code-too-long' && <p className="error" role="alert">Stop codes are 5 digits.</p>}
       {check.kind === 'too-short' && <p className="caption">Type at least 2 characters.</p>}
       {check.kind === 'empty' && (
