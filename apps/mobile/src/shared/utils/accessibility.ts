@@ -3,7 +3,7 @@ import { computeEtaMinutes } from './eta';
 
 const CROWD_SPOKEN: Record<CrowdLevel, string> = {
   0: 'seats available',
-  1: 'standing room only',
+  1: 'standing available',
   2: 'limited standing',
 };
 

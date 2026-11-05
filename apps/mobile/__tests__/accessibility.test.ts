@@ -39,7 +39,7 @@ test('speaks arriving buses and singular minutes', () => {
 });
 
 test('maps crowd levels to spoken text', () => {
-  assert.match(buildArrivalLabel(arrival(timing(3, { load: 1 })), now), /standing room only/);
+  assert.match(buildArrivalLabel(arrival(timing(3, { load: 1 })), now), /standing available/);
   assert.match(buildArrivalLabel(arrival(timing(3, { load: 2 })), now), /limited standing/);
 });
 
