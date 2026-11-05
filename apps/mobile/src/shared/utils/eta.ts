@@ -1,9 +1,9 @@
-export function computeEtaMinutes(estimatedArrival: string): number {
-  return Math.floor((new Date(estimatedArrival).getTime() - Date.now()) / 60_000);
+export function computeEtaMinutes(estimatedArrival: string, now: number = Date.now()): number {
+  return Math.floor((new Date(estimatedArrival).getTime() - now) / 60_000);
 }
 
-export function formatEta(estimatedArrival: string): string {
-  const mins = computeEtaMinutes(estimatedArrival);
+export function formatEta(estimatedArrival: string, now: number = Date.now()): string {
+  const mins = computeEtaMinutes(estimatedArrival, now);
   if (mins < 1) return 'Arr';
   return String(mins);
 }

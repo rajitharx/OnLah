@@ -7,6 +7,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, spacing, typography } from '../../shared/theme';
+import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
 import { useDisruptions } from '../disruptions/useDisruptions';
 import { FavouriteStopCard } from './FavouriteStopCard';
@@ -37,18 +38,12 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             <View style={styles.header}>
               <View>
                 <Text allowFontScaling={true} style={styles.greeting}>
-                  Good morning
+                  {getGreeting()}
                 </Text>
                 <Text allowFontScaling={true} style={styles.title}>
                   OnLah
                 </Text>
               </View>
-              <Pressable
-                style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-                hitSlop={spacing.sm}
-              >
-                <Feather name="bell" size={18} color={colors.muted} />
-              </Pressable>
             </View>
 
             <Pressable
@@ -57,7 +52,7 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             >
               <Feather name="search" size={16} color={colors.muted} />
               <Text allowFontScaling={true} style={styles.searchPlaceholder}>
-                Search stops, bus numbers…
+                Search stops by code or name
               </Text>
             </Pressable>
 
@@ -67,11 +62,6 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
               <Text allowFontScaling={true} style={styles.sectionTitle}>
                 Your Stops
               </Text>
-              <Pressable hitSlop={spacing.sm}>
-                <Text allowFontScaling={true} style={styles.editLabel}>
-                  Edit
-                </Text>
-              </Pressable>
             </View>
           </View>
         }
@@ -123,15 +113,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     letterSpacing: -0.5,
   },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.surface,
-    borderRadius: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.xs,
-  },
   pressed: {
     opacity: 0.7,
   },
@@ -159,11 +140,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.stopName,
     letterSpacing: -0.2,
-  },
-  editLabel: {
-    ...typography.body,
-    color: colors.accent,
-    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
