@@ -3,18 +3,20 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { BusArrivalRow } from '../../shared/components';
 import { useArrivals } from '../arrivals/useArrivals';
 import { colors, spacing, typography } from '../../shared/theme';
-import { formatFreshness } from '../../shared/utils/eta';
+import { useNow } from '../../shared/hooks/useNow';
+import { formatFreshness, isStale } from '../../shared/utils/eta';
+import { FavouriteStop } from '../../shared/utils/favourites';
+import { useStopDetailsBackfill } from './useFavourites';
 
 interface FavouriteStopCardProps {
-  stopCode: string;
+  stop: FavouriteStop;
   onPress: () => void;
 }
 
-export function FavouriteStopCard({
-  stopCode,
-  onPress,
-}: FavouriteStopCardProps): React.JSX.Element {
-  const { data, isLoading, error } = useArrivals(stopCode);
+export function FavouriteStopCard({ stop, onPress }: FavouriteStopCardProps): React.JSX.Element {
+  const { data, isLoading, error } = useArrivals(stop.code);
+  const now = useNow();
+  useStopDetailsBackfill(stop);
 
   return (
     <Pressable
@@ -24,8 +26,13 @@ export function FavouriteStopCard({
       <View style={styles.cardHeader}>
         <View>
           <Text allowFontScaling={true} style={styles.stopName}>
-            Stop {stopCode}
+            {stop.name ?? `Stop ${stop.code}`}
           </Text>
+          {stop.name ? (
+            <Text allowFontScaling={true} style={typography.caption}>
+              {stop.road ? `${stop.code} · ${stop.road}` : stop.code}
+            </Text>
+          ) : null}
         </View>
         <View style={styles.liveBadge}>
           <Text allowFontScaling={true} style={styles.liveText}>
@@ -42,28 +49,38 @@ export function FavouriteStopCard({
             <View style={[styles.skeletonLine, { width: '40%', marginTop: spacing.xs }]} />
           </View>
         </View>
-      ) : error ? (
-        <Text allowFontScaling={true} style={styles.errorText}>
-          {error}
-        </Text>
-      ) : data?.services.length === 0 ? (
+      ) : !data ? (
+        error ? (
+          <Text allowFontScaling={true} style={styles.errorText}>
+            {error}
+          </Text>
+        ) : null
+      ) : data.services.length === 0 ? (
         <Text allowFontScaling={true} style={styles.noServiceText}>
           No buses in service
         </Text>
       ) : (
-        data?.services.slice(0, 3).map((arrival, index) => (
+        data.services.slice(0, 3).map((arrival, index) => (
           <View key={arrival.serviceNo}>
             {index > 0 && <View style={styles.divider} />}
-            <BusArrivalRow arrival={arrival} />
+            <BusArrivalRow arrival={arrival} now={now} />
           </View>
         ))
       )}
 
+      {data && error ? (
+        <Text allowFontScaling={true} style={styles.errorText}>
+          {error}
+        </Text>
+      ) : null}
+
       {data && (
         <View style={styles.footer}>
-          <View style={styles.liveIndicator} />
+          <View
+            style={[styles.liveIndicator, isStale(data.fetchedAt, now) && styles.staleIndicator]}
+          />
           <Text allowFontScaling={true} style={typography.caption}>
-            {formatFreshness(data.fetchedAt)}
+            {formatFreshness(data.fetchedAt, now)}
           </Text>
         </View>
       )}
@@ -124,6 +141,9 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: colors.crowdGreen,
+  },
+  staleIndicator: {
+    backgroundColor: colors.muted,
   },
   skeletonRow: {
     flexDirection: 'row',

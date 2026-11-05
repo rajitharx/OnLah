@@ -10,6 +10,7 @@ import { colors, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
 import { useDisruptions } from '../disruptions/useDisruptions';
+import { FavouriteStop } from '../../shared/utils/favourites';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
 
@@ -20,17 +21,21 @@ type Props = CompositeScreenProps<
 
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
   useDisruptions();
-  const { stopCodes } = useFavourites();
+  const { favourites } = useFavourites();
 
-  function handleStopPress(stopCode: string): void {
-    navigation.navigate('Arrivals', { stopCode, stopName: stopCode, roadName: '' });
+  function handleStopPress(stop: FavouriteStop): void {
+    navigation.navigate('Arrivals', {
+      stopCode: stop.code,
+      stopName: stop.name,
+      roadName: stop.road,
+    });
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
-        data={stopCodes}
-        keyExtractor={(item) => item}
+        data={favourites}
+        keyExtractor={(item) => item.code}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -66,10 +71,7 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
           </View>
         }
         renderItem={({ item }) => (
-          <FavouriteStopCard
-            stopCode={item}
-            onPress={() => handleStopPress(item)}
-          />
+          <FavouriteStopCard stop={item} onPress={() => handleStopPress(item)} />
         )}
         ItemSeparatorComponent={null}
         ListEmptyComponent={

@@ -9,9 +9,10 @@ import { CrowdBadge } from './CrowdBadge';
 
 interface BusArrivalRowProps {
   arrival: BusArrival;
+  now: number;
 }
 
-export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Element {
+export function BusArrivalRow({ arrival, now }: BusArrivalRowProps): React.JSX.Element {
   const { nextBus, nextBus2 } = arrival;
 
   return (
@@ -47,10 +48,10 @@ export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Elemen
           <>
             <View style={styles.etaRow}>
               <Text allowFontScaling={true} style={styles.etaNumber}>
-                {formatEta(nextBus.estimatedArrival)}
+                {formatEta(nextBus.estimatedArrival, now)}
               </Text>
               <Text allowFontScaling={true} style={styles.etaUnit}>
-                {formatEta(nextBus.estimatedArrival) !== 'Arr' ? ' min' : ''}
+                {formatEta(nextBus.estimatedArrival, now) !== 'Arr' ? ' min' : ''}
               </Text>
             </View>
             <CrowdBadge level={nextBus.load} />
@@ -65,9 +66,9 @@ export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Elemen
       <View style={styles.eta2Col}>
         {nextBus2 ? (
           <Text allowFontScaling={true} style={styles.eta2}>
-            {formatEta(nextBus2.estimatedArrival) === 'Arr'
+            {formatEta(nextBus2.estimatedArrival, now) === 'Arr'
               ? 'then Arr'
-              : `then ${formatEta(nextBus2.estimatedArrival)} min`}
+              : `then ${formatEta(nextBus2.estimatedArrival, now)} min`}
           </Text>
         ) : null}
       </View>
