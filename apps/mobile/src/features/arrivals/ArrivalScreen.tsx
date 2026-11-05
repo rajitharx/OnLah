@@ -28,7 +28,7 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const { data, isLoading, error, refresh } = useArrivals(stopCode);
   const { isFavourite, add, remove } = useFavouritesStore();
   const fav = isFavourite(stopCode);
-  const now = useNow();
+  const now = useNow(data?.fetchedAt);
 
   function toggleFavourite(): void {
     fav ? remove(stopCode) : add({ code: stopCode, name: stopName, road: roadName });
@@ -75,16 +75,16 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
             {stopName ?? `Stop ${stopCode}`}
           </Text>
           <View style={styles.stopMeta}>
-            <Text allowFontScaling={true} style={typography.caption}>
-              Stop {stopCode}
-            </Text>
+            {stopName ? (
+              <Text allowFontScaling={true} style={typography.caption}>
+                Stop {stopCode}
+              </Text>
+            ) : null}
+            {stopName && roadName ? <View style={styles.dot} /> : null}
             {roadName ? (
-              <>
-                <View style={styles.dot} />
-                <Text allowFontScaling={true} style={typography.caption}>
-                  {roadName}
-                </Text>
-              </>
+              <Text allowFontScaling={true} style={typography.caption}>
+                {roadName}
+              </Text>
             ) : null}
           </View>
         </View>

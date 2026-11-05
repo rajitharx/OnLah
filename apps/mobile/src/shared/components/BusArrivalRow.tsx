@@ -16,7 +16,7 @@ export function BusArrivalRow({ arrival, now }: BusArrivalRowProps): React.JSX.E
   const { nextBus, nextBus2 } = arrival;
 
   return (
-    <View style={styles.row} accessible accessibilityLabel={buildArrivalLabel(arrival)}>
+    <View style={styles.row} accessible accessibilityLabel={buildArrivalLabel(arrival, now)}>
       <View style={styles.badgeCol}>
         <View style={styles.badge}>
           <Text allowFontScaling={true} style={styles.badgeText}>

@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { ArrivalTiming, BusArrival } from '../src/types/domain';
-import { buildArrivalLabel, buildFavouriteLabel } from '../src/shared/utils/accessibility';
+import {
+  buildArrivalLabel,
+  buildFavouriteCardLabel,
+  buildFavouriteLabel,
+} from '../src/shared/utils/accessibility';
 
 const now = Date.parse('2026-01-01T08:00:00Z');
 
@@ -57,4 +61,18 @@ test('reports no service when there is no next bus', () => {
 test('favourite label reflects saved state', () => {
   assert.equal(buildFavouriteLabel(true), 'Remove stop from favourites');
   assert.equal(buildFavouriteLabel(false), 'Add stop to favourites');
+});
+
+test('favourite card speaks the stop name, its action and the arrivals shown on it', () => {
+  assert.equal(
+    buildFavouriteCardLabel({ code: '01012', name: 'Hotel Grand Pacific' }, [
+      'Bus 12, 5 minutes, seats available',
+      'Bus 7, arriving now, limited standing',
+    ]),
+    'Hotel Grand Pacific, open arrivals. Bus 12, 5 minutes, seats available. Bus 7, arriving now, limited standing',
+  );
+});
+
+test('favourite card falls back to the stop code when the name is unknown', () => {
+  assert.equal(buildFavouriteCardLabel({ code: '01012', name: null }, []), 'Stop 01012, open arrivals');
 });
