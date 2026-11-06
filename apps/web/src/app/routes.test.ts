@@ -24,6 +24,15 @@ describe('parseRoute', () => {
     expect(parseRoute('/track/67009/161')).toEqual({ view: 'track', stopCode: '67009', serviceNo: '161' });
   });
 
+  it('reads the direction a track path is heading to', () => {
+    expect(parseRoute('/track/66271/136/to/11111')).toEqual({ view: 'track', stopCode: '66271', serviceNo: '136', destinationCode: '11111' });
+  });
+
+  it('writes the direction into a track path only when there is one', () => {
+    expect(formatRoute({ view: 'track', stopCode: '66271', serviceNo: '136', destinationCode: '11111' })).toBe('/track/66271/136/to/11111');
+    expect(formatRoute({ view: 'track', stopCode: '66271', serviceNo: '136' })).toBe('/track/66271/136');
+  });
+
   it('keeps a lowercase service number in a track path as it is', () => {
     expect(parseRoute('/track/67009/10e')).toEqual({ view: 'track', stopCode: '67009', serviceNo: '10e' });
   });

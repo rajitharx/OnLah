@@ -45,13 +45,35 @@ function render(services: BusArrival[], failed = false): string {
       onCloseService={() => undefined}
       onBack={() => undefined}
       onRefresh={() => undefined}
-      trackHref={(serviceNo) => `/track/01121/${serviceNo}`}
+      trackHref={(serviceNo, destinationCode) => `/track/01121/${serviceNo}${destinationCode === null ? '' : `/${destinationCode}`}`}
       onTrack={() => undefined}
     />,
   );
 }
 
 describe('StopBoard', () => {
+  it('lists a service once per direction and tracks the direction of each row', () => {
+    const heading = (destinationCode: string) => ({
+      estimatedArrival: '2026-10-19T10:05:00Z',
+      load: 0 as const,
+      isWheelchairAccessible: true,
+      type: 0 as const,
+      isMonitored: true,
+      isLastBus: false,
+      destinationCode,
+    });
+    const toA = { origin: 'B', destination: 'A', destinationCode: '11111' };
+    const toB = { origin: 'A', destination: 'B', destinationCode: '22222' };
+
+    const html = render([
+      { ...service('136', [toA]), nextBus: heading('11111') },
+      { ...service('136', [toB]), nextBus: heading('22222') },
+    ]);
+
+    expect(html).toContain('href="/track/01121/136/11111"');
+    expect(html).toContain('href="/track/01121/136/22222"');
+  });
+
   it('shows each direction of a service with its own buses when the service stops here both ways', () => {
     const bus = (minute: number, destinationCode: string) => ({
       estimatedArrival: `2026-10-19T10:${String(minute).padStart(2, '0')}:00Z`,

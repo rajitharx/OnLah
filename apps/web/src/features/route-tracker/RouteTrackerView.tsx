@@ -7,12 +7,13 @@ import { useRouteTracker } from './useRouteTracker';
 interface RouteTrackerViewProps {
   stopCode: string;
   serviceNo: string;
+  destinationCode?: string;
   onBack: () => void;
 }
 
 // One service at one stop, from /track/:busStopCode/:serviceNo. The page also works as a direct link.
-export function RouteTrackerView({ stopCode, serviceNo, onBack }: RouteTrackerViewProps) {
-  const { retry, ...state } = useRouteTracker(stopCode, serviceNo);
+export function RouteTrackerView({ stopCode, serviceNo, destinationCode, onBack }: RouteTrackerViewProps) {
+  const { retry, ...state } = useRouteTracker(stopCode, serviceNo, destinationCode);
   const now = useNow();
 
   return (

@@ -24,7 +24,7 @@ import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
 import { useViewAnnouncement } from './useViewAnnouncement';
 import { viewKey, viewTitle } from './viewTitle';
-import { defaultView, formatRoute, type TabView } from './routes';
+import { defaultView, formatRoute, trackRoute, type TabView } from './routes';
 
 const BOARD_MESSAGES: Record<Exclude<BoardStopStatus, 'idle' | 'ready'>, string> = {
   loading: 'Loading stop…',
@@ -115,12 +115,12 @@ export default function App() {
             onCloseService={closeService}
             onBack={goBack}
             onRefresh={arrivals.refresh}
-            trackHref={(serviceNo) => formatRoute({ view: 'track', stopCode: route.stopCode, serviceNo })}
-            onTrack={(serviceNo) => push({ view: 'track', stopCode: route.stopCode, serviceNo })}
+            trackHref={(serviceNo, destinationCode) => formatRoute(trackRoute(route.stopCode, serviceNo, destinationCode))}
+            onTrack={(serviceNo, destinationCode) => push(trackRoute(route.stopCode, serviceNo, destinationCode))}
           />
         )}
         {route.view === 'track' && (
-          <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} onBack={goBack} />
+          <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} destinationCode={route.destinationCode} onBack={goBack} />
         )}
         {route.view === 'board' && board.stop === null && board.status === 'loading' && (
           <BoardSkeleton label={BOARD_MESSAGES.loading} />

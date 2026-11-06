@@ -23,7 +23,7 @@ export interface OnlahApi {
   getNearbyStops(latitude: number, longitude: number, radiusMeters: number, signal?: AbortSignal): Promise<BusStop[]>;
   getTrainAlerts(signal?: AbortSignal): Promise<TrainAlertsResponse>;
   getBusService(serviceNo: string, signal?: AbortSignal): Promise<BusServiceDetails>;
-  getRouteTracker(busStopCode: string, serviceNo: string, signal?: AbortSignal): Promise<RouteTracker>;
+  getRouteTracker(busStopCode: string, serviceNo: string, signal?: AbortSignal, destinationCode?: string): Promise<RouteTracker>;
 }
 
 const defaultFetch: FetchLike = (url, init) => fetch(url, init);
@@ -55,9 +55,9 @@ export function createOnlahApi(
     getTrainAlerts: (signal) => get<TrainAlertsResponse>('/api/v1/train-alerts', signal),
     getBusService: (serviceNo, signal) =>
       get<BusServiceDetails>(`/api/v1/bus-services/${encodeURIComponent(serviceNo)}`, signal),
-    getRouteTracker: (busStopCode, serviceNo, signal) =>
+    getRouteTracker: (busStopCode, serviceNo, signal, destinationCode) =>
       get<RouteTracker>(
-        `/api/v1/route-tracker?busStopCode=${encodeURIComponent(busStopCode)}&serviceNo=${encodeURIComponent(serviceNo)}`,
+        `/api/v1/route-tracker?busStopCode=${encodeURIComponent(busStopCode)}&serviceNo=${encodeURIComponent(serviceNo)}${destinationCode === undefined ? '' : `&destinationCode=${encodeURIComponent(destinationCode)}`}`,
         signal,
       ),
   };

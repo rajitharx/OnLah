@@ -180,6 +180,37 @@ public sealed class RouteTrackerServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_ServiceListedOncePerDirection_TracksTheRequestedDestination()
+    {
+        _network.GetRoutesAsync("197", Arg.Any<CancellationToken>()).Returns(TwoWayRoute());
+        _lta.GetLiveArrivalsAsync("10003", Arg.Any<CancellationToken>()).Returns(new List<LiveServiceArrival>
+        {
+            new("197", [Bus(minutesAway: 3, at: null, destination: "10005")]),
+            new("197", [Bus(minutesAway: 8, at: null, destination: "10001")]),
+        });
+
+        var result = await _sut.GetAsync("10003", "197", direction: null, destinationCode: "10001");
+
+        Assert.Equal(2, result.Value!.Direction);
+        Assert.Equal(8, Assert.Single(result.Value.Buses).EtaMinutes);
+    }
+
+    [Fact]
+    public async Task GetAsync_RequestedDestinationHasNoBusDue_StillTracksThatDirection()
+    {
+        _network.GetRoutesAsync("197", Arg.Any<CancellationToken>()).Returns(TwoWayRoute());
+        _lta.GetLiveArrivalsAsync("10003", Arg.Any<CancellationToken>()).Returns(new List<LiveServiceArrival>
+        {
+            new("197", [Bus(minutesAway: 3, at: null, destination: "10005")]),
+        });
+
+        var result = await _sut.GetAsync("10003", "197", direction: null, destinationCode: "10001");
+
+        Assert.Equal(2, result.Value!.Direction);
+        Assert.Empty(result.Value.Buses);
+    }
+
+    [Fact]
     public async Task GetAsync_SeveralServicesAtTheStop_UsesOnlyTheRequestedOne()
     {
         _lta.GetLiveArrivalsAsync("10005", Arg.Any<CancellationToken>()).Returns(new List<LiveServiceArrival>

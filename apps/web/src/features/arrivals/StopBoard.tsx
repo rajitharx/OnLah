@@ -9,6 +9,7 @@ import { mapsUrl } from '../../shared/utils/geo';
 import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { MAX_FAVOURITES } from '../favourites/favouritesStore';
 import type { ArrivalsState } from './arrivalsState';
+import { trackDestination } from './directions';
 import { ServiceRow } from './ServiceRow';
 import { BoardLegend } from './BoardLegend';
 import { busAdvisories } from './busAdvisories';
@@ -28,8 +29,8 @@ interface StopBoardProps {
   onCloseService: () => void;
   onBack: () => void;
   onRefresh: () => void;
-  trackHref: (serviceNo: string) => string;
-  onTrack: (serviceNo: string) => void;
+  trackHref: (serviceNo: string, destinationCode: string | null) => string;
+  onTrack: (serviceNo: string, destinationCode: string | null) => void;
 }
 
 export function StopBoard({
@@ -115,14 +116,14 @@ export function StopBoard({
           <ul className="service-list" aria-label="Bus services">
             {sortByServiceNo(data.services).map((service) => (
               <ServiceRow
-                key={service.serviceNo}
+                key={`${service.serviceNo}:${trackDestination(service) ?? ''}`}
                 service={service}
                 onOpenService={onOpenService}
                 isSaved={isBusSaved(service.serviceNo)}
                 saveDisabled={!isBusSaved(service.serviceNo) && savedBusesFull}
                 onToggleSave={() => onToggleBus(service.serviceNo)}
-                trackHref={trackHref(service.serviceNo)}
-                onTrack={() => onTrack(service.serviceNo)}
+                trackHref={trackHref(service.serviceNo, trackDestination(service))}
+                onTrack={() => onTrack(service.serviceNo, trackDestination(service))}
               />
             ))}
           </ul>

@@ -18,17 +18,18 @@ internal static class RouteTrackerEndpoints
         string busStopCode,
         string serviceNo,
         int? direction,
+        string? destinationCode,
         RouteTrackerService service,
         IValidator<GetRouteTrackerRequest> validator,
         CancellationToken cancellationToken)
     {
-        var validation = await validator.ValidateAsync(new GetRouteTrackerRequest(busStopCode, serviceNo, direction), cancellationToken);
+        var validation = await validator.ValidateAsync(new GetRouteTrackerRequest(busStopCode, serviceNo, direction, destinationCode), cancellationToken);
         if (!validation.IsValid)
             return TypedResults.Problem(
                 detail: string.Join("; ", validation.Errors.Select(e => e.ErrorMessage)),
                 statusCode: StatusCodes.Status422UnprocessableEntity);
 
-        var result = await service.GetAsync(busStopCode, serviceNo, direction, cancellationToken);
+        var result = await service.GetAsync(busStopCode, serviceNo, direction, destinationCode, cancellationToken);
         if (result.IsFailure)
             return TypedResults.Problem(detail: result.Error.Description, statusCode: StatusFor(result.Error.Kind));
 
@@ -43,7 +44,7 @@ internal static class RouteTrackerEndpoints
     };
 }
 
-internal sealed record GetRouteTrackerRequest(string BusStopCode, string ServiceNo, int? Direction);
+internal sealed record GetRouteTrackerRequest(string BusStopCode, string ServiceNo, int? Direction, string? DestinationCode = null);
 
 internal sealed class GetRouteTrackerValidator : AbstractValidator<GetRouteTrackerRequest>
 {
@@ -61,5 +62,9 @@ internal sealed class GetRouteTrackerValidator : AbstractValidator<GetRouteTrack
         RuleFor(x => x.Direction)
             .InclusiveBetween(1, 2).When(x => x.Direction is not null)
             .WithMessage("Direction must be 1 or 2.");
+
+        RuleFor(x => x.DestinationCode)
+            .Matches(@"^[0-9]{5}\z").When(x => x.DestinationCode is not null)
+            .WithMessage("DestinationCode must be a 5-digit numeric string.");
     }
 }

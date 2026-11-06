@@ -50,6 +50,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.103',
+    pr: 58,
+    shipped: null,
+    title: 'Track follows the direction you tapped',
+    summary: 'A bus that runs both ways at a stop shows one row per direction, and Track opens the direction of that row.',
+    items: [
+      { kind: 'fix', text: 'Each direction of a bus at a stop is its own row with its own route line, so the other direction no longer shows empty tiles.' },
+      { kind: 'fix', text: 'Track opens the direction of the row you tapped instead of always the first one.' },
+    ],
+  },
+  {
     version: '1.102',
     pr: 57,
     shipped: null,

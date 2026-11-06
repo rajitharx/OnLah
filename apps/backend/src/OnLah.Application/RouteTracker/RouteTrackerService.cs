@@ -18,6 +18,7 @@ public sealed class RouteTrackerService(
         string busStopCode,
         string serviceNo,
         int? direction,
+        string? destinationCode = null,
         CancellationToken cancellationToken = default)
     {
         var route = await LoadRouteAsync(serviceNo, cancellationToken);
@@ -32,12 +33,21 @@ public sealed class RouteTrackerService(
         if (arrivals.IsFailure)
             return arrivals.Error;
 
-        var buses = arrivals.Value!
-            .FirstOrDefault(a => string.Equals(a.ServiceNo, serviceNo, StringComparison.OrdinalIgnoreCase))?.Buses ?? [];
+        var buses = BusesOf(arrivals.Value!, serviceNo, destinationCode);
         var visit = buses.Count > 0 ? buses[0].VisitNumber : null;
-        var resolved = route.Resolve(busStopCode, direction, DestinationOf(buses), visit).Value!;
+        var resolved = route.Resolve(busStopCode, direction, destinationCode ?? DestinationOf(buses), visit).Value!;
 
         return await BuildAsync(resolved, buses, cancellationToken);
+    }
+
+    // LTA lists a service once per direction at a stop, so the same number can appear twice.
+    // With a destination, only the buses heading there count. Without one, the first entry is used.
+    private static IReadOnlyList<LiveBus> BusesOf(IEnumerable<LiveServiceArrival> arrivals, string serviceNo, string? destinationCode)
+    {
+        var entries = arrivals.Where(a => string.Equals(a.ServiceNo, serviceNo, StringComparison.OrdinalIgnoreCase)).ToList();
+        return destinationCode is null
+            ? entries.FirstOrDefault()?.Buses ?? []
+            : entries.SelectMany(a => a.Buses).Where(b => b.DestinationCode == destinationCode).ToList();
     }
 
     // LTA publishes some service numbers in lowercase ("10e") and most in uppercase, so try the number as given first.

@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.103 (#58)
+
+**Each direction is its own row, and Track follows it.** LTA lists a bus such as 136 once per direction at a stop. The board gave both rows both routes, so one direction always showed empty tiles, and Track always opened the first direction.
+
+- Each row now shows only the route its buses are heading on, so there are no more empty tiles for the other direction.
+- Track opens the direction of the row you tapped. The link is `/track/66271/136/to/11111`, and the API takes an optional `destinationCode`. Saved buses still track the first direction.
+
 ## 1.102 (#57)
 
 **Each direction of a bus shows its own buses.** A service that stops at a stop in both directions, such as 136 at 66271, listed both routes above one row of tiles, so you could not tell which bus was going where.
