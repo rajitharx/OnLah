@@ -50,6 +50,16 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.102',
+    pr: 57,
+    shipped: null,
+    title: 'Each direction shows its own buses',
+    summary: 'A service that stops here in both directions shows each direction with its own route line and tiles.',
+    items: [
+      { kind: 'fix', text: 'Buses such as 136 at stop 66271 no longer list both routes above one row of tiles. Each route line now sits above the buses heading that way.' },
+    ],
+  },
+  {
     version: '1.101',
     pr: 53,
     shipped: null,

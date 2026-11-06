@@ -2,6 +2,7 @@ import type { BusArrival } from '../../types/domain';
 import { OperatorLogo } from '../../shared/components/OperatorLogo';
 import { StarIcon } from '../../shared/components/Icons';
 import { EtaTile } from './EtaTile';
+import { groupByDirection } from './directions';
 
 interface ServiceRowProps {
   service: BusArrival;
@@ -22,8 +23,6 @@ export function ServiceRow({
   trackHref,
   onTrack,
 }: ServiceRowProps) {
-  const timings = [service.nextBus, service.nextBus2, service.nextBus3];
-
   return (
     <li className="service-row">
       <div className="service-head">
@@ -58,22 +57,26 @@ export function ServiceRow({
           <StarIcon size={16} filled={isSaved} />
         </button>
       </div>
-      {service.routes.map((route) => (
-        <p
-          className="service-route"
-          key={`${route.origin}>${route.destination}`}
-          aria-label={`From ${route.origin} to ${route.destination}`}
-        >
-          <span>{route.origin}</span>
-          <span aria-hidden="true">→</span>
-          <span>{route.destination}</span>
-        </p>
+      {groupByDirection(service).map((group) => (
+        <div className="service-direction" key={group.routes.map((route) => route.destinationCode).join('|')}>
+          {group.routes.map((route) => (
+            <p
+              className="service-route"
+              key={`${route.origin}>${route.destination}`}
+              aria-label={`From ${route.origin} to ${route.destination}`}
+            >
+              <span>{route.origin}</span>
+              <span aria-hidden="true">→</span>
+              <span>{route.destination}</span>
+            </p>
+          ))}
+          <div className="eta-grid">
+            {group.timings.map((timing, index) => (
+              <EtaTile key={index} timing={timing} />
+            ))}
+          </div>
+        </div>
       ))}
-      <div className="eta-grid">
-        {timings.map((timing, index) => (
-          <EtaTile key={index} timing={timing} />
-        ))}
-      </div>
     </li>
   );
 }
