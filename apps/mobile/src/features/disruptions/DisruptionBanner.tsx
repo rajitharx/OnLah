@@ -3,19 +3,34 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
+import { useNow } from '../../shared/hooks/useNow';
+import { formatFreshness } from '../../shared/utils/eta';
 
 export function DisruptionBanner(): React.JSX.Element | null {
-  const { status, alerts, dismissedAt, dismiss } = useDisruptionStore();
+  const { status, alerts, fetchedAt, hasError, dismissedAt, dismiss } = useDisruptionStore();
+  const now = useNow(fetchedAt ?? undefined);
 
   const isDisrupted = status === 1;
   const isDismissed =
     dismissedAt !== null && alerts.length > 0;
 
-  if (!isDisrupted || isDismissed) return null;
+  // A failed request is never shown as all-clear: say the alerts could not be checked, in neutral styling.
+  const notice = hasError ? (
+    <View style={styles.notice}>
+      <Feather name="info" size={16} color={colors.accent} />
+      <Text allowFontScaling={true} style={styles.noticeText}>
+        Service alerts unavailable
+        {fetchedAt ? ` · last checked ${formatFreshness(fetchedAt, now).replace('Updated ', '')}` : ''}
+      </Text>
+    </View>
+  ) : null;
+
+  if (!isDisrupted || isDismissed) return notice;
 
   const firstAlert = alerts[0];
 
   return (
+    <>
     <View style={styles.banner}>
       <View style={styles.content}>
         <Feather name="alert-triangle" size={16} color={colors.crowdRed} />
@@ -32,6 +47,11 @@ export function DisruptionBanner(): React.JSX.Element | null {
               {firstAlert.message}
             </Text>
           ) : null}
+          {fetchedAt ? (
+            <Text allowFontScaling={true} style={styles.updated}>
+              {formatFreshness(fetchedAt, now)}
+            </Text>
+          ) : null}
         </View>
       </View>
       <Pressable
@@ -44,6 +64,8 @@ export function DisruptionBanner(): React.JSX.Element | null {
         <Feather name="x" size={16} color={colors.muted} />
       </Pressable>
     </View>
+    {notice}
+    </>
   );
 }
 
@@ -87,6 +109,26 @@ const styles = StyleSheet.create({
     // The padded button would otherwise push the banner text off its top edge.
     marginTop: -spacing.sm,
     marginRight: -spacing.sm,
+  },
+  updated: {
+    ...typography.caption,
+    color: colors.accent,
+  },
+  notice: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: spacing.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  noticeText: {
+    ...typography.caption,
+    color: colors.accent,
+    flex: 1,
   },
   pressed: {
     opacity: 0.7,

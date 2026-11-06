@@ -9,6 +9,8 @@ import { formatFreshness, isStale } from '../../shared/utils/eta';
 import { FavouriteStop } from '../../shared/utils/favourites';
 import { useStopDetailsBackfill } from './useFavourites';
 
+const MAX_SERVICES_SHOWN = 3;
+
 interface FavouriteStopCardProps {
   stop: FavouriteStop;
   onPress: () => void;
@@ -37,12 +39,15 @@ export function FavouriteStopCard({
 
   const now = useNow(data?.fetchedAt);
   useStopDetailsBackfill(stop);
-  const services = data?.services.slice(0, 3) ?? [];
+  const services = data?.services.slice(0, MAX_SERVICES_SHOWN) ?? [];
+  const hiddenCount = Math.max(0, (data?.services.length ?? 0) - MAX_SERVICES_SHOWN);
+  const moreLabel = `+${hiddenCount} more ${hiddenCount === 1 ? 'service' : 'services'}`;
   const details = !data
     ? [isLoading ? 'Loading arrivals' : error].filter((d): d is string => d !== null)
     : services.length === 0
       ? ['No buses in service']
       : services.map((arrival) => buildArrivalLabel(arrival, now));
+  if (hiddenCount > 0) details.push(moreLabel);
   if (data && error) details.push(error);
 
   return (
@@ -84,12 +89,19 @@ export function FavouriteStopCard({
             No buses in service
           </Text>
         ) : (
-          services.map((arrival, index) => (
-            <View key={arrival.serviceNo}>
-              {index > 0 && <View style={styles.divider} />}
-              <BusArrivalRow arrival={arrival} now={now} />
-            </View>
-          ))
+          <>
+            {services.map((arrival, index) => (
+              <View key={arrival.serviceNo}>
+                {index > 0 && <View style={styles.divider} />}
+                <BusArrivalRow arrival={arrival} now={now} />
+              </View>
+            ))}
+            {hiddenCount > 0 ? (
+              <Text allowFontScaling={true} style={styles.moreText}>
+                {moreLabel}
+              </Text>
+            ) : null}
+          </>
         )}
 
         {data && error ? (
@@ -178,6 +190,11 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.crowdRed,
     paddingVertical: spacing.sm,
+  },
+  moreText: {
+    ...typography.caption,
+    color: colors.muted,
+    paddingTop: spacing.sm,
   },
   noServiceText: {
     ...typography.caption,

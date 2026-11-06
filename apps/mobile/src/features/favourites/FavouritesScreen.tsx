@@ -9,7 +9,6 @@ import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types
 import { colors, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
-import { useDisruptions } from '../disruptions/useDisruptions';
 import { FavouriteStop } from '../../shared/utils/favourites';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
@@ -20,7 +19,6 @@ type Props = CompositeScreenProps<
 >;
 
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
-  useDisruptions();
   const { favourites } = useFavourites();
   const count = favourites.length;
   const [refreshSignal, setRefreshSignal] = useState(0);
