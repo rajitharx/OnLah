@@ -4,6 +4,7 @@ import React from 'react';
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BusArrivalRow, SkeletonTiles } from '../../shared/components';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
 import { buildFavouriteLabel } from '../../shared/utils/accessibility';
 import { formatFreshness, isStale } from '../../shared/utils/eta';
@@ -24,7 +25,7 @@ type Props = NativeStackScreenProps<NearbyStackParamList, 'Arrivals'>;
 
 export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const { stopCode, stopName, roadName } = route.params;
-  const { data, isLoading, error, refresh } = useArrivals(stopCode);
+  const { data, isLoading, isRefreshing, error, refresh } = useArrivals(stopCode);
   const { isFavourite, add, remove } = useFavouritesStore();
   const fav = isFavourite(stopCode);
   const now = useNow(data?.fetchedAt);
@@ -39,6 +40,15 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
+          />
+        }
       >
         <View style={styles.header}>
           <Pressable
@@ -97,16 +107,21 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
                   isStale(data.fetchedAt, now) && styles.staleIndicator,
                 ]}
               />
-              <Text allowFontScaling={true} style={typography.caption}>
+              <Text allowFontScaling={true} style={styles.freshnessText}>
                 {formatFreshness(data.fetchedAt, now)}
               </Text>
             </View>
           ) : null}
           <Pressable
             onPress={refresh}
+            disabled={isRefreshing}
             accessibilityRole="button"
             accessibilityLabel="Refresh arrivals"
-            style={({ pressed }) => [styles.refreshBtn, pressed && styles.pressed]}
+            accessibilityState={{ busy: isRefreshing }}
+            style={({ pressed }) => [
+              styles.refreshBtn,
+              (pressed || isRefreshing) && styles.pressed,
+            ]}
           >
             <Feather name="refresh-cw" size={12} color={colors.accent} />
             <Text allowFontScaling={true} style={styles.refreshLabel}>
@@ -222,6 +237,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
   },
+  freshnessText: {
+    ...typography.caption,
+    color: colors.accent,
+  },
   liveIndicator: {
     width: 7,
     height: 7,
@@ -232,6 +251,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.muted,
   },
   refreshBtn: {
+    minHeight: minTapSize,
+    minWidth: minTapSize,
+    justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

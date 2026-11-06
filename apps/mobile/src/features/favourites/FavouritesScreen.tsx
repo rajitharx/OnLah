@@ -2,8 +2,8 @@ import { Feather } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, spacing, typography } from '../../shared/theme';
@@ -22,6 +22,29 @@ type Props = CompositeScreenProps<
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
   useDisruptions();
   const { favourites } = useFavourites();
+  const count = favourites.length;
+  const [refreshSignal, setRefreshSignal] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const pending = useRef(0);
+
+  // Pull-to-refresh refetches every card, and stops spinning once the last one answers.
+  const handleRefresh = useCallback(() => {
+    if (count === 0) return;
+    pending.current = count;
+    setIsRefreshing(true);
+    setRefreshSignal((n) => n + 1);
+  }, [count]);
+
+  // A card added or removed mid-refresh would leave the count off, so start over.
+  useEffect(() => {
+    pending.current = 0;
+    setIsRefreshing(false);
+  }, [count]);
+
+  const handleCardRefreshed = useCallback(() => {
+    pending.current = Math.max(0, pending.current - 1);
+    if (pending.current === 0) setIsRefreshing(false);
+  }, []);
 
   function handleStopPress(stop: FavouriteStop): void {
     navigation.navigate('Arrivals', {
@@ -38,6 +61,15 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
         keyExtractor={(item) => item.code}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
+          />
+        }
         ListHeaderComponent={
           <View>
             <View style={styles.header}>
@@ -71,7 +103,12 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
           </View>
         }
         renderItem={({ item }) => (
-          <FavouriteStopCard stop={item} onPress={() => handleStopPress(item)} />
+          <FavouriteStopCard
+            stop={item}
+            onPress={() => handleStopPress(item)}
+            refreshSignal={refreshSignal}
+            onRefreshed={handleCardRefreshed}
+          />
         )}
         ItemSeparatorComponent={null}
         ListEmptyComponent={

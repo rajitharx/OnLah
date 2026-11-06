@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   etaUnit: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.accent,
   },
   noService: {
     ...typography.body,
@@ -131,6 +131,6 @@ const styles = StyleSheet.create({
   },
   eta2: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.accent,
   },
 });
