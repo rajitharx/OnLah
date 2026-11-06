@@ -15,11 +15,15 @@ export interface ArrivalTiming {
   type: BusType;
   isMonitored: boolean;
   isLastBus: boolean;
+  // The stop this bus is heading to. Absent when LTA does not say.
+  destinationCode?: string;
 }
 
 export interface ArrivalRoute {
   origin: string;
   destination: string;
+  // Matches ArrivalTiming.destinationCode of the buses running this direction.
+  destinationCode: string;
 }
 
 export interface BusArrival {

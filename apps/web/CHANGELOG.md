@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.102 (#57)
+
+**Each direction of a bus shows its own buses.** A service that stops at a stop in both directions, such as 136 at 66271, listed both routes above one row of tiles, so you could not tell which bus was going where.
+
+- The backend now sends the stop each bus is heading to (`destinationCode` on every bus) and on each route. The change only adds fields, so the API stays 1.x.
+- When every bus can be matched to a direction, the board shows one route line with its own three tiles per direction. A direction with no bus due shows empty tiles. If any bus cannot be matched, the board keeps the combined layout.
+
 ## 1.101 (#53)
 
 **No page jump while loading, and Saved buses match the board.**

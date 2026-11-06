@@ -52,8 +52,33 @@ function render(services: BusArrival[], failed = false): string {
 }
 
 describe('StopBoard', () => {
+  it('shows each direction of a service with its own buses when the service stops here both ways', () => {
+    const bus = (minute: number, destinationCode: string) => ({
+      estimatedArrival: `2026-10-19T10:${String(minute).padStart(2, '0')}:00Z`,
+      load: 0 as const,
+      isWheelchairAccessible: true,
+      type: 0 as const,
+      isMonitored: true,
+      isLastBus: false,
+      destinationCode,
+    });
+    const both: BusArrival = {
+      ...service('136', [
+        { origin: 'Yishun', destination: 'Marine Parade', destinationCode: '11111' },
+        { origin: 'Marine Parade', destination: 'Yishun', destinationCode: '22222' },
+      ]),
+      nextBus: bus(5, '11111'),
+      nextBus2: bus(9, '22222'),
+    };
+
+    const html = render([both]);
+
+    expect(html.match(/class="eta-grid"/g)).toHaveLength(2);
+    expect(html.indexOf('Marine Parade')).toBeLessThan(html.indexOf('class="eta-grid"'));
+  });
+
   it('shows where each service starts and ends', () => {
-    const html = render([service('372', [{ origin: 'Bishan Int', destination: 'Changi Airport' }])]);
+    const html = render([service('372', [{ origin: 'Bishan Int', destination: 'Changi Airport', destinationCode: '22222' }])]);
 
     expect(html).toContain('Bishan Int');
     expect(html).toContain('Changi Airport');
@@ -64,8 +89,8 @@ describe('StopBoard', () => {
   it('shows one line per direction that calls at the stop', () => {
     const html = render([
       service('15', [
-        { origin: 'A', destination: 'B' },
-        { origin: 'B', destination: 'A' },
+        { origin: 'A', destination: 'B', destinationCode: '22222' },
+        { origin: 'B', destination: 'A', destinationCode: '11111' },
       ]),
     ]);
 

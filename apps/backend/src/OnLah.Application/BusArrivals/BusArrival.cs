@@ -12,7 +12,8 @@ public sealed record BusArrival(
     public IReadOnlyList<ArrivalRoute> Routes { get; init; } = [];
 }
 
-public sealed record ArrivalRoute(string Origin, string Destination);
+// DestinationCode is the last stop of the direction and matches ArrivalTiming.DestinationCode of the buses running it.
+public sealed record ArrivalRoute(string Origin, string Destination, string DestinationCode);
 
 public sealed record ArrivalTiming(
     DateTimeOffset EstimatedArrival,
@@ -20,7 +21,8 @@ public sealed record ArrivalTiming(
     bool IsWheelchairAccessible,
     BusType Type,
     bool IsMonitored,
-    bool IsLastBus
+    bool IsLastBus,
+    string? DestinationCode = null
 );
 
 public enum CrowdLevel { SeatsAvailable, StandingAvailable, LimitedStanding }

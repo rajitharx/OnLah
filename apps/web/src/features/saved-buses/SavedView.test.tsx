@@ -157,7 +157,7 @@ describe('SavedView', () => {
           stopCode: '01012',
           fetchedAt: '2026-10-19T10:00:00Z',
           services: [
-            { serviceNo: '12', operator: 'SBST', nextBus: null, nextBus2: null, nextBus3: null, routes: [{ origin: 'Bishan Int', destination: 'Changi Airport' }] },
+            { serviceNo: '12', operator: 'SBST', nextBus: null, nextBus2: null, nextBus3: null, routes: [{ origin: 'Bishan Int', destination: 'Changi Airport', destinationCode: '22222' }] },
           ],
         },
         failed: false,

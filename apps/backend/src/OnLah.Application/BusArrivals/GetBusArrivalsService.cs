@@ -40,12 +40,12 @@ public sealed partial class GetBusArrivalsService(
             return directions
                 .Where(d => names.ContainsKey(d.OriginCode) && names.ContainsKey(d.DestinationCode))
                 .OrderBy(d => d.Direction)
-                .ToLookup(d => d.ServiceNo, d => new ArrivalRoute(names[d.OriginCode], names[d.DestinationCode]), StringComparer.OrdinalIgnoreCase);
+                .ToLookup(d => d.ServiceNo, d => new ArrivalRoute(names[d.OriginCode], names[d.DestinationCode], d.DestinationCode), StringComparer.OrdinalIgnoreCase);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             LogRoutesUnavailable(ex, stopCode);
-            return Array.Empty<string>().ToLookup(s => s, _ => new ArrivalRoute("", ""));
+            return Array.Empty<string>().ToLookup(s => s, _ => new ArrivalRoute("", "", ""));
         }
     }
 

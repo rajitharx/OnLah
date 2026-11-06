@@ -120,6 +120,24 @@ public sealed class LtaBusClientTests
         Assert.Null(service.NextBus3);
     }
 
+    [Fact]
+    public async Task GetArrivalsAsync_BusesHeadingToDifferentTerminals_KeepsEachBusDestinationCode()
+    {
+        const string body = """
+            {"BusStopCode":"66271","Services":[{"ServiceNo":"136","Operator":"GAS",
+            "NextBus":{"EstimatedArrival":"2026-10-17T10:05:00+08:00","Monitored":1,"Load":"SEA","Feature":"","Type":"SD","DestinationCode":"11111"},
+            "NextBus2":{"EstimatedArrival":"2026-10-17T10:09:00+08:00","Monitored":1,"Load":"SEA","Feature":"","Type":"SD","DestinationCode":"22222"},
+            "NextBus3":{"EstimatedArrival":"2026-10-17T10:12:00+08:00","Monitored":1,"Load":"SEA","Feature":"","Type":"SD","DestinationCode":""}}]}
+            """;
+        var client = CreateClient(new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, body)));
+
+        var service = Assert.Single((await client.GetArrivalsAsync("66271")).Value!);
+
+        Assert.Equal("11111", service.NextBus!.DestinationCode);
+        Assert.Equal("22222", service.NextBus2!.DestinationCode);
+        Assert.Null(service.NextBus3!.DestinationCode);
+    }
+
     private static LtaBusClient CreateClient(FakeHttpMessageHandler handler)
     {
         var options = Options.Create(new LtaOptions
