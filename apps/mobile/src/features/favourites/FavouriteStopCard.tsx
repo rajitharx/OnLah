@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { BusArrivalRow } from '../../shared/components';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { BusArrivalRow, SkeletonRow } from '../../shared/components';
 import { useArrivals } from '../arrivals/useArrivals';
 import { colors, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
@@ -77,13 +77,7 @@ export function FavouriteStopCard({
         </View>
 
         {isLoading && !data ? (
-          <View style={styles.skeletonRow}>
-            <View style={styles.skeletonBadge} />
-            <View style={styles.skeletonLines}>
-              <View style={[styles.skeletonLine, { width: '60%' }]} />
-              <View style={[styles.skeletonLine, { width: '40%', marginTop: spacing.xs }]} />
-            </View>
-          </View>
+          <SkeletonRow />
         ) : !data ? (
           error ? (
             <Text allowFontScaling={true} style={styles.errorText}>
@@ -191,26 +185,6 @@ const styles = StyleSheet.create({
   },
   staleIndicator: {
     backgroundColor: colors.muted,
-  },
-  skeletonRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  skeletonBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: spacing.sm,
-    backgroundColor: colors.border,
-  },
-  skeletonLines: {
-    flex: 1,
-  },
-  skeletonLine: {
-    height: 14,
-    backgroundColor: colors.border,
-    borderRadius: spacing.xs,
   },
   errorText: {
     ...typography.caption,

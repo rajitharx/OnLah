@@ -2,7 +2,6 @@ import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchStackParamList } from '../../app/navigation/types';
+import { SkeletonTiles } from '../../shared/components';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
 import { useSearchBusStops } from './useSearchBusStops';
@@ -102,45 +102,40 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
         )}
       </View>
 
-      {isLoading && (
-        <View style={styles.centred}>
-          <ActivityIndicator color={colors.accent} />
-        </View>
-      )}
-
       {error !== null && !isLoading && (
         <Text allowFontScaling={true} style={styles.errorText}>
           {error}
         </Text>
       )}
 
-      {!isLoading && (
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item.busStopCode}
-          renderItem={renderStop}
-          contentContainerStyle={styles.list}
-          keyboardShouldPersistTaps="handled"
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListEmptyComponent={
-            showEmpty ? (
-              <View style={styles.centred}>
-                <Feather name="inbox" size={32} color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.emptyText}>
-                  No stops found
-                </Text>
-              </View>
-            ) : !hasSearched ? (
-              <View style={styles.centred}>
-                <Feather name="map-pin" size={32} color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.emptyText}>
-                  Enter a stop code or name
-                </Text>
-              </View>
-            ) : null
-          }
-        />
-      )}
+      {/* The list stays mounted while a search runs, so earlier results do not vanish on each keystroke. */}
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item.busStopCode}
+        renderItem={renderStop}
+        contentContainerStyle={styles.list}
+        keyboardShouldPersistTaps="handled"
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          isLoading ? (
+            <SkeletonTiles label="Searching for stops" />
+          ) : showEmpty ? (
+            <View style={styles.centred}>
+              <Feather name="inbox" size={32} color={colors.muted} />
+              <Text allowFontScaling={true} style={styles.emptyText}>
+                No stops found
+              </Text>
+            </View>
+          ) : !hasSearched ? (
+            <View style={styles.centred}>
+              <Feather name="map-pin" size={32} color={colors.muted} />
+              <Text allowFontScaling={true} style={styles.emptyText}>
+                Enter a stop code or name
+              </Text>
+            </View>
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 }
