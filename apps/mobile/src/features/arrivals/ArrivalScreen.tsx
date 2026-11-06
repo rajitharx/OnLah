@@ -14,8 +14,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BusArrivalRow } from '../../shared/components';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
 import { colors, spacing, typography } from '../../shared/theme';
+import { useNow } from '../../shared/hooks/useNow';
 import { buildFavouriteLabel } from '../../shared/utils/accessibility';
-import { formatFreshness } from '../../shared/utils/eta';
+import { formatFreshness, isStale } from '../../shared/utils/eta';
 import { BusArrival } from '../../types/domain';
 import { NearbyStackParamList } from '../../app/navigation/types';
 import { useArrivals } from './useArrivals';
@@ -27,9 +28,10 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const { data, isLoading, error, refresh } = useArrivals(stopCode);
   const { isFavourite, add, remove } = useFavouritesStore();
   const fav = isFavourite(stopCode);
+  const now = useNow(data?.fetchedAt);
 
   function toggleFavourite(): void {
-    fav ? remove(stopCode) : add(stopCode);
+    fav ? remove(stopCode) : add({ code: stopCode, name: stopName, road: roadName });
   }
 
   return (
@@ -70,19 +72,19 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
 
         <View style={styles.stopHeader}>
           <Text allowFontScaling={true} style={styles.stopName}>
-            {stopName}
+            {stopName ?? `Stop ${stopCode}`}
           </Text>
           <View style={styles.stopMeta}>
-            <Text allowFontScaling={true} style={typography.caption}>
-              Stop {stopCode}
-            </Text>
+            {stopName ? (
+              <Text allowFontScaling={true} style={typography.caption}>
+                Stop {stopCode}
+              </Text>
+            ) : null}
+            {stopName && roadName ? <View style={styles.dot} /> : null}
             {roadName ? (
-              <>
-                <View style={styles.dot} />
-                <Text allowFontScaling={true} style={typography.caption}>
-                  {roadName}
-                </Text>
-              </>
+              <Text allowFontScaling={true} style={typography.caption}>
+                {roadName}
+              </Text>
             ) : null}
           </View>
         </View>
@@ -90,9 +92,14 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
         <View style={styles.freshnessRow}>
           {data ? (
             <View style={styles.freshnessLeft}>
-              <View style={styles.liveIndicator} />
+              <View
+                style={[
+                  styles.liveIndicator,
+                  isStale(data.fetchedAt, now) && styles.staleIndicator,
+                ]}
+              />
               <Text allowFontScaling={true} style={typography.caption}>
-                {formatFreshness(data.fetchedAt)}
+                {formatFreshness(data.fetchedAt, now)}
               </Text>
             </View>
           ) : null}
@@ -115,11 +122,13 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
           <View style={styles.skeleton}>
             <ActivityIndicator color={colors.muted} />
           </View>
-        ) : error ? (
-          <Text allowFontScaling={true} style={styles.errorText}>
-            {error}
-          </Text>
-        ) : data?.services.length === 0 ? (
+        ) : !data ? (
+          error ? (
+            <Text allowFontScaling={true} style={styles.errorText}>
+              {error}
+            </Text>
+          ) : null
+        ) : data.services.length === 0 ? (
           <View style={styles.emptyState}>
             <Feather name="moon" size={28} color={colors.muted} />
             <Text allowFontScaling={true} style={styles.emptyText}>
@@ -127,12 +136,18 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
             </Text>
           </View>
         ) : (
-          data?.services.map((arrival: BusArrival) => (
+          data.services.map((arrival: BusArrival) => (
             <View key={arrival.serviceNo} style={styles.arrivalCard}>
-              <BusArrivalRow arrival={arrival} />
+              <BusArrivalRow arrival={arrival} now={now} />
             </View>
           ))
         )}
+
+        {data && error ? (
+          <Text allowFontScaling={true} style={styles.staleErrorText}>
+            {error}
+          </Text>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -216,6 +231,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: colors.crowdGreen,
   },
+  staleIndicator: {
+    backgroundColor: colors.muted,
+  },
   refreshBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -255,6 +273,11 @@ const styles = StyleSheet.create({
     color: colors.crowdRed,
     textAlign: 'center',
     marginTop: spacing.lg,
+  },
+  staleErrorText: {
+    ...typography.caption,
+    color: colors.crowdRed,
+    marginTop: spacing.xs,
   },
   emptyState: {
     alignItems: 'center',

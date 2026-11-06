@@ -1,17 +1,23 @@
-export function computeEtaMinutes(estimatedArrival: string, now: number = Date.now()): number {
-  return Math.floor((new Date(estimatedArrival).getTime() - now) / 60_000);
+export const STALE_AFTER_MS = 40_000;
+
+export function computeEtaMinutes(estimatedArrival: string, now: number): number {
+  return Math.floor((Date.parse(estimatedArrival) - now) / 60_000);
 }
 
-export function formatEta(estimatedArrival: string, now: number = Date.now()): string {
+export function formatEta(estimatedArrival: string, now: number): string {
   const mins = computeEtaMinutes(estimatedArrival, now);
   if (mins < 1) return 'Arr';
   return String(mins);
 }
 
-export function formatFreshness(fetchedAt: string): string {
-  const secs = Math.floor((Date.now() - new Date(fetchedAt).getTime()) / 1000);
+export function formatFreshness(fetchedAt: string, now: number): string {
+  const secs = Math.max(0, Math.floor((now - Date.parse(fetchedAt)) / 1000));
   if (secs < 60) return `Updated ${secs}s ago`;
   return `Updated ${Math.floor(secs / 60)}m ago`;
+}
+
+export function isStale(fetchedAt: string, now: number): boolean {
+  return now - Date.parse(fetchedAt) > STALE_AFTER_MS;
 }
 
 export function formatDistance(meters: number): string {
