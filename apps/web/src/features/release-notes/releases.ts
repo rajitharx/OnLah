@@ -50,7 +50,7 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.95',
+    version: '1.99',
     pr: 52,
     shipped: null,
     title: 'Readable errors and a steadier Track link',
@@ -58,6 +58,17 @@ export const releases: Release[] = [
     items: [
       { kind: 'fix', text: 'Error messages are dark ink with a red bar on the left, and the MRT disruption title is ink with a red icon, so they meet contrast on the cream page and white cards.' },
       { kind: 'fix', text: 'The Track link sits at the right edge of a service row, next to the star, instead of mid-row.' },
+    ],
+  },
+  {
+    version: '1.95',
+    pr: 49,
+    shipped: null,
+    title: 'Easier-to-read arrival times',
+    summary: 'The minutes on each ETA tile are larger, and the text under them is no smaller than 11px.',
+    items: [
+      { kind: 'improvement', text: 'The minutes, "min" and the footer on every ETA tile are larger, so the time is no longer the smallest bold text on the board.' },
+      { kind: 'fix', text: 'The "No bus" tile text is brighter, so it reads against the dark tile.' },
     ],
   },
   {
