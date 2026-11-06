@@ -2,7 +2,6 @@ import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   ScrollView,
@@ -11,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BusArrivalRow } from '../../shared/components';
+import { BusArrivalRow, SkeletonTiles } from '../../shared/components';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
 import { colors, spacing, typography } from '../../shared/theme';
 import { formatFreshness } from '../../shared/utils/eta';
@@ -104,9 +103,7 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
         <View style={styles.divider} />
 
         {isLoading && !data ? (
-          <View style={styles.skeleton}>
-            <ActivityIndicator color={colors.muted} />
-          </View>
+          <SkeletonTiles label="Loading bus arrivals" />
         ) : error ? (
           <Text allowFontScaling={true} style={styles.errorText}>
             {error}
@@ -236,11 +233,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: spacing.sm,
-  },
-  skeleton: {
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   errorText: {
     ...typography.caption,

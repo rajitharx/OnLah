@@ -2,7 +2,6 @@ import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
@@ -10,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonTiles } from '../../shared/components';
 import { colors, spacing, typography } from '../../shared/theme';
 import { formatDistance } from '../../shared/utils/eta';
 import { BusStop } from '../../types/domain';
@@ -111,12 +111,7 @@ export function NearbyScreen({ navigation }: Props): React.JSX.Element {
         ListEmptyComponent={
           hasPermission !== false ? (
             isLoading ? (
-              <View style={styles.centred}>
-                <ActivityIndicator color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.loadingText}>
-                  Finding nearby stops…
-                </Text>
-              </View>
+              <SkeletonTiles label="Finding nearby stops" />
             ) : error ? (
               <View style={styles.centred}>
                 <Feather name="wifi-off" size={28} color={colors.muted} />
@@ -247,10 +242,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xxl,
     gap: spacing.md,
-  },
-  loadingText: {
-    ...typography.body,
-    color: colors.muted,
   },
   errorText: {
     ...typography.caption,
