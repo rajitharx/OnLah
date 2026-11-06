@@ -18,6 +18,7 @@ import { EmptyState } from '../shared/components/EmptyState';
 import { SearchIcon } from '../shared/components/Icons';
 import { OfflineNotice } from '../shared/components/OfflineNotice';
 import { APP_VERSION, betaLabel } from '../shared/version';
+import { BoardSkeleton } from '../shared/components/BoardSkeleton';
 import { AppHeader } from './AppHeader';
 import { TabBar } from './TabBar';
 import { cameFromInApp, useRoute } from './useRoute';
@@ -121,7 +122,10 @@ export default function App() {
         {route.view === 'track' && (
           <RouteTrackerView stopCode={route.stopCode} serviceNo={route.serviceNo} onBack={goBack} />
         )}
-        {route.view === 'board' && board.stop === null && board.status !== 'idle' && board.status !== 'ready' && (
+        {route.view === 'board' && board.stop === null && board.status === 'loading' && (
+          <BoardSkeleton label={BOARD_MESSAGES.loading} />
+        )}
+        {route.view === 'board' && board.stop === null && (board.status === 'not-found' || board.status === 'failed') && (
           <EmptyState
             icon={<SearchIcon size={24} />}
             message={BOARD_MESSAGES[board.status]}
@@ -146,6 +150,8 @@ export default function App() {
             onRemoveBus={savedBuses.remove}
             onRemoveStop={favourites.remove}
             onOpenService={openService}
+            trackHref={(stopCode, serviceNo) => formatRoute({ view: 'track', stopCode, serviceNo })}
+            onTrack={(stopCode, serviceNo) => push({ view: 'track', stopCode, serviceNo })}
             onResync={saved.resync}
             onNavigate={(next) => push({ view: next })}
           />

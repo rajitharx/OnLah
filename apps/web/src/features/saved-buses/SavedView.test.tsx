@@ -47,6 +47,8 @@ function render(buses: SavedBus[], arrivals: Record<string, ArrivalsState> = {},
       onOpenStop={noop}
       onOpenService={noop}
       onRemoveBus={noop}
+      trackHref={(stopCode, serviceNo) => `/stop/${stopCode}/bus/${serviceNo}`}
+      onTrack={noop}
       onRemoveStop={noop}
       onResync={noop}
       onNavigate={noop}
@@ -146,5 +148,36 @@ describe('SavedView', () => {
 
   it('shows no stale warning when the refresh succeeded', () => {
     expect(render([bus('12')], withData)).not.toContain('Showing data from');
+  });
+
+  it('shows the same route line and Track link as the board for a saved bus', () => {
+    const arrivals: Record<string, ArrivalsState> = {
+      '01012': {
+        data: {
+          stopCode: '01012',
+          fetchedAt: '2026-10-19T10:00:00Z',
+          services: [
+            { serviceNo: '12', operator: 'SBST', nextBus: null, nextBus2: null, nextBus3: null, routes: [{ origin: 'Bishan Int', destination: 'Changi Airport' }] },
+          ],
+        },
+        failed: false,
+        slow: false,
+      },
+    };
+
+    const html = render([bus('12')], arrivals);
+
+    expect(html).toContain('aria-label="From Bishan Int to Changi Airport"');
+    expect(html).toContain('aria-label="Track bus 12"');
+    expect(html).toContain('href="/stop/01012/bus/12"');
+    expect(buttonTag(html, 'Remove bus 12 from saved buses')).not.toBe('');
+  });
+
+  it('shows empty tiles, not a caption, for a bus with nothing due or no row', () => {
+    const html = render([bus('12')], withData);
+
+    expect(html).not.toContain('No buses due right now.');
+    expect(html.match(/aria-label="No bus due"/g)).toHaveLength(3);
+    expect(buttonTag(html, 'Remove bus 12 from saved buses')).not.toBe('');
   });
 });
