@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BusArrivalRow } from '../../shared/components';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
 import { colors, spacing, typography } from '../../shared/theme';
+import { buildFavouriteLabel } from '../../shared/utils/accessibility';
 import { formatFreshness } from '../../shared/utils/eta';
 import { BusArrival } from '../../types/domain';
 import { NearbyStackParamList } from '../../app/navigation/types';
@@ -41,6 +42,8 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
         <View style={styles.header}>
           <Pressable
             onPress={() => navigation.goBack()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
             style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
             hitSlop={spacing.md}
           >
@@ -51,11 +54,14 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
           </Pressable>
           <Pressable
             onPress={toggleFavourite}
+            accessibilityRole="button"
+            accessibilityLabel={buildFavouriteLabel(fav)}
+            accessibilityState={{ selected: fav }}
             style={({ pressed }) => [styles.favBtn, pressed && styles.pressed]}
             hitSlop={spacing.md}
           >
             <Feather
-              name={fav ? 'star' : 'star'}
+              name="star"
               size={20}
               color={fav ? colors.accent : colors.muted}
             />
@@ -92,6 +98,8 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
           ) : null}
           <Pressable
             onPress={refresh}
+            accessibilityRole="button"
+            accessibilityLabel="Refresh arrivals"
             style={({ pressed }) => [styles.refreshBtn, pressed && styles.pressed]}
           >
             <Feather name="refresh-cw" size={12} color={colors.accent} />
