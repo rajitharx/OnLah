@@ -7,7 +7,9 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, spacing, typography } from '../../shared/theme';
+import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
+import { FavouriteStop } from '../../shared/utils/favourites';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
 
@@ -17,17 +19,21 @@ type Props = CompositeScreenProps<
 >;
 
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
-  const { stopCodes } = useFavourites();
+  const { favourites } = useFavourites();
 
-  function handleStopPress(stopCode: string): void {
-    navigation.navigate('Arrivals', { stopCode, stopName: stopCode, roadName: '' });
+  function handleStopPress(stop: FavouriteStop): void {
+    navigation.navigate('Arrivals', {
+      stopCode: stop.code,
+      stopName: stop.name,
+      roadName: stop.road,
+    });
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
-        data={stopCodes}
-        keyExtractor={(item) => item}
+        data={favourites}
+        keyExtractor={(item) => item.code}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -35,18 +41,12 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             <View style={styles.header}>
               <View>
                 <Text allowFontScaling={true} style={styles.greeting}>
-                  Good morning
+                  {getGreeting()}
                 </Text>
                 <Text allowFontScaling={true} style={styles.title}>
                   OnLah
                 </Text>
               </View>
-              <Pressable
-                style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-                hitSlop={spacing.sm}
-              >
-                <Feather name="bell" size={18} color={colors.muted} />
-              </Pressable>
             </View>
 
             <Pressable
@@ -55,7 +55,7 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             >
               <Feather name="search" size={16} color={colors.muted} />
               <Text allowFontScaling={true} style={styles.searchPlaceholder}>
-                Search stops, bus numbers…
+                Search stops by code or name
               </Text>
             </Pressable>
 
@@ -65,19 +65,11 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
               <Text allowFontScaling={true} style={styles.sectionTitle}>
                 Your Stops
               </Text>
-              <Pressable hitSlop={spacing.sm}>
-                <Text allowFontScaling={true} style={styles.editLabel}>
-                  Edit
-                </Text>
-              </Pressable>
             </View>
           </View>
         }
         renderItem={({ item }) => (
-          <FavouriteStopCard
-            stopCode={item}
-            onPress={() => handleStopPress(item)}
-          />
+          <FavouriteStopCard stop={item} onPress={() => handleStopPress(item)} />
         )}
         ItemSeparatorComponent={null}
         ListEmptyComponent={
@@ -121,15 +113,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     letterSpacing: -0.5,
   },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.surface,
-    borderRadius: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.xs,
-  },
   pressed: {
     opacity: 0.7,
   },
@@ -157,11 +140,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.stopName,
     letterSpacing: -0.2,
-  },
-  editLabel: {
-    ...typography.body,
-    color: colors.accent,
-    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',

@@ -3,10 +3,12 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, spacing, typography } from '../../shared/theme';
+import { useNow } from '../../shared/hooks/useNow';
 import { formatFreshness } from '../../shared/utils/eta';
 
 export function DisruptionBanner(): React.JSX.Element | null {
   const { status, alerts, fetchedAt, hasError, dismissedAt, dismiss } = useDisruptionStore();
+  const now = useNow(fetchedAt ?? undefined);
 
   const isDisrupted = status === 1;
   const isDismissed =
@@ -18,7 +20,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
       <Feather name="info" size={16} color={colors.accent} />
       <Text allowFontScaling={true} style={styles.noticeText}>
         Service alerts unavailable
-        {fetchedAt ? ` · last checked ${formatFreshness(fetchedAt).replace('Updated ', '')}` : ''}
+        {fetchedAt ? ` · last checked ${formatFreshness(fetchedAt, now).replace('Updated ', '')}` : ''}
       </Text>
     </View>
   ) : null;
@@ -47,13 +49,15 @@ export function DisruptionBanner(): React.JSX.Element | null {
           ) : null}
           {fetchedAt ? (
             <Text allowFontScaling={true} style={styles.updated}>
-              {formatFreshness(fetchedAt)}
+              {formatFreshness(fetchedAt, now)}
             </Text>
           ) : null}
         </View>
       </View>
       <Pressable
         onPress={dismiss}
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss disruption alert"
         hitSlop={spacing.sm}
         style={({ pressed }) => [pressed && styles.pressed]}
       >

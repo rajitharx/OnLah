@@ -1,21 +1,26 @@
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BusArrival } from '../../types/domain';
 import { colors, spacing, typography } from '../theme';
+import { buildArrivalLabel } from '../utils/accessibility';
 import { formatEta, formatThen } from '../utils/eta';
 import { CrowdBadge } from './CrowdBadge';
 
 interface BusArrivalRowProps {
   arrival: BusArrival;
+  now: number;
 }
 
-export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Element {
+export function BusArrivalRow({ arrival, now }: BusArrivalRowProps): React.JSX.Element {
   const { nextBus, nextBus2, nextBus3 } = arrival;
-  const then = formatThen([nextBus2?.estimatedArrival ?? null, nextBus3?.estimatedArrival ?? null]);
+  const then = formatThen(
+    [nextBus2?.estimatedArrival ?? null, nextBus3?.estimatedArrival ?? null],
+    now,
+  );
 
   return (
-    <View style={styles.row}>
+    <View style={styles.row} accessible accessibilityLabel={buildArrivalLabel(arrival, now)}>
       <View style={styles.badgeCol}>
         <View style={styles.badge}>
           <Text allowFontScaling={true} style={styles.badgeText}>
@@ -23,10 +28,22 @@ export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Elemen
           </Text>
         </View>
         {nextBus?.isWheelchairAccessible && (
-          <Feather name="plus-circle" size={10} color={colors.muted} style={styles.wab} />
+          <MaterialCommunityIcons
+            name="wheelchair-accessibility"
+            size={12}
+            color={colors.muted}
+            style={styles.wab}
+            accessibilityLabel="Wheelchair accessible"
+          />
         )}
         {nextBus?.isMonitored === false && (
-          <Feather name="clock" size={10} color={colors.muted} style={styles.wab} />
+          <Feather
+            name="clock"
+            size={10}
+            color={colors.muted}
+            style={styles.wab}
+            accessibilityLabel="Scheduled time, not live"
+          />
         )}
       </View>
 
@@ -35,10 +52,10 @@ export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Elemen
           <>
             <View style={styles.etaRow}>
               <Text allowFontScaling={true} style={styles.etaNumber}>
-                {formatEta(nextBus.estimatedArrival)}
+                {formatEta(nextBus.estimatedArrival, now)}
               </Text>
               <Text allowFontScaling={true} style={styles.etaUnit}>
-                {formatEta(nextBus.estimatedArrival) !== 'Arr' ? ' min' : ''}
+                {formatEta(nextBus.estimatedArrival, now) !== 'Arr' ? ' min' : ''}
               </Text>
             </View>
             <CrowdBadge level={nextBus.load} />
