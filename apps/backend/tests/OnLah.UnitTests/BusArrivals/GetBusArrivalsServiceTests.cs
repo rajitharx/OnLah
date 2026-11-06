@@ -150,6 +150,33 @@ public sealed class GetBusArrivalsServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_ServiceListedOncePerDirection_GivesEachEntryOnlyItsOwnRoute()
+    {
+        GivenServices(Direction("136", 1, "11111", "22222"), Direction("136", 2, "22222", "11111"));
+        GivenStops(Stop("11111", "A"), Stop("22222", "B"));
+        GivenArrivals(
+            new BusArrival("136", "GAS", Timing(12, 0) with { DestinationCode = "22222" }, null, null),
+            new BusArrival("136", "GAS", Timing(12, 5) with { DestinationCode = "11111" }, null, null));
+
+        var services = (await _sut.GetAsync(StopCode)).Value!;
+
+        Assert.Equal([new ArrivalRoute("A", "B", "22222")], services[0].Routes);
+        Assert.Equal([new ArrivalRoute("B", "A", "11111")], services[1].Routes);
+    }
+
+    [Fact]
+    public async Task GetAsync_BusesWithNoDestination_KeepEveryRoute()
+    {
+        GivenServices(Direction("136", 1, "11111", "22222"), Direction("136", 2, "22222", "11111"));
+        GivenStops(Stop("11111", "A"), Stop("22222", "B"));
+        GivenArrivals(new BusArrival("136", "GAS", Timing(12, 0), null, null));
+
+        var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
+
+        Assert.Equal(2, service.Routes.Count);
+    }
+
+    [Fact]
     public async Task GetAsync_LowercaseServiceNumber_MatchesTheDirection()
     {
         GivenServices(Direction("10E", 1, "11111", "22222"));
