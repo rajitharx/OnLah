@@ -388,7 +388,9 @@ input {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--crowd-red);
+  color: var(--ink);
+  padding-left: var(--space-sm);
+  border-left: 3px solid var(--crowd-red);
 }
 
 .stale-notice {
@@ -466,6 +468,10 @@ input {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--ink);
+}
+
+.banner-title svg {
   color: var(--crowd-red);
 }
 
@@ -1242,9 +1248,8 @@ input {
   margin-top: var(--space-lg);
 }
 
-/* The track link and the bus star sit at the right edge of the row. */
-.service-head .track-link,
-.service-head .icon-btn {
+/* The track link sits at the right edge of the row; the bus star follows it. A second auto margin would split the free space. */
+.service-head .track-link {
   margin-left: auto;
 }
 

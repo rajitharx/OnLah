@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.95 (#52)
+
+**Readable errors and a steadier Track link.** Error text and the MRT banner title are ink on the page instead of red, which failed contrast on the cream page and white cards.
+
+- Error messages are dark ink with a red bar on the left, so they are readable but still stand out. The "MRT disruption" banner title is ink, and its warning icon stays red.
+- On a service row the Track link sits at the right edge next to the star. Before, both had an automatic margin, so the free space was split and Track floated mid-row.
+
 ## 1.93 (#47)
 
 **Steadier live refresh.** Six fixes to how the board, the Saved tab, the alerts banner and the Route Tracker refresh.
