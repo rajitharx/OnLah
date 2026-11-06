@@ -50,7 +50,7 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.99',
+    version: '1.100',
     pr: 52,
     shipped: null,
     title: 'Readable errors and a steadier Track link',
