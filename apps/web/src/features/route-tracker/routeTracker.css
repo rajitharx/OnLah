@@ -392,13 +392,6 @@
   gap: var(--space-md);
 }
 
-.skeleton-block {
-  display: block;
-  border-radius: var(--radius-md);
-  background: var(--hairline);
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
-}
-
 .skeleton-head {
   height: 56px;
 }
@@ -411,18 +404,11 @@
   height: 40px;
 }
 
-@keyframes skeleton-pulse {
-  50% {
-    opacity: 0.5;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .rail-marker-bus,
   .rail-marker-next::after,
   .rail-node-bus::after,
-  .rail-node-next::after,
-  .skeleton-block {
+  .rail-node-next::after {
     animation: none;
   }
 

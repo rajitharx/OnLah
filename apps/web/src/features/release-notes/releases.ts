@@ -50,6 +50,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.95',
+    pr: 53,
+    shipped: null,
+    title: 'No page jump while loading, Saved matches the board',
+    summary: 'Loading shows placeholders in the shape of the board, and a saved bus has its route line, Track link and tiles.',
+    items: [
+      { kind: 'improvement', text: 'The board and a stop opened from a link show placeholders while the times load, so the page no longer jumps and the stop link no longer looks like "not found".' },
+      { kind: 'improvement', text: 'Saved buses show the origin to destination line, the Track link and the three tiles, as on the board. A bus with nothing due shows empty tiles.' },
+    ],
+  },
+  {
     version: '1.93',
     pr: 47,
     shipped: '2026-11-04T09:25:31+08:00',
