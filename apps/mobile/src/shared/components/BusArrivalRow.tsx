@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { BusArrival } from '../../types/domain';
 import { colors, spacing, typography } from '../theme';
 import { buildArrivalLabel } from '../utils/accessibility';
-import { formatEta } from '../utils/eta';
+import { formatEta, formatThen } from '../utils/eta';
 import { CrowdBadge } from './CrowdBadge';
 
 interface BusArrivalRowProps {
@@ -13,7 +13,11 @@ interface BusArrivalRowProps {
 }
 
 export function BusArrivalRow({ arrival, now }: BusArrivalRowProps): React.JSX.Element {
-  const { nextBus, nextBus2 } = arrival;
+  const { nextBus, nextBus2, nextBus3 } = arrival;
+  const then = formatThen(
+    [nextBus2?.estimatedArrival ?? null, nextBus3?.estimatedArrival ?? null],
+    now,
+  );
 
   return (
     <View style={styles.row} accessible accessibilityLabel={buildArrivalLabel(arrival, now)}>
@@ -64,11 +68,9 @@ export function BusArrivalRow({ arrival, now }: BusArrivalRowProps): React.JSX.E
       </View>
 
       <View style={styles.eta2Col}>
-        {nextBus2 ? (
+        {then !== '' ? (
           <Text allowFontScaling={true} style={styles.eta2}>
-            {formatEta(nextBus2.estimatedArrival, now) === 'Arr'
-              ? 'then Arr'
-              : `then ${formatEta(nextBus2.estimatedArrival, now)} min`}
+            {then}
           </Text>
         ) : null}
       </View>

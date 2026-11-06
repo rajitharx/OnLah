@@ -15,7 +15,7 @@ function spokenMinutes(timing: ArrivalTiming, now: number): string {
 }
 
 export function buildArrivalLabel(arrival: BusArrival, now: number): string {
-  const { nextBus, nextBus2 } = arrival;
+  const { nextBus, nextBus2, nextBus3 } = arrival;
   const parts = [`Bus ${arrival.serviceNo}`];
 
   if (!nextBus) {
@@ -27,6 +27,7 @@ export function buildArrivalLabel(arrival: BusArrival, now: number): string {
   if (nextBus.isWheelchairAccessible) parts.push('wheelchair accessible');
   if (!nextBus.isMonitored) parts.push('scheduled time, not live');
   if (nextBus2) parts.push(`then ${spokenMinutes(nextBus2, now)}`);
+  if (nextBus3) parts.push(`then ${spokenMinutes(nextBus3, now)}`);
 
   return parts.join(', ');
 }
