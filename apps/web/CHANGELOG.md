@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.95 (#49)
+
+**Easier-to-read arrival times.** The minutes on each ETA tile were the smallest bold text on the board.
+
+- The minutes are larger, and "min" and the footer under them are at least 11px, on every tile alike.
+- The "No bus" tile text is brighter, so it reads against the dark tile.
+
 ## 1.93 (#47)
 
 **Steadier live refresh.** Six fixes to how the board, the Saved tab, the alerts banner and the Route Tracker refresh.
