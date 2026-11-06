@@ -2,8 +2,8 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type ArrivalsParams = {
   stopCode: string;
-  stopName: string;
-  roadName: string;
+  stopName: string | null;
+  roadName: string | null;
 };
 
 export type HomeStackParamList = {

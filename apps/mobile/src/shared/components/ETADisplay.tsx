@@ -5,14 +5,16 @@ import { formatEta } from '../utils/eta';
 
 interface ETADisplayProps {
   estimatedArrival: string;
+  now: number;
   size?: 'large' | 'small';
 }
 
 export function ETADisplay({
   estimatedArrival,
+  now,
   size = 'large',
 }: ETADisplayProps): React.JSX.Element {
-  const label = formatEta(estimatedArrival);
+  const label = formatEta(estimatedArrival, now);
   const isArr = label === 'Arr';
 
   if (size === 'large') {

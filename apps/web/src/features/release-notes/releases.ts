@@ -50,7 +50,7 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.95',
+    version: '1.98',
     pr: 53,
     shipped: null,
     title: 'No page jump while loading, Saved matches the board',
@@ -58,6 +58,17 @@ export const releases: Release[] = [
     items: [
       { kind: 'improvement', text: 'The board and a stop opened from a link show placeholders while the times load, so the page no longer jumps and the stop link no longer looks like "not found".' },
       { kind: 'improvement', text: 'Saved buses show the origin to destination line, the Track link and the three tiles, as on the board. A bus with nothing due shows empty tiles.' },
+    ],
+  },
+  {
+    version: '1.95',
+    pr: 49,
+    shipped: null,
+    title: 'Easier-to-read arrival times',
+    summary: 'The minutes on each ETA tile are larger, and the text under them is no smaller than 11px.',
+    items: [
+      { kind: 'improvement', text: 'The minutes, "min" and the footer on every ETA tile are larger, so the time is no longer the smallest bold text on the board.' },
+      { kind: 'fix', text: 'The "No bus" tile text is brighter, so it reads against the dark tile.' },
     ],
   },
   {
