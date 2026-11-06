@@ -91,7 +91,12 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
           clearButtonMode="never"
         />
         {query.length > 0 && (
-          <Pressable onPress={handleClear} style={styles.clearBtn}>
+          <Pressable
+            onPress={handleClear}
+            style={styles.clearBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
+          >
             <Feather name="x" size={16} color={colors.muted} />
           </Pressable>
         )}

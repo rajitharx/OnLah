@@ -50,6 +50,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.95',
+    pr: 49,
+    shipped: null,
+    title: 'Easier-to-read arrival times',
+    summary: 'The minutes on each ETA tile are larger, and the text under them is no smaller than 11px.',
+    items: [
+      { kind: 'improvement', text: 'The minutes, "min" and the footer on every ETA tile are larger, so the time is no longer the smallest bold text on the board.' },
+      { kind: 'fix', text: 'The "No bus" tile text is brighter, so it reads against the dark tile.' },
+    ],
+  },
+  {
     version: '1.93',
     pr: 47,
     shipped: '2026-11-04T09:25:31+08:00',

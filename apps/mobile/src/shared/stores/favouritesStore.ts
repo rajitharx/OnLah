@@ -1,35 +1,40 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import {
+  FAVOURITES_VERSION,
+  FavouriteStop,
+  migrateFavourites,
+  upsertFavourite,
+} from '../utils/favourites';
 
 const MAX_FAVOURITES = 10;
 
 interface FavouritesState {
-  stopCodes: string[];
-  add: (code: string) => void;
+  favourites: FavouriteStop[];
+  add: (stop: FavouriteStop) => void;
   remove: (code: string) => void;
-  reorder: (codes: string[]) => void;
+  reorder: (favourites: FavouriteStop[]) => void;
   isFavourite: (code: string) => boolean;
 }
 
 export const useFavouritesStore = create<FavouritesState>()(
   persist(
     (set, get) => ({
-      stopCodes: [],
-      add: (code) => {
-        const { stopCodes } = get();
-        if (!stopCodes.includes(code) && stopCodes.length < MAX_FAVOURITES) {
-          set({ stopCodes: [...stopCodes, code] });
-        }
-      },
+      favourites: [],
+      add: (stop) =>
+        set({ favourites: upsertFavourite(get().favourites, stop, MAX_FAVOURITES) }),
       remove: (code) =>
-        set({ stopCodes: get().stopCodes.filter((c) => c !== code) }),
-      reorder: (codes) => set({ stopCodes: codes }),
-      isFavourite: (code) => get().stopCodes.includes(code),
+        set({ favourites: get().favourites.filter((f) => f.code !== code) }),
+      reorder: (favourites) => set({ favourites }),
+      isFavourite: (code) => get().favourites.some((f) => f.code === code),
     }),
     {
       name: 'onlah-favourites',
       storage: createJSONStorage(() => AsyncStorage),
+      version: FAVOURITES_VERSION,
+      migrate: migrateFavourites,
+      partialize: (state) => ({ favourites: state.favourites }),
     },
   ),
 );

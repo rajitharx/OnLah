@@ -36,6 +36,8 @@ export function DisruptionBanner(): React.JSX.Element | null {
       </View>
       <Pressable
         onPress={dismiss}
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss disruption alert"
         hitSlop={spacing.sm}
         style={({ pressed }) => [styles.dismissBtn, pressed && styles.pressed]}
       >

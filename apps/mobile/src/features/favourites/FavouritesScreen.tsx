@@ -7,8 +7,10 @@ import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, spacing, typography } from '../../shared/theme';
+import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
 import { useDisruptions } from '../disruptions/useDisruptions';
+import { FavouriteStop } from '../../shared/utils/favourites';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
 
@@ -19,39 +21,44 @@ type Props = CompositeScreenProps<
 
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
   useDisruptions();
-  const { stopCodes } = useFavourites();
+  const { favourites } = useFavourites();
+  const count = favourites.length;
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const pending = useRef(0);
 
   // Pull-to-refresh refetches every card, and stops spinning once the last one answers.
   const handleRefresh = useCallback(() => {
-    if (stopCodes.length === 0) return;
-    pending.current = stopCodes.length;
+    if (count === 0) return;
+    pending.current = count;
     setIsRefreshing(true);
     setRefreshSignal((n) => n + 1);
-  }, [stopCodes.length]);
+  }, [count]);
 
   // A card added or removed mid-refresh would leave the count off, so start over.
   useEffect(() => {
     pending.current = 0;
     setIsRefreshing(false);
-  }, [stopCodes.length]);
+  }, [count]);
 
   const handleCardRefreshed = useCallback(() => {
     pending.current = Math.max(0, pending.current - 1);
     if (pending.current === 0) setIsRefreshing(false);
   }, []);
 
-  function handleStopPress(stopCode: string): void {
-    navigation.navigate('Arrivals', { stopCode, stopName: stopCode, roadName: '' });
+  function handleStopPress(stop: FavouriteStop): void {
+    navigation.navigate('Arrivals', {
+      stopCode: stop.code,
+      stopName: stop.name,
+      roadName: stop.road,
+    });
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
-        data={stopCodes}
-        keyExtractor={(item) => item}
+        data={favourites}
+        keyExtractor={(item) => item.code}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -68,18 +75,12 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             <View style={styles.header}>
               <View>
                 <Text allowFontScaling={true} style={styles.greeting}>
-                  Good morning
+                  {getGreeting()}
                 </Text>
                 <Text allowFontScaling={true} style={styles.title}>
                   OnLah
                 </Text>
               </View>
-              <Pressable
-                style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-                hitSlop={spacing.sm}
-              >
-                <Feather name="bell" size={18} color={colors.muted} />
-              </Pressable>
             </View>
 
             <Pressable
@@ -88,7 +89,7 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
             >
               <Feather name="search" size={16} color={colors.muted} />
               <Text allowFontScaling={true} style={styles.searchPlaceholder}>
-                Search stops, bus numbers…
+                Search stops by code or name
               </Text>
             </Pressable>
 
@@ -98,17 +99,12 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
               <Text allowFontScaling={true} style={styles.sectionTitle}>
                 Your Stops
               </Text>
-              <Pressable hitSlop={spacing.sm}>
-                <Text allowFontScaling={true} style={styles.editLabel}>
-                  Edit
-                </Text>
-              </Pressable>
             </View>
           </View>
         }
         renderItem={({ item }) => (
           <FavouriteStopCard
-            stopCode={item}
+            stop={item}
             onPress={() => handleStopPress(item)}
             refreshSignal={refreshSignal}
             onRefreshed={handleCardRefreshed}
@@ -156,15 +152,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     letterSpacing: -0.5,
   },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.surface,
-    borderRadius: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.xs,
-  },
   pressed: {
     opacity: 0.7,
   },
@@ -192,11 +179,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.stopName,
     letterSpacing: -0.2,
-  },
-  editLabel: {
-    ...typography.body,
-    color: colors.accent,
-    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',

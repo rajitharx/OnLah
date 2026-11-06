@@ -693,7 +693,7 @@ input {
 }
 
 .eta-tile-empty .eta-foot {
-  color: var(--muted);
+  color: var(--on-ink);
 }
 
 /* The tag sits on the top edge, outside the flow, so the last-bus tile keeps the same size as its neighbours. */
@@ -737,7 +737,7 @@ input {
     var(--surface) 51% 100%
   );
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.1;
   text-align: center;
@@ -749,7 +749,7 @@ input {
 
 .eta-unit {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-align: center;
   text-transform: uppercase;
@@ -757,7 +757,7 @@ input {
 }
 
 .eta-value-empty {
-  color: var(--muted);
+  color: var(--on-ink);
 }
 
 .eta-foot {
@@ -767,7 +767,7 @@ input {
   flex-wrap: wrap;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--muted);
 }
@@ -1125,12 +1125,10 @@ input {
 
   .eta-value {
     padding: 1px 0;
-    font-size: 15px;
   }
 
 
   .eta-foot {
-    font-size: 9px;
     gap: 3px;
   }
 
