@@ -104,7 +104,8 @@ internal sealed partial class LtaBusClient : ILtaBusClient, ILtaLiveArrivalClien
             t.Feature == "WAB",
             MapType(t.Type),
             t.Monitored == 1,
-            IsLastBus: false
+            IsLastBus: false,
+            DestinationCode: string.IsNullOrEmpty(t.DestinationCode) ? null : t.DestinationCode
         );
     }
 
