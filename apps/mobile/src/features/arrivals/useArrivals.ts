@@ -8,13 +8,16 @@ const REFRESH_INTERVAL_MS = 20_000;
 interface ArrivalsState {
   data: BusArrivalsResponse | null;
   isLoading: boolean;
+  // True while a refresh the user asked for (pull or button) is running. The 20s timer stays silent.
+  isRefreshing: boolean;
   error: string | null;
-  refresh: () => void;
+  refresh: () => Promise<void>;
 }
 
 export function useArrivals(stopCode: string): ArrivalsState {
   const [data, setData] = useState<BusArrivalsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
@@ -29,7 +32,16 @@ export function useArrivals(stopCode: string): ArrivalsState {
     }
   }, [stopCode]);
 
+  const refresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await fetch();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetch]);
+
   useAutoRefresh(fetch, REFRESH_INTERVAL_MS);
 
-  return { data, isLoading, error, refresh: fetch };
+  return { data, isLoading, isRefreshing, error, refresh };
 }

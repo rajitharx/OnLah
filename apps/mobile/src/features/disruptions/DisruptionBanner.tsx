@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 
 export function DisruptionBanner(): React.JSX.Element | null {
   const { status, alerts, dismissedAt, dismiss } = useDisruptionStore();
@@ -37,7 +37,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
       <Pressable
         onPress={dismiss}
         hitSlop={spacing.sm}
-        style={({ pressed }) => [pressed && styles.pressed]}
+        style={({ pressed }) => [styles.dismissBtn, pressed && styles.pressed]}
       >
         <Feather name="x" size={16} color={colors.muted} />
       </Pressable>
@@ -75,7 +75,16 @@ const styles = StyleSheet.create({
   },
   message: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.accent,
+  },
+  dismissBtn: {
+    minWidth: minTapSize,
+    minHeight: minTapSize,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // The padded button would otherwise push the banner text off its top edge.
+    marginTop: -spacing.sm,
+    marginRight: -spacing.sm,
   },
   pressed: {
     opacity: 0.7,

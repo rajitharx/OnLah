@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchStackParamList } from '../../app/navigation/types';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
 import { useSearchBusStops } from './useSearchBusStops';
 
@@ -91,7 +91,7 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
           clearButtonMode="never"
         />
         {query.length > 0 && (
-          <Pressable onPress={handleClear} hitSlop={spacing.sm}>
+          <Pressable onPress={handleClear} style={styles.clearBtn}>
             <Feather name="x" size={16} color={colors.muted} />
           </Pressable>
         )}
@@ -168,6 +168,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     gap: spacing.sm,
     marginBottom: spacing.md,
+  },
+  clearBtn: {
+    minWidth: minTapSize,
+    minHeight: minTapSize,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Offsets the row padding so the 44pt target does not make the search bar taller.
+    marginVertical: -spacing.sm,
+    marginRight: -spacing.sm,
   },
   inputIcon: {
     flexShrink: 0,

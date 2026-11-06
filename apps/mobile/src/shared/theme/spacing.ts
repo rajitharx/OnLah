@@ -6,3 +6,6 @@ export const spacing = {
   xl: 32,
   xxl: 48,
 } as const;
+
+// Smallest comfortable touch target, in points.
+export const minTapSize = 44;
