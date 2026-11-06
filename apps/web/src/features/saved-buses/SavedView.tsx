@@ -16,6 +16,8 @@ interface SavedViewProps {
   onOpenStop: (stop: BusStop) => void;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
+  trackHref: (stopCode: string, serviceNo: string) => string;
+  onTrack: (stopCode: string, serviceNo: string) => void;
   onRemoveStop: (stopCode: string) => void;
   onResync: (stopCode: string) => void;
   onNavigate: (view: 'search' | 'nearby') => void;
@@ -29,6 +31,8 @@ export function SavedView({
   onOpenStop,
   onOpenService,
   onRemoveBus,
+  trackHref,
+  onTrack,
   onRemoveStop,
   onResync,
   onNavigate,
@@ -63,6 +67,8 @@ export function SavedView({
               onOpenStop={onOpenStop}
               onOpenService={onOpenService}
               onRemoveBus={onRemoveBus}
+              trackHref={trackHref}
+              onTrack={onTrack}
               onResync={onResync}
             />
           ))

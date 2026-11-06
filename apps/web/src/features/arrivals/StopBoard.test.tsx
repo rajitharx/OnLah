@@ -154,4 +154,30 @@ describe('StopBoard', () => {
   it('shows no stale warning while refreshes succeed', () => {
     expect(render([service('12')])).not.toContain('Showing data from');
   });
+
+  it('reserves the board with skeleton rows while the first load runs', () => {
+    const html = renderToStaticMarkup(
+      <StopBoard
+        stop={stop}
+        arrivals={{ data: null, failed: false, slow: false }}
+        isFavourite={false}
+        favouritesFull={false}
+        onToggleFavourite={() => undefined}
+        isBusSaved={() => false}
+        savedBusesFull={false}
+        onToggleBus={() => undefined}
+        openService={null}
+        onOpenService={() => undefined}
+        onCloseService={() => undefined}
+        onBack={() => undefined}
+        onRefresh={() => undefined}
+        trackHref={(serviceNo) => `/track/01121/${serviceNo}`}
+        onTrack={() => undefined}
+      />,
+    );
+
+    expect(html).toContain('aria-label="Loading bus times"');
+    expect(html.match(/board-skeleton-row/g)).toHaveLength(3);
+    expect(html).not.toContain('Waking up the server');
+  });
 });

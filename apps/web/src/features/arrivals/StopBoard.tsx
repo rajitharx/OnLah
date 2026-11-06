@@ -1,5 +1,6 @@
 import type { BusStop } from '../../types/domain';
 import { ServiceSheet } from '../services/ServiceSheet';
+import { BoardSkeleton } from '../../shared/components/BoardSkeleton';
 import { Freshness } from '../../shared/components/Freshness';
 import { MapIcon, PinIcon, StarIcon } from '../../shared/components/Icons';
 import { ResyncButton } from '../../shared/components/ResyncButton';
@@ -93,9 +94,12 @@ export function StopBoard({
         <p className="error" role="alert">Bus times are unavailable right now. Retrying every 20 seconds.</p>
       )}
       {!data && !failed && (
-        <p className="caption" role="status">
-          {arrivals.slow ? 'Waking up the server… the first load can take up to a minute.' : 'Loading bus times…'}
-        </p>
+        <>
+          <BoardSkeleton label="Loading bus times" header={false} />
+          {arrivals.slow && (
+            <p className="caption" role="status">Waking up the server… the first load can take up to a minute.</p>
+          )}
+        </>
       )}
 
       {data && busAdvisories(data).map((advisory) => (
