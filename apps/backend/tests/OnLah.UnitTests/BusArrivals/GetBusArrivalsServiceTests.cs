@@ -134,7 +134,7 @@ public sealed class GetBusArrivalsServiceTests
         var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
 
         var route = Assert.Single(service.Routes);
-        Assert.Equal(new ArrivalRoute("Bishan Int", "Changi Airport"), route);
+        Assert.Equal(new ArrivalRoute("Bishan Int", "Changi Airport", "22222"), route);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public sealed class GetBusArrivalsServiceTests
 
         var service = Assert.Single((await _sut.GetAsync(StopCode)).Value!);
 
-        Assert.Equal([new ArrivalRoute("A", "B"), new ArrivalRoute("B", "A")], service.Routes);
+        Assert.Equal([new ArrivalRoute("A", "B", "22222"), new ArrivalRoute("B", "A", "11111")], service.Routes);
     }
 
     [Fact]
