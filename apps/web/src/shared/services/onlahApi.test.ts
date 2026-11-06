@@ -111,6 +111,15 @@ describe('createOnlahApi', () => {
     expect(calls).toEqual([`${BASE}/api/v1/route-tracker?busStopCode=67009&serviceNo=10e`]);
   });
 
+  it('getRouteTracker sends the destination code when given', async () => {
+    const calls: string[] = [];
+    const api = createOnlahApi(BASE, fakeFetch(() => json({ serviceNo: '136' }), calls));
+
+    await api.getRouteTracker('66271', '136', undefined, '11111');
+
+    expect(calls).toEqual([`${BASE}/api/v1/route-tracker?busStopCode=66271&serviceNo=136&destinationCode=11111`]);
+  });
+
   it('getRouteTracker reports an unknown stop or service as an ApiError with status 404', async () => {
     const api = createOnlahApi(BASE, fakeFetch(() => json({ detail: 'BusService was not found.' }, 404)));
 

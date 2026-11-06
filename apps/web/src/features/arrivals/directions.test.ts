@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ArrivalTiming, BusArrival } from '../../types/domain';
-import { groupByDirection } from './directions';
+import { groupByDirection, trackDestination } from './directions';
 
 const timing = (minute: number, destinationCode?: string): ArrivalTiming => ({
   estimatedArrival: `2026-10-17T10:${String(minute).padStart(2, '0')}:00+08:00`,
@@ -62,5 +62,19 @@ describe('groupByDirection', () => {
     const groups = groupByDirection(service([toA, toB], matched, unknown, null));
 
     expect(groups).toEqual([{ routes: [toA, toB], timings: [matched, unknown, null] }]);
+  });
+});
+
+describe('trackDestination', () => {
+  it('uses the only direction the row shows', () => {
+    expect(trackDestination(service([toB], null, null, null))).toBe('22222');
+  });
+
+  it('falls back to the first bus when the row shows several directions', () => {
+    expect(trackDestination(service([toA, toB], timing(5, '22222'), null, null))).toBe('22222');
+  });
+
+  it('is empty when nothing says where the bus is heading', () => {
+    expect(trackDestination(service([toA, toB], timing(5), null, null))).toBeNull();
   });
 });

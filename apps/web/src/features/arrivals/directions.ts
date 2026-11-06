@@ -24,3 +24,10 @@ export function groupByDirection(service: BusArrival): DirectionGroup[] {
     return { routes: [route], timings: own };
   });
 }
+
+// The direction a row's Track link should follow: the one direction the row shows, else the first bus's destination.
+export function trackDestination(service: BusArrival): string | null {
+  if (service.routes.length === 1) return service.routes[0].destinationCode;
+  const heading = [service.nextBus, service.nextBus2, service.nextBus3].find((timing) => timing?.destinationCode != null);
+  return heading?.destinationCode ?? null;
+}

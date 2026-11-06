@@ -10,7 +10,7 @@ export interface UseRouteTracker extends TrackerState {
 
 // Silent refresh with no spinner. It pauses while the tab is hidden, refetches when the tab returns,
 // never starts a request while the last one is still running, and stops once the service is not found.
-export function useRouteTracker(stopCode: string, serviceNo: string, refreshMs = 20_000): UseRouteTracker {
+export function useRouteTracker(stopCode: string, serviceNo: string, destinationCode?: string, refreshMs = 20_000): UseRouteTracker {
   const [state, setState] = useState<TrackerState>(EMPTY_TRACKER);
   const pollerRef = useRef<Poller | null>(null);
 
@@ -27,7 +27,7 @@ export function useRouteTracker(stopCode: string, serviceNo: string, refreshMs =
     const poller = startPoller(
       () =>
         api
-          .getRouteTracker(stopCode, serviceNo, controller.signal)
+          .getRouteTracker(stopCode, serviceNo, controller.signal, destinationCode)
           .then((value) => apply({ ok: true, value }))
           .catch((error: unknown) => apply({ ok: false, notFound: error instanceof ApiError && error.status === 404 })),
       refreshMs,
@@ -37,7 +37,7 @@ export function useRouteTracker(stopCode: string, serviceNo: string, refreshMs =
       controller.abort();
       poller.stop();
     };
-  }, [stopCode, serviceNo, refreshMs]);
+  }, [stopCode, serviceNo, destinationCode, refreshMs]);
 
   const retry = useCallback((): void => pollerRef.current?.poll(), []);
 
