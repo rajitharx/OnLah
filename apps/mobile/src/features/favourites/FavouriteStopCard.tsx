@@ -5,6 +5,8 @@ import { useArrivals } from '../arrivals/useArrivals';
 import { colors, spacing, typography } from '../../shared/theme';
 import { formatFreshness } from '../../shared/utils/eta';
 
+const MAX_SERVICES_SHOWN = 3;
+
 interface FavouriteStopCardProps {
   stopCode: string;
   onPress: () => void;
@@ -15,6 +17,8 @@ export function FavouriteStopCard({
   onPress,
 }: FavouriteStopCardProps): React.JSX.Element {
   const { data, isLoading, error } = useArrivals(stopCode);
+
+  const hiddenCount = Math.max(0, (data?.services.length ?? 0) - MAX_SERVICES_SHOWN);
 
   return (
     <Pressable
@@ -51,12 +55,19 @@ export function FavouriteStopCard({
           No buses in service
         </Text>
       ) : (
-        data?.services.slice(0, 3).map((arrival, index) => (
-          <View key={arrival.serviceNo}>
-            {index > 0 && <View style={styles.divider} />}
-            <BusArrivalRow arrival={arrival} />
-          </View>
-        ))
+        <>
+          {data?.services.slice(0, MAX_SERVICES_SHOWN).map((arrival, index) => (
+            <View key={arrival.serviceNo}>
+              {index > 0 && <View style={styles.divider} />}
+              <BusArrivalRow arrival={arrival} />
+            </View>
+          ))}
+          {hiddenCount > 0 ? (
+            <Text allowFontScaling={true} style={styles.moreText}>
+              +{hiddenCount} more {hiddenCount === 1 ? 'service' : 'services'}
+            </Text>
+          ) : null}
+        </>
       )}
 
       {data && (
@@ -149,6 +160,11 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.crowdRed,
     paddingVertical: spacing.sm,
+  },
+  moreText: {
+    ...typography.caption,
+    color: colors.muted,
+    paddingTop: spacing.sm,
   },
   noServiceText: {
     ...typography.caption,

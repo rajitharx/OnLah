@@ -6,6 +6,7 @@ import { ArrivalScreen } from '../../features/arrivals/ArrivalScreen';
 import { FavouritesScreen } from '../../features/favourites/FavouritesScreen';
 import { NearbyScreen } from '../../features/nearby/NearbyScreen';
 import { SearchScreen } from '../../features/search/SearchScreen';
+import { useDisruptions } from '../../features/disruptions/useDisruptions';
 import { colors, spacing } from '../../shared/theme';
 import {
   HomeStackParamList,
@@ -47,6 +48,8 @@ function SearchNavigator(): React.JSX.Element {
 }
 
 export function TabNavigator(): React.JSX.Element {
+  useDisruptions();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

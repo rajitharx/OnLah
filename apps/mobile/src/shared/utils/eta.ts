@@ -8,6 +8,14 @@ export function formatEta(estimatedArrival: string): string {
   return String(mins);
 }
 
+// The later buses after the first, such as "then 8 · 15 min" or "then Arr". Empty when there are none.
+export function formatThen(laterBuses: (string | null)[]): string {
+  const parts = laterBuses.filter((eta): eta is string => eta !== null).map(formatEta);
+  if (parts.length === 0) return '';
+  const last = parts[parts.length - 1];
+  return `then ${parts.join(' · ')}${last === 'Arr' ? '' : ' min'}`;
+}
+
 export function formatFreshness(fetchedAt: string): string {
   const secs = Math.floor((Date.now() - new Date(fetchedAt).getTime()) / 1000);
   if (secs < 60) return `Updated ${secs}s ago`;

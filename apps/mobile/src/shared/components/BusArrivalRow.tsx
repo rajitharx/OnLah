@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BusArrival } from '../../types/domain';
 import { colors, spacing, typography } from '../theme';
-import { formatEta } from '../utils/eta';
+import { formatEta, formatThen } from '../utils/eta';
 import { CrowdBadge } from './CrowdBadge';
 
 interface BusArrivalRowProps {
@@ -11,7 +11,8 @@ interface BusArrivalRowProps {
 }
 
 export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Element {
-  const { nextBus, nextBus2 } = arrival;
+  const { nextBus, nextBus2, nextBus3 } = arrival;
+  const then = formatThen([nextBus2?.estimatedArrival ?? null, nextBus3?.estimatedArrival ?? null]);
 
   return (
     <View style={styles.row}>
@@ -50,11 +51,9 @@ export function BusArrivalRow({ arrival }: BusArrivalRowProps): React.JSX.Elemen
       </View>
 
       <View style={styles.eta2Col}>
-        {nextBus2 ? (
+        {then !== '' ? (
           <Text allowFontScaling={true} style={styles.eta2}>
-            {formatEta(nextBus2.estimatedArrival) === 'Arr'
-              ? 'then Arr'
-              : `then ${formatEta(nextBus2.estimatedArrival)} min`}
+            {then}
           </Text>
         ) : null}
       </View>

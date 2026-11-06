@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, spacing, typography } from '../../shared/theme';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
-import { useDisruptions } from '../disruptions/useDisruptions';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
 
@@ -18,7 +17,6 @@ type Props = CompositeScreenProps<
 >;
 
 export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
-  useDisruptions();
   const { stopCodes } = useFavourites();
 
   function handleStopPress(stopCode: string): void {
