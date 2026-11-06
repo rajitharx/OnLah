@@ -50,6 +50,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.100',
+    pr: 52,
+    shipped: null,
+    title: 'Readable errors and a steadier Track link',
+    summary: 'Error text and the MRT banner title are ink instead of red, and the Track link sits next to the star at the right edge of the row.',
+    items: [
+      { kind: 'fix', text: 'Error messages are dark ink with a red bar on the left, and the MRT disruption title is ink with a red icon, so they meet contrast on the cream page and white cards.' },
+      { kind: 'fix', text: 'The Track link sits at the right edge of a service row, next to the star, instead of mid-row.' },
+    ],
+  },
+  {
     version: '1.95',
     pr: 49,
     shipped: null,
