@@ -5,6 +5,13 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.101 (#53)
+
+**No page jump while loading, and Saved buses match the board.**
+
+- The board and a stop opened from a link show grey placeholders in the shape of a header and three service rows while the times load, instead of a small caption (board) or the dashed "not found" box (stop link). The page no longer jumps when the times arrive. "Waking up the server…" still shows if the first load is slow.
+- A saved bus on the Saved tab now shows the same row as on the board: the origin to destination line, the Track link, and the three tiles. A bus with nothing due shows empty tiles instead of "No buses due right now."
+
 ## 1.100 (#52)
 
 **Readable errors and a steadier Track link.** Error text and the MRT banner title are ink on the page instead of red, which failed contrast on the cream page and white cards.

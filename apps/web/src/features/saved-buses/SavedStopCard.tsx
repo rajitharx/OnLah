@@ -1,12 +1,12 @@
 import type { BusStop } from '../../types/domain';
 import { Freshness } from '../../shared/components/Freshness';
-import { OperatorLogo } from '../../shared/components/OperatorLogo';
 import { StarIcon } from '../../shared/components/Icons';
 import { ResyncButton } from '../../shared/components/ResyncButton';
 import { StaleNotice } from '../../shared/components/StaleNotice';
 import { EtaTile } from '../arrivals/EtaTile';
+import { ServiceRow } from '../arrivals/ServiceRow';
 import { EMPTY_ARRIVALS, type ArrivalsState } from '../arrivals/arrivalsState';
-import { hasBusesDue, pickSavedServices, toBusStop, type SavedStopGroup, type SavedServiceRow } from './savedBusView';
+import { pickSavedServices, toBusStop, type SavedStopGroup, type SavedServiceRow } from './savedBusView';
 
 interface SavedStopCardProps {
   group: SavedStopGroup;
@@ -14,10 +14,12 @@ interface SavedStopCardProps {
   onOpenStop: (stop: BusStop) => void;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
+  trackHref: (stopCode: string, serviceNo: string) => string;
+  onTrack: (stopCode: string, serviceNo: string) => void;
   onResync: (stopCode: string) => void;
 }
 
-export function SavedStopCard({ group, state, onOpenStop, onOpenService, onRemoveBus, onResync }: SavedStopCardProps) {
+export function SavedStopCard({ group, state, onOpenStop, onOpenService, onRemoveBus, trackHref, onTrack, onResync }: SavedStopCardProps) {
   const current = state ?? EMPTY_ARRIVALS;
   const rows = pickSavedServices(current.data, group.serviceNos);
   const stop = toBusStop(group);
@@ -55,6 +57,8 @@ export function SavedStopCard({ group, state, onOpenStop, onOpenService, onRemov
               stop={stop}
               onOpenService={onOpenService}
               onRemove={onRemoveBus}
+              trackHref={trackHref}
+              onTrack={onTrack}
             />
           ))}
         </ul>
@@ -68,11 +72,29 @@ interface SavedBusRowProps {
   stop: BusStop;
   onOpenService: (stop: BusStop, serviceNo: string) => void;
   onRemove: (stopCode: string, serviceNo: string) => void;
+  trackHref: (stopCode: string, serviceNo: string) => string;
+  onTrack: (stopCode: string, serviceNo: string) => void;
 }
 
-function SavedBusRow({ row, stop, onOpenService, onRemove }: SavedBusRowProps) {
+function SavedBusRow({ row, stop, onOpenService, onRemove, trackHref, onTrack }: SavedBusRowProps) {
   const { serviceNo, service } = row;
 
+  // Same row as on the board (route line, Track link, three tiles); the star removes the bus.
+  if (service) {
+    return (
+      <ServiceRow
+        service={service}
+        onOpenService={(no) => onOpenService(stop, no)}
+        isSaved
+        saveDisabled={false}
+        onToggleSave={() => onRemove(stop.busStopCode, serviceNo)}
+        trackHref={trackHref(stop.busStopCode, serviceNo)}
+        onTrack={() => onTrack(stop.busStopCode, serviceNo)}
+      />
+    );
+  }
+
+  // The stop returned no row for this bus: show empty tiles, not a caption.
   return (
     <li className="service-row">
       <div className="service-head">
@@ -84,25 +106,20 @@ function SavedBusRow({ row, stop, onOpenService, onRemove }: SavedBusRowProps) {
         >
           {serviceNo}
         </button>
-        {service && <OperatorLogo operator={service.operator} />}
         <button
           type="button"
-          className="icon-btn"
+          className="icon-btn service-head-end"
           onClick={() => onRemove(stop.busStopCode, serviceNo)}
           aria-label={`Remove bus ${serviceNo} from saved buses`}
         >
           <StarIcon size={16} filled />
         </button>
       </div>
-      {hasBusesDue(service) && service ? (
-        <div className="eta-grid">
-          {[service.nextBus, service.nextBus2, service.nextBus3].map((timing, index) => (
-            <EtaTile key={index} timing={timing} />
-          ))}
-        </div>
-      ) : (
-        <p className="caption">No buses due right now.</p>
-      )}
+      <div className="eta-grid">
+        {[null, null, null].map((timing, index) => (
+          <EtaTile key={index} timing={timing} />
+        ))}
+      </div>
     </li>
   );
 }

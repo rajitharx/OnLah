@@ -7,7 +7,7 @@ import { FavouritesScreen } from '../../features/favourites/FavouritesScreen';
 import { NearbyScreen } from '../../features/nearby/NearbyScreen';
 import { SearchScreen } from '../../features/search/SearchScreen';
 import { useDisruptions } from '../../features/disruptions/useDisruptions';
-import { colors, spacing } from '../../shared/theme';
+import { colors, spacing, typography } from '../../shared/theme';
 import {
   HomeStackParamList,
   NearbyStackParamList,
@@ -60,12 +60,12 @@ export function TabNavigator(): React.JSX.Element {
           borderTopWidth: 1,
           paddingBottom: spacing.xs,
           paddingTop: spacing.xs,
-          height: 60,
+          height: spacing.xxl + spacing.md,
         },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: typography.caption.fontSize,
           fontWeight: '600',
           marginTop: spacing.xs,
         },

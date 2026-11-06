@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BusArrivalRow } from '../../shared/components';
 import { useArrivals } from '../arrivals/useArrivals';
@@ -14,10 +14,29 @@ const MAX_SERVICES_SHOWN = 3;
 interface FavouriteStopCardProps {
   stop: FavouriteStop;
   onPress: () => void;
+  // Each change asks this card to refetch (pull-to-refresh on the list).
+  refreshSignal?: number;
+  // Called once that refetch has finished, whether it worked or not.
+  onRefreshed?: () => void;
 }
 
-export function FavouriteStopCard({ stop, onPress }: FavouriteStopCardProps): React.JSX.Element {
-  const { data, isLoading, error } = useArrivals(stop.code);
+export function FavouriteStopCard({
+  stop,
+  onPress,
+  refreshSignal = 0,
+  onRefreshed,
+}: FavouriteStopCardProps): React.JSX.Element {
+  const { data, isLoading, error, refresh } = useArrivals(stop.code);
+  const seenSignal = useRef(refreshSignal);
+  const onRefreshedRef = useRef(onRefreshed);
+  onRefreshedRef.current = onRefreshed;
+
+  useEffect(() => {
+    if (refreshSignal === seenSignal.current) return;
+    seenSignal.current = refreshSignal;
+    refresh().finally(() => onRefreshedRef.current?.());
+  }, [refreshSignal, refresh]);
+
   const now = useNow(data?.fetchedAt);
   useStopDetailsBackfill(stop);
   const services = data?.services.slice(0, MAX_SERVICES_SHOWN) ?? [];
@@ -102,7 +121,7 @@ export function FavouriteStopCard({ stop, onPress }: FavouriteStopCardProps): Re
             <View
               style={[styles.liveIndicator, isStale(data.fetchedAt, now) && styles.staleIndicator]}
             />
-            <Text allowFontScaling={true} style={typography.caption}>
+            <Text allowFontScaling={true} style={styles.freshnessText}>
               {formatFreshness(data.fetchedAt, now)}
             </Text>
           </View>
@@ -159,6 +178,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+  },
+  freshnessText: {
+    ...typography.caption,
+    color: colors.accent,
   },
   liveIndicator: {
     width: 6,

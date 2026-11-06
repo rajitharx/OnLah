@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { formatDistance } from '../../shared/utils/eta';
 import { BusStop } from '../../types/domain';
 import { NearbyStackParamList } from '../../app/navigation/types';
@@ -233,6 +233,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   permissionBtn: {
+    minHeight: minTapSize,
+    justifyContent: 'center',
     backgroundColor: colors.accent,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
