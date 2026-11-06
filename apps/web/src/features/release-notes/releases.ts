@@ -50,7 +50,7 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.98',
+    version: '1.101',
     pr: 53,
     shipped: null,
     title: 'No page jump while loading, Saved matches the board',
@@ -58,6 +58,17 @@ export const releases: Release[] = [
     items: [
       { kind: 'improvement', text: 'The board and a stop opened from a link show placeholders while the times load, so the page no longer jumps and the stop link no longer looks like "not found".' },
       { kind: 'improvement', text: 'Saved buses show the origin to destination line, the Track link and the three tiles, as on the board. A bus with nothing due shows empty tiles.' },
+    ],
+  },
+  {
+    version: '1.100',
+    pr: 52,
+    shipped: null,
+    title: 'Readable errors and a steadier Track link',
+    summary: 'Error text and the MRT banner title are ink instead of red, and the Track link sits next to the star at the right edge of the row.',
+    items: [
+      { kind: 'fix', text: 'Error messages are dark ink with a red bar on the left, and the MRT disruption title is ink with a red icon, so they meet contrast on the cream page and white cards.' },
+      { kind: 'fix', text: 'The Track link sits at the right edge of a service row, next to the star, instead of mid-row.' },
     ],
   },
   {
