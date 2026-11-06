@@ -25,8 +25,20 @@ public sealed partial class GetBusArrivalsService(
         var routesByService = await LoadRoutesAsync(stopCode, cancellationToken);
         return Result.Success<IReadOnlyList<BusArrival>>(
             arrivals.Value!
-                .Select(a => MarkLastBus(a, hoursByService[a.ServiceNo]) with { Routes = routesByService[a.ServiceNo].ToList() })
+                .Select(a => MarkLastBus(a, hoursByService[a.ServiceNo]) with { Routes = RoutesOf(a, routesByService[a.ServiceNo]) })
                 .ToList());
+    }
+
+    // LTA lists a service once per direction at a stop, so an entry shows only the direction its buses are heading to.
+    private static List<ArrivalRoute> RoutesOf(BusArrival arrival, IEnumerable<ArrivalRoute> routes)
+    {
+        var all = routes.ToList();
+        var heading = new[] { arrival.NextBus, arrival.NextBus2, arrival.NextBus3 }
+            .Select(t => t?.DestinationCode)
+            .OfType<string>()
+            .ToHashSet();
+        var own = all.Where(r => heading.Contains(r.DestinationCode)).ToList();
+        return own.Count > 0 ? own : all;
     }
 
     private async Task<ILookup<string, ArrivalRoute>> LoadRoutesAsync(string stopCode, CancellationToken cancellationToken)
