@@ -50,7 +50,7 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.104',
+    version: '1.105',
     pr: 59,
     shipped: null,
     title: 'Safer edges and narrower-screen layout',
