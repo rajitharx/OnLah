@@ -55,7 +55,8 @@
 html,
 body {
   margin: 0;
-  padding: 0;
+  /* viewport-fit=cover draws under the notch and rounded corners; keep the content clear of them. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-display);
@@ -1164,9 +1165,9 @@ input {
   .tabbar {
     position: fixed;
     top: auto;
-    right: var(--space-lg);
+    right: calc(var(--space-lg) + env(safe-area-inset-right));
     bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
-    left: var(--space-lg);
+    left: calc(var(--space-lg) + env(safe-area-inset-left));
     margin: 0;
     padding: 3px;
     border: 1px solid var(--card-border);

@@ -9,7 +9,7 @@ Entries are ordered by when their pull request merged into main, newest first, n
 
 **Safer edges and narrower-screen layout.**
 
-- The page extends under the notch and home bar (`viewport-fit=cover`), so the bottom safe-area insets now apply: the page clears the tab bar by 96px plus the inset, and the bus popup has the inset in its bottom padding. Its height uses the visible screen (`dvh`).
+- The page extends under the notch and home bar (`viewport-fit=cover`), with the top and side insets kept clear, so the bottom safe-area insets now apply: the page clears the tab bar by 96px plus the inset, and the bus popup has the inset in its bottom padding. Its height uses the visible screen (`dvh`).
 - On desktop the bus popup is a centred panel, at most 560px wide.
 - At 380px and narrower, the Save stop button wraps under the stop name, long names break only when a word does not fit, and the saved-stop "Open board ›" cue is hidden.
 - The stop code is plain text everywhere (it was a bordered chip in lists and saved cards).
