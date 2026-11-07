@@ -50,6 +50,16 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.104',
+    pr: 60,
+    shipped: null,
+    title: 'Stylesheet tidy-up',
+    summary: 'Dead and repeated CSS rules are gone. Nothing should look different.',
+    items: [
+      { kind: 'improvement', text: 'Removed style rules that were repeated or always overridden, and merged the two phone-width blocks. The screens look and behave the same.' },
+    ],
+  },
+  {
     version: '1.103',
     pr: 58,
     shipped: null,
