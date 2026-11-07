@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonTiles } from '../../shared/components';
-import { colors, minTapSize, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography, withAlpha } from '../../shared/theme';
 import { formatDistance } from '../../shared/utils/eta';
 import { BusStop } from '../../types/domain';
 import { NearbyStackParamList } from '../../app/navigation/types';
@@ -159,10 +159,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: colors.white,
-    letterSpacing: -0.5,
+    ...typography.title,
   },
   locIcon: {
     width: 40,
@@ -202,9 +199,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: 'rgba(245, 236, 215, 0.1)',
+    backgroundColor: withAlpha(colors.accent, 0.1),
     borderWidth: 1,
-    borderColor: 'rgba(245, 236, 215, 0.2)',
+    borderColor: withAlpha(colors.accent, 0.2),
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: spacing.xl,

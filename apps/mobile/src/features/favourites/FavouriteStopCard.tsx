@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BusArrivalRow, SkeletonRow } from '../../shared/components';
 import { useArrivals } from '../arrivals/useArrivals';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, spacing, typography, withAlpha } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
 import { buildArrivalLabel, buildFavouriteCardLabel } from '../../shared/utils/accessibility';
 import { formatFreshness, isStale } from '../../shared/utils/eta';
@@ -148,16 +148,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   liveBadge: {
-    backgroundColor: 'rgba(76, 175, 80, 0.12)',
+    backgroundColor: withAlpha(colors.crowdGreen, 0.12),
     borderWidth: 1,
-    borderColor: 'rgba(76, 175, 80, 0.3)',
+    borderColor: withAlpha(colors.crowdGreen, 0.3),
     paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
+    paddingVertical: spacing.xs,
     borderRadius: spacing.xl,
   },
   liveText: {
-    fontSize: 10,
-    fontWeight: '700',
+    ...typography.badge,
     color: colors.crowdGreen,
   },
   divider: {

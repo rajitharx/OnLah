@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, radius, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
 import { DisruptionBanner } from '../disruptions/DisruptionBanner';
 import { FavouriteStop } from '../../shared/utils/favourites';
@@ -113,10 +113,7 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
           <View style={styles.emptyState}>
             <Feather name="star" size={32} color={colors.muted} />
             <Text allowFontScaling={true} style={styles.emptyText}>
-              Add a stop to get started
-            </Text>
-            <Text allowFontScaling={true} style={styles.emptyHint}>
-              Tap Nearby to discover stops close to you
+              Search or tap Nearby to add a stop
             </Text>
           </View>
         }
@@ -145,17 +142,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: colors.white,
-    letterSpacing: -0.5,
+    ...typography.title,
   },
   pressed: {
     opacity: 0.7,
   },
   searchBar: {
     backgroundColor: colors.surface,
-    borderRadius: 14,
+    borderRadius: radius.field,
     padding: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
@@ -187,9 +181,5 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.muted,
-  },
-  emptyHint: {
-    ...typography.caption,
-    textAlign: 'center',
   },
 });
