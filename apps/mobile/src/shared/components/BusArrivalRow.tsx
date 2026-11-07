@@ -2,7 +2,7 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BusArrival } from '../../types/domain';
-import { colors, spacing, typography } from '../theme';
+import { colors, minTapSize, spacing, typography } from '../theme';
 import { buildArrivalLabel } from '../utils/accessibility';
 import { formatEta, formatThen } from '../utils/eta';
 import { CrowdBadge } from './CrowdBadge';
@@ -85,13 +85,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   badgeCol: {
-    width: 52,
+    minWidth: minTapSize + spacing.sm,
     alignItems: 'center',
     gap: spacing.xs,
   },
   badge: {
-    width: 44,
-    height: 44,
+    minWidth: minTapSize,
+    minHeight: minTapSize,
+    paddingHorizontal: spacing.xs,
     borderRadius: spacing.sm,
     backgroundColor: colors.surface,
     borderWidth: 1,
