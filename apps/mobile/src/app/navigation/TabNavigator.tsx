@@ -2,6 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrivalScreen } from '../../features/arrivals/ArrivalScreen';
 import { FavouritesScreen } from '../../features/favourites/FavouritesScreen';
 import { NearbyScreen } from '../../features/nearby/NearbyScreen';
@@ -49,6 +50,7 @@ function SearchNavigator(): React.JSX.Element {
 
 export function TabNavigator(): React.JSX.Element {
   useDisruptions();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -58,9 +60,8 @@ export function TabNavigator(): React.JSX.Element {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          paddingBottom: spacing.xs,
+          paddingBottom: Math.max(insets.bottom, spacing.xs),
           paddingTop: spacing.xs,
-          height: spacing.xxl + spacing.md,
         },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.muted,

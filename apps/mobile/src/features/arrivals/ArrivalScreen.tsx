@@ -35,7 +35,7 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
