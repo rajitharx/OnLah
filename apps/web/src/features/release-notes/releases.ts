@@ -50,9 +50,19 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.107',
+    pr: 61,
+    shipped: null,
+    title: 'Release dates filled in',
+    summary: 'The release notes now show when the last seven releases went live.',
+    items: [
+      { kind: 'improvement', text: 'Releases 1.95, 1.100, 1.101, 1.102, 1.103, 1.105 and 1.106 show their merge dates on the release notes page.' },
+    ],
+  },
+  {
     version: '1.106',
     pr: 60,
-    shipped: null,
+    shipped: '2026-11-08T18:35:31+08:00',
     title: 'Stylesheet tidy-up',
     summary: 'Dead and repeated CSS rules are gone. Nothing should look different.',
     items: [
@@ -62,7 +72,7 @@ export const releases: Release[] = [
   {
     version: '1.105',
     pr: 59,
-    shipped: null,
+    shipped: '2026-11-08T18:32:39+08:00',
     title: 'Safer edges and narrower-screen layout',
     summary: 'The page and bus popup clear the home-bar on notched phones, the popup stops stretching on desktop, and the stop header copes at 320px.',
     items: [
@@ -75,7 +85,7 @@ export const releases: Release[] = [
   {
     version: '1.103',
     pr: 58,
-    shipped: null,
+    shipped: '2026-11-06T10:06:03+08:00',
     title: 'Track follows the direction you tapped',
     summary: 'A bus that runs both ways at a stop shows one row per direction, and Track opens the direction of that row.',
     items: [
@@ -86,7 +96,7 @@ export const releases: Release[] = [
   {
     version: '1.102',
     pr: 57,
-    shipped: null,
+    shipped: '2026-11-06T09:53:41+08:00',
     title: 'Each direction shows its own buses',
     summary: 'A service that stops here in both directions shows each direction with its own route line and tiles.',
     items: [
@@ -96,7 +106,7 @@ export const releases: Release[] = [
   {
     version: '1.101',
     pr: 53,
-    shipped: null,
+    shipped: '2026-11-06T09:24:08+08:00',
     title: 'No page jump while loading, Saved matches the board',
     summary: 'Loading shows placeholders in the shape of the board, and a saved bus has its route line, Track link and tiles.',
     items: [
@@ -107,7 +117,7 @@ export const releases: Release[] = [
   {
     version: '1.100',
     pr: 52,
-    shipped: null,
+    shipped: '2026-11-06T09:21:23+08:00',
     title: 'Readable errors and a steadier Track link',
     summary: 'Error text and the MRT banner title are ink instead of red, and the Track link sits next to the star at the right edge of the row.',
     items: [
@@ -118,7 +128,7 @@ export const releases: Release[] = [
   {
     version: '1.95',
     pr: 49,
-    shipped: null,
+    shipped: '2026-11-06T09:16:33+08:00',
     title: 'Easier-to-read arrival times',
     summary: 'The minutes on each ETA tile are larger, and the text under them is no smaller than 11px.',
     items: [
