@@ -50,13 +50,36 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
-    version: '1.104',
+    version: '1.107',
     pr: 61,
     shipped: null,
     title: 'Release dates filled in',
-    summary: 'The release notes now show when the last five releases went live.',
+    summary: 'The release notes now show when the last seven releases went live.',
     items: [
-      { kind: 'improvement', text: 'Releases 1.100, 1.101, 1.102, 1.103 and 1.95 show their merge dates on the release notes page.' },
+      { kind: 'improvement', text: 'Releases 1.95, 1.100, 1.101, 1.102, 1.103, 1.105 and 1.106 show their merge dates on the release notes page.' },
+    ],
+  },
+  {
+    version: '1.106',
+    pr: 60,
+    shipped: '2026-11-08T18:35:31+08:00',
+    title: 'Stylesheet tidy-up',
+    summary: 'Dead and repeated CSS rules are gone. Nothing should look different.',
+    items: [
+      { kind: 'improvement', text: 'Removed style rules that were repeated or always overridden, and merged the two phone-width blocks. The screens look and behave the same.' },
+    ],
+  },
+  {
+    version: '1.105',
+    pr: 59,
+    shipped: '2026-11-08T18:32:39+08:00',
+    title: 'Safer edges and narrower-screen layout',
+    summary: 'The page and bus popup clear the home-bar on notched phones, the popup stops stretching on desktop, and the stop header copes at 320px.',
+    items: [
+      { kind: 'fix', text: 'The page now extends under the notch and home bar when installed (top and side insets are kept clear), and the tab bar clearance and bus popup padding include the bottom safe area.' },
+      { kind: 'improvement', text: 'The bus popup is a centred panel no wider than 560px on desktop, and its height follows the visible screen on phones.' },
+      { kind: 'fix', text: 'On very narrow phones the Save stop button drops under the stop name instead of squeezing it, and the "Open board" cue on a saved stop is hidden.' },
+      { kind: 'improvement', text: 'The stop code is plain text in every list, like on the board, instead of a bordered chip that looked like a disabled button.' },
     ],
   },
   {
