@@ -129,7 +129,6 @@ input {
   font-weight: 700;
   font-size: 26px;
   letter-spacing: 0.14em;
-  color: var(--ink);
   text-transform: uppercase;
 }
 
@@ -699,6 +698,7 @@ input {
 
 .eta-tile-empty .eta-foot {
   color: var(--on-ink);
+  font-family: var(--font-display);
 }
 
 /* The tag sits on the top edge, outside the flow, so the last-bus tile keeps the same size as its neighbours. */
@@ -808,10 +808,6 @@ input {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-}
-
-.eta-tile-empty .eta-foot {
-  font-family: var(--font-display);
 }
 
 /* ---------- Crowd level ---------- */
@@ -966,14 +962,6 @@ input {
   .saved-stop-hint {
     display: none;
   }
-
-  .app {
-    padding: var(--space-md);
-  }
-
-  .stop-name {
-    font-size: 30px;
-  }
 }
 
 /* Inline bus advisory. Quieter than the MRT banner, and never a modal. */
@@ -990,11 +978,6 @@ input {
 .service-badge-button {
   border: 0;
   cursor: pointer;
-}
-
-.service-badge-button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 /* Bus details popup. Bottom sheet on phones, never a full-screen modal. */
@@ -1110,10 +1093,6 @@ input {
     gap: var(--space-sm);
   }
 
-  .stop-road {
-    font-size: 20px;
-  }
-
   .service-list {
     gap: 6px;
   }
@@ -1151,17 +1130,11 @@ input {
     padding: 1px 0;
   }
 
-
   .eta-foot {
     gap: 3px;
   }
 
-
-
-}
-
-/* Phones: the tabs float above the bottom edge, within one-handed reach and clear of the screen edge. */
-@media (max-width: 719px) {
+  /* The tabs float above the bottom edge, within one-handed reach and clear of the screen edge. */
   .tabbar {
     position: fixed;
     top: auto;
@@ -1169,10 +1142,6 @@ input {
     bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
     left: calc(var(--space-lg) + env(safe-area-inset-left));
     margin: 0;
-    padding: 3px;
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-pill);
-    background: var(--card);
   }
 
   .app {

@@ -5,6 +5,10 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.106 (#60)
+
+**Stylesheet tidy-up.** Removed CSS rules that were repeated or always overridden (a duplicate colour on the wordmark, the 380px block, repeated tab bar and stop road rules, a repeated focus ring) and merged the two phone-width blocks. No visible change.
+
 ## 1.105 (#59)
 
 **Safer edges and narrower-screen layout.**
