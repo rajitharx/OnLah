@@ -55,7 +55,8 @@
 html,
 body {
   margin: 0;
-  padding: 0;
+  /* viewport-fit=cover draws under the notch and rounded corners; keep the content clear of them. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-display);
@@ -567,24 +568,15 @@ input {
 
 .stop-code {
   align-self: flex-start;
-  padding: 3px var(--space-sm);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--muted);
 }
 
-/* The stop code is plain text on the board. It was styled like a button and read as one. */
-.board-title .stop-code {
-  padding: 0;
-  border: 0;
-}
-
 .stop-name {
   font-size: 36px;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .stop-road {
@@ -965,6 +957,16 @@ input {
 
 /* Keep the page inside the viewport: no horizontal scroll at phone width. */
 @media (max-width: 380px) {
+  /* Let "Save stop" drop under a long name instead of squeezing it. */
+  .board-head {
+    flex-wrap: wrap;
+  }
+
+  /* The "Open board ›" cue is nowrap and crowds the stop name on a narrow card. */
+  .saved-stop-hint {
+    display: none;
+  }
+
   .app {
     padding: var(--space-md);
   }
@@ -1009,11 +1011,20 @@ input {
   position: relative;
   width: 100%;
   max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
   padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   border-radius: 16px 16px 0 0;
   background: var(--card);
   color: var(--ink);
+}
+
+@media (min-width: 720px) {
+  .sheet {
+    max-width: 560px;
+    margin: 0 auto;
+  }
 }
 
 .sheet-head {
@@ -1154,9 +1165,9 @@ input {
   .tabbar {
     position: fixed;
     top: auto;
-    right: var(--space-lg);
+    right: calc(var(--space-lg) + env(safe-area-inset-right));
     bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
-    left: var(--space-lg);
+    left: calc(var(--space-lg) + env(safe-area-inset-left));
     margin: 0;
     padding: 3px;
     border: 1px solid var(--card-border);
@@ -1165,7 +1176,7 @@ input {
   }
 
   .app {
-    padding-bottom: 96px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
 
