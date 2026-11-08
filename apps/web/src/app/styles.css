@@ -132,16 +132,39 @@ input {
   text-transform: uppercase;
 }
 
-/* Neutral ink dot. Red is reserved for crowding and disruption. */
-.wordmark::after {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: var(--space-sm);
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* Live API status beside the wordmark: green answers fast, amber is slow, red does not answer. */
+.api-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--ink);
-  vertical-align: middle;
+  transition: background-color 0.3s;
+}
+
+.api-dot-good {
+  background: var(--crowd-green);
+}
+
+.api-dot-slow {
+  background: var(--crowd-amber);
+}
+
+.api-dot-down {
+  background: var(--crowd-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-dot {
+    transition: none;
+  }
 }
 
 .app-version {

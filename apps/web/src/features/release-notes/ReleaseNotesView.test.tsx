@@ -60,7 +60,7 @@ describe('ReleaseNotesView', () => {
 describe('navigation stays unlinked from the notes page', () => {
   const nav = renderToStaticMarkup(
     <>
-      <AppHeader version="Beta 1.49" onHome={() => undefined} />
+      <AppHeader version="Beta 1.49" apiStatus="good" onHome={() => undefined} />
       <TabBar view="saved" onChange={() => undefined} />
     </>,
   );

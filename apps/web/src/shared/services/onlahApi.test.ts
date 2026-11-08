@@ -102,6 +102,22 @@ describe('createOnlahApi', () => {
     expect(await api.getTrainAlerts()).toEqual(body);
   });
 
+  it('getHealth reports the API as up when /health answers', async () => {
+    const calls: string[] = [];
+    const api = createOnlahApi(BASE, fakeFetch(() => new Response('Healthy', { status: 200 }), calls));
+
+    expect(await api.getHealth()).toEqual({ ok: true, ms: expect.any(Number) });
+    expect(calls).toEqual([`${BASE}/health`]);
+  });
+
+  it('getHealth reports the API as down on an error status or a network failure', async () => {
+    const unhealthy = createOnlahApi(BASE, fakeFetch(() => new Response('Unhealthy', { status: 503 })));
+    const unreachable = createOnlahApi(BASE, () => Promise.reject(new TypeError('Failed to fetch')));
+
+    expect((await unhealthy.getHealth()).ok).toBe(false);
+    expect((await unreachable.getHealth()).ok).toBe(false);
+  });
+
   it('getRouteTracker sends the stop and service, and encodes the service number', async () => {
     const calls: string[] = [];
     const api = createOnlahApi(BASE, fakeFetch(() => json({ serviceNo: '10e' }), calls));

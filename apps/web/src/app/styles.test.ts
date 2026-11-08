@@ -7,4 +7,13 @@ describe('styles.css', () => {
     expect(rule).not.toBeNull();
     expect(rule![1]).not.toMatch(/display:\s*contents/);
   });
+
+  it.each([
+    ['good', '--crowd-green'],
+    ['slow', '--crowd-amber'],
+    ['down', '--crowd-red'],
+  ])('paints the %s API dot with the shared %s colour', (status, token) => {
+    const rule = new RegExp(`\\.api-dot-${status}\\s*\\{([^}]*)\\}`).exec(styles);
+    expect(rule?.[1]).toContain(`var(${token})`);
+  });
 });

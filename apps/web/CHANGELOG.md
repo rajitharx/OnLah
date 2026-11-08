@@ -5,6 +5,14 @@ Every commit raises the minor number by one through the pre-commit hook, so this
 
 Entries are ordered by when their pull request merged into main, newest first, not by version number or pull request number: the minor number does not follow shipping order, and a lower-numbered pull request can merge later. Each heading ends with the number of the pull request that shipped it, such as `(#34)`, as a reference. The merge time is recorded as `shipped` in `src/features/release-notes/releases.ts`. Work whose pull request has not merged yet sits at the top, and early entries from before the pull request history have no number and stay at the bottom. A test checks this order here and in `releases.ts`.
 
+## 1.108 (#64)
+
+**The header dot shows whether live data is working.** The dot next to "OnLah Bus board" was plain ink. It now checks the API's `/health` every 10 seconds, only while the tab is visible.
+
+- Green means the API answered within 1.5 seconds. Amber means it answered but slowly. Red means it did not answer, or answered with an error.
+- Ink means the first check has not finished. Hover or a screen reader gives the state in words, such as "Live data is online".
+- This is the one place red and green appear outside crowding and disruption, because the dot is the only status signal in the header.
+
 ## 1.107 (#61)
 
 **Release dates filled in.** The release notes page shows the merge time of PRs #49, #52, #53, #57, #58, #59 and #60.

@@ -16,6 +16,7 @@ vi.mock('../shared/services/onlahApi', () => {
   const pending = (): Promise<never> => new Promise(() => undefined);
   return {
     api: {
+      getHealth: () => Promise.resolve({ ok: true, ms: 50 }),
       searchBusStops: () => Promise.resolve([stop]),
       getArrivals: () =>
         Promise.resolve({

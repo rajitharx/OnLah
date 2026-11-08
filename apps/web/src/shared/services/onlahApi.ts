@@ -3,6 +3,7 @@ import { serverClock, type ServerClock } from './serverClock';
 import type { BusArrivalsResponse, BusStop, TrainAlertsResponse } from '../../types/domain';
 import type { BusServiceDetails } from '../../types/busService';
 import type { RouteTracker } from '../../types/routeTracker';
+import type { ProbeResult } from './apiStatus';
 
 export type FetchLike = (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
 
@@ -18,6 +19,8 @@ export class ApiError extends Error {
 }
 
 export interface OnlahApi {
+  // Asks the host's /health, which needs no key and is not rate limited. Never rejects.
+  getHealth(signal?: AbortSignal): Promise<ProbeResult>;
   getArrivals(stopCode: string, signal?: AbortSignal): Promise<BusArrivalsResponse>;
   searchBusStops(query: string, signal?: AbortSignal): Promise<BusStop[]>;
   getNearbyStops(latitude: number, longitude: number, radiusMeters: number, signal?: AbortSignal): Promise<BusStop[]>;
@@ -42,7 +45,18 @@ export function createOnlahApi(
     return body;
   }
 
+  async function getHealth(signal?: AbortSignal): Promise<ProbeResult> {
+    const started = performance.now();
+    try {
+      const response = await fetchImpl(`${baseUrl}/health`, { signal });
+      return { ok: response.ok, ms: performance.now() - started };
+    } catch {
+      return { ok: false, ms: performance.now() - started };
+    }
+  }
+
   return {
+    getHealth,
     getArrivals: (stopCode, signal) =>
       get<BusArrivalsResponse>(`/api/v1/bus-arrivals?stopCode=${encodeURIComponent(stopCode)}`, signal),
     searchBusStops: (query, signal) =>
