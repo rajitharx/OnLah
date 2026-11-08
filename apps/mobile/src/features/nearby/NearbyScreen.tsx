@@ -56,8 +56,12 @@ export function NearbyScreen({ navigation }: Props): React.JSX.Element {
                   Nearby
                 </Text>
               </View>
-              <View style={styles.locIcon}>
-                <Feather name="navigation" size={18} color={colors.background} />
+              <View
+                style={styles.locIcon}
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Feather name="navigation" size={18} color={colors.muted} />
               </View>
             </View>
 
@@ -91,7 +95,7 @@ export function NearbyScreen({ navigation }: Props): React.JSX.Element {
             style={({ pressed }) => [styles.stopCard, pressed && styles.pressed]}
           >
             <View style={styles.stopTop}>
-              <View>
+              <View style={styles.stopInfo}>
                 <Text allowFontScaling={true} style={styles.stopName}>
                   {item.description}
                 </Text>
@@ -100,7 +104,7 @@ export function NearbyScreen({ navigation }: Props): React.JSX.Element {
                 </Text>
               </View>
               <View style={styles.distanceBadge}>
-                <Feather name="clock" size={10} color={colors.accent} />
+                <Feather name="navigation" size={10} color={colors.accent} />
                 <Text allowFontScaling={true} style={styles.distanceText}>
                   {formatDistance(item.distanceMeters)}
                 </Text>
@@ -162,9 +166,10 @@ const styles = StyleSheet.create({
     ...typography.title,
   },
   locIcon: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.accent,
+    width: spacing.xl + spacing.sm,
+    height: spacing.xl + spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
@@ -190,12 +195,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  stopInfo: {
+    flex: 1,
+    flexShrink: 1,
   },
   stopName: {
     ...typography.stopName,
     marginBottom: spacing.xs,
   },
   distanceBadge: {
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

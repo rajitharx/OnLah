@@ -38,7 +38,7 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
         data={data?.services ?? []}
         keyExtractor={(arrival) => arrival.serviceNo}
