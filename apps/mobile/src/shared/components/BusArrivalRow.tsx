@@ -116,10 +116,7 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   etaNumber: {
-    fontFamily: 'JetBrainsMono_700Bold',
-    fontSize: 24,
-    color: colors.white,
-    letterSpacing: -0.5,
+    ...typography.etaNumberCompact,
   },
   etaUnit: {
     ...typography.caption,

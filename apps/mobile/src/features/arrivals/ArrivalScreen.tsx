@@ -5,7 +5,6 @@ import {
   FlatList,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -23,6 +22,10 @@ import { useArrivals } from './useArrivals';
 
 type Props = NativeStackScreenProps<NearbyStackParamList, 'Arrivals'>;
 
+function ServiceSeparator(): React.JSX.Element {
+  return <View style={styles.separator} />;
+}
+
 export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const { stopCode, stopName, roadName } = route.params;
   const { data, isLoading, isRefreshing, error, refresh } = useArrivals(stopCode);
@@ -36,10 +39,13 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView
+      <FlatList
+        data={data?.services ?? []}
+        keyExtractor={(arrival) => arrival.serviceNo}
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={ServiceSeparator}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -49,118 +55,122 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
             progressBackgroundColor={colors.surface}
           />
         }
-      >
-        <View style={styles.header}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            accessibilityRole="button"
-            accessibilityLabel="Back"
-            style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
-            hitSlop={spacing.md}
-          >
-            <Feather name="chevron-left" size={22} color={colors.accent} />
-            <Text allowFontScaling={true} style={styles.backLabel}>
-              Back
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={toggleFavourite}
-            accessibilityRole="button"
-            accessibilityLabel={buildFavouriteLabel(fav)}
-            accessibilityState={{ selected: fav }}
-            style={({ pressed }) => [styles.favBtn, pressed && styles.pressed]}
-            hitSlop={spacing.md}
-          >
-            <Feather
-              name="star"
-              size={20}
-              color={fav ? colors.accent : colors.muted}
-            />
-          </Pressable>
-        </View>
+        ListHeaderComponent={
+          <View>
+            <View style={styles.header}>
+              <Pressable
+                onPress={() => navigation.goBack()}
+                accessibilityRole="button"
+                accessibilityLabel="Back"
+                style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
+                hitSlop={spacing.md}
+              >
+                <Feather name="chevron-left" size={22} color={colors.accent} />
+                <Text allowFontScaling={true} style={styles.backLabel}>
+                  Back
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={toggleFavourite}
+                accessibilityRole="button"
+                accessibilityLabel={buildFavouriteLabel(fav)}
+                accessibilityState={{ selected: fav }}
+                style={({ pressed }) => [styles.favBtn, pressed && styles.pressed]}
+                hitSlop={spacing.md}
+              >
+                <Feather
+                  name="star"
+                  size={20}
+                  color={fav ? colors.accent : colors.muted}
+                />
+              </Pressable>
+            </View>
 
-        <View style={styles.stopHeader}>
-          <Text allowFontScaling={true} style={styles.stopName}>
-            {stopName ?? `Stop ${stopCode}`}
-          </Text>
-          <View style={styles.stopMeta}>
-            {stopName ? (
-              <Text allowFontScaling={true} style={typography.caption}>
-                Stop {stopCode}
+            <View style={styles.stopHeader}>
+              <Text allowFontScaling={true} style={styles.stopName}>
+                {stopName ?? `Stop ${stopCode}`}
               </Text>
-            ) : null}
-            {stopName && roadName ? <View style={styles.dot} /> : null}
-            {roadName ? (
-              <Text allowFontScaling={true} style={typography.caption}>
-                {roadName}
-              </Text>
-            ) : null}
-          </View>
-        </View>
+              <View style={styles.stopMeta}>
+                {stopName ? (
+                  <Text allowFontScaling={true} style={typography.caption}>
+                    Stop {stopCode}
+                  </Text>
+                ) : null}
+                {stopName && roadName ? <View style={styles.dot} /> : null}
+                {roadName ? (
+                  <Text allowFontScaling={true} style={typography.caption}>
+                    {roadName}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
 
-        <View style={styles.freshnessRow}>
-          {data ? (
-            <View style={styles.freshnessLeft}>
-              <View
-                style={[
-                  styles.liveIndicator,
-                  isStale(data.fetchedAt, now) && styles.staleIndicator,
+            <View style={styles.freshnessRow}>
+              {data ? (
+                <View style={styles.freshnessLeft}>
+                  <View
+                    style={[
+                      styles.liveIndicator,
+                      isStale(data.fetchedAt, now) && styles.staleIndicator,
+                    ]}
+                  />
+                  <Text allowFontScaling={true} style={styles.freshnessText}>
+                    {formatFreshness(data.fetchedAt, now)}
+                  </Text>
+                </View>
+              ) : null}
+              <Pressable
+                onPress={refresh}
+                disabled={isRefreshing}
+                accessibilityRole="button"
+                accessibilityLabel="Refresh arrivals"
+                accessibilityState={{ busy: isRefreshing }}
+                style={({ pressed }) => [
+                  styles.refreshBtn,
+                  (pressed || isRefreshing) && styles.pressed,
                 ]}
-              />
-              <Text allowFontScaling={true} style={styles.freshnessText}>
-                {formatFreshness(data.fetchedAt, now)}
+              >
+                <Feather name="refresh-cw" size={12} color={colors.accent} />
+                <Text allowFontScaling={true} style={styles.refreshLabel}>
+                  Refresh
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.divider} />
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View style={styles.arrivalCard}>
+            <BusArrivalRow arrival={item} now={now} />
+          </View>
+        )}
+        ListEmptyComponent={
+          isLoading && !data ? (
+            <SkeletonTiles label="Loading bus arrivals" />
+          ) : !data ? (
+            error ? (
+              <Text allowFontScaling={true} style={styles.errorText}>
+                {error}
+              </Text>
+            ) : null
+          ) : (
+            <View style={styles.emptyState}>
+              <Feather name="moon" size={28} color={colors.muted} />
+              <Text allowFontScaling={true} style={styles.emptyText}>
+                No buses currently in service
               </Text>
             </View>
-          ) : null}
-          <Pressable
-            onPress={refresh}
-            disabled={isRefreshing}
-            accessibilityRole="button"
-            accessibilityLabel="Refresh arrivals"
-            accessibilityState={{ busy: isRefreshing }}
-            style={({ pressed }) => [
-              styles.refreshBtn,
-              (pressed || isRefreshing) && styles.pressed,
-            ]}
-          >
-            <Feather name="refresh-cw" size={12} color={colors.accent} />
-            <Text allowFontScaling={true} style={styles.refreshLabel}>
-              Refresh
-            </Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.divider} />
-
-        {isLoading && !data ? (
-          <SkeletonTiles label="Loading bus arrivals" />
-        ) : !data ? (
-          error ? (
-            <Text allowFontScaling={true} style={styles.errorText}>
+          )
+        }
+        ListFooterComponent={
+          data && error ? (
+            <Text allowFontScaling={true} style={styles.staleErrorText}>
               {error}
             </Text>
           ) : null
-        ) : data.services.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Feather name="moon" size={28} color={colors.muted} />
-            <Text allowFontScaling={true} style={styles.emptyText}>
-              No buses currently in service
-            </Text>
-          </View>
-        ) : (
-          data.services.map((arrival: BusArrival) => (
-            <View key={arrival.serviceNo} style={styles.arrivalCard}>
-              <BusArrivalRow arrival={arrival} now={now} />
-            </View>
-          ))
-        )}
-
-        {data && error ? (
-          <Text allowFontScaling={true} style={styles.staleErrorText}>
-            {error}
-          </Text>
-        ) : null}
-      </ScrollView>
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -209,10 +219,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   stopName: {
-    fontWeight: '800',
-    fontSize: 24,
-    color: colors.white,
-    letterSpacing: -0.5,
+    ...typography.heading,
     marginBottom: spacing.xs,
   },
   stopMeta: {
@@ -280,7 +287,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-    marginBottom: spacing.sm,
+  },
+  separator: {
+    height: spacing.sm,
   },
   errorText: {
     ...typography.caption,

@@ -5,7 +5,7 @@ import {
 } from '@expo-google-fonts/jetbrains-mono';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '../../shared/theme';
 
@@ -28,14 +28,21 @@ export function AppProviders({ children }: AppProvidersProps): React.JSX.Element
   }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) {
-    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+    return <View style={styles.root} />;
   }
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={styles.root}>
         {children}
       </View>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});

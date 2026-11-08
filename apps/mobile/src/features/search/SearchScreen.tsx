@@ -12,11 +12,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchStackParamList } from '../../app/navigation/types';
 import { SkeletonTiles } from '../../shared/components';
-import { colors, minTapSize, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
 import { useSearchBusStops } from './useSearchBusStops';
 
 type Props = NativeStackScreenProps<SearchStackParamList, 'Search'>;
+
+function ResultSeparator(): React.JSX.Element {
+  return <View style={styles.separator} />;
+}
 
 export function SearchScreen({ navigation }: Props): React.JSX.Element {
   const [query, setQuery] = useState('');
@@ -88,6 +92,7 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="search"
+          onSubmitEditing={() => search(query)}
           clearButtonMode="never"
         />
         {query.length > 0 && (
@@ -115,7 +120,8 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
         renderItem={renderStop}
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={ResultSeparator}
+        keyboardDismissMode="on-drag"
         ListEmptyComponent={
           isLoading ? (
             <SkeletonTiles label="Searching for stops" />
@@ -151,17 +157,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: colors.white,
-    letterSpacing: -0.5,
+    ...typography.title,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
     marginHorizontal: spacing.md,
-    borderRadius: 14,
+    borderRadius: radius.field,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
@@ -211,9 +214,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   codeText: {
-    fontFamily: 'JetBrainsMono_400Regular',
-    fontSize: 13,
-    color: colors.accent,
+    ...typography.stopCode,
   },
   stopInfo: {
     flex: 1,
