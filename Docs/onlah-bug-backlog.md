@@ -14,7 +14,7 @@ Small, clear bugs found while reviewing PRs #33 to #36. Written 31 Oct 2026. `[ 
 
 - [ ] 6. **Nearby on a real phone (QA #4).** Needs a real device and real geolocation.
 - [ ] 7. **No-service state (UI review #16).** Late-night or non-operating services were never checked. Needs a look at what the live backend returns at night.
-- [ ] 8. **Placeholder contrast and the unlabelled header dot (#40, #45).** A quick audit first. The QA list says #45 is fixed while the UI list says open, so the doc needs checking.
+- [ ] 8. **Placeholder contrast and the header dot (labelled in 1.108; #40, #45).** A quick audit first. The QA list says #45 is fixed while the UI list says open, so the doc needs checking.
 - [ ] 9. **`/notes` layout at 375px and a hard refresh on the live site.** Nobody has looked. I'd just open it.
 
 ## Not bugs (earlier design reversals)

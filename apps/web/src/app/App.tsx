@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import { api } from '../shared/services/onlahApi';
+import { useApiStatus } from '../shared/hooks/useApiStatus';
 import type { BusStop } from '../types/domain';
 import { DisruptionBanner } from '../features/disruptions/DisruptionBanner';
 import { useTrainAlerts } from '../features/disruptions/useTrainAlerts';
@@ -32,7 +34,10 @@ const BOARD_MESSAGES: Record<Exclude<BoardStopStatus, 'idle' | 'ready'>, string>
   failed: 'The stop is unavailable right now. Try again.',
 };
 
+const probeHealth = (): ReturnType<typeof api.getHealth> => api.getHealth();
+
 export default function App() {
+  const apiStatus = useApiStatus(probeHealth);
   const favourites = useFavourites();
   const savedBuses = useSavedBuses();
   const { route, push, replace } = useRoute();
@@ -88,7 +93,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <AppHeader version={betaLabel(APP_VERSION)} onHome={() => push({ view: 'home' })} />
+      <AppHeader version={betaLabel(APP_VERSION)} apiStatus={apiStatus} onHome={() => push({ view: 'home' })} />
 
       <DisruptionBanner alerts={alerts} />
 

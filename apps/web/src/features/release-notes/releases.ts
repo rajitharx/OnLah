@@ -50,6 +50,17 @@ export const features: string[] = [
 
 export const releases: Release[] = [
   {
+    version: '1.108',
+    pr: 64,
+    shipped: null,
+    title: 'Header dot shows live data status',
+    summary: 'The dot beside the wordmark is green, amber or red depending on whether the API is answering.',
+    items: [
+      { kind: 'feature', text: 'The dot checks the API every 10 seconds while the tab is open and visible. Green is a quick answer, amber is a slow one, red is no answer.' },
+      { kind: 'improvement', text: 'The dot now has a text label for screen readers and a hover tip, such as "Live data is online".' },
+    ],
+  },
+  {
     version: '1.107',
     pr: 61,
     shipped: null,
