@@ -2,13 +2,14 @@
   "name": "@onlah/web",
   "private": true,
   "license": "MIT",
-  "version": "1.108",
+  "version": "1.109",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "check": "npm test && npm run build",
     "bump:minor": "node scripts/bump-version.mjs minor",
     "bump:major": "node scripts/bump-version.mjs major",
     "prepare": "git config core.hooksPath .githooks || true"

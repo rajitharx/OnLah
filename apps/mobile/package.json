@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "test": "tsc -p tsconfig.test.json && node --test \".test-build/__tests__/*.test.js\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test"
   },
   "dependencies": {
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",

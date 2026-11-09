@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     borderRadius: spacing.xl,
   },
   distanceText: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '700',
     color: colors.accent,
   },
