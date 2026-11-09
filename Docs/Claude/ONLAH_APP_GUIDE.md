@@ -46,6 +46,16 @@ Knows their regular stops. Doesn't need a map. Wants to glance at the app and kn
 4. **MRT disruption alerts** — poll `TrainServiceAlerts`; show a banner when `Status = 2` on lines that serve the user's area; include the advisory message
 5. **ETA freshness timestamp** — display when the arrival data was last fetched; auto-refresh every 20 seconds
 
+### Extended Scope (web parity, approved 2026-11-09)
+
+The web bus board in `apps/web` shipped features beyond the five above. The mobile app brings them across, keeping its dark palette. The plan and task list are in `apps/mobile/WEB_PARITY.md`.
+
+6. **Saved buses** — save one service at one stop (max 20), grouped by stop on the Saved tab
+7. **Service details** — bottom sheet with operator, route, stop count, hours and frequency (`bus-services/{serviceNo}`)
+8. **Route tracker** — follow one service at one stop with a "N stops away" countdown and a rail of stops (`route-tracker`)
+9. **Live data status** — header dot driven by the backend `/health` probe; offline and stale-data notices
+10. **Release notes** — in-app list of what changed in each version
+
 ### Out of Scope for v1 (do not build)
 
 - Full disruption rerouting or alternate route suggestions
