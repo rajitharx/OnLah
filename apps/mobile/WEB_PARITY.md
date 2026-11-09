@@ -1,6 +1,6 @@
 # Mobile to web parity
 
-The web bus board (`apps/web`, v1.111) is ahead of the mobile app. This file records the audit and the task list for closing the gap. Decisions made on 2026-11-09:
+The web bus board (`apps/web`) is ahead of the mobile app. This file records the audit and the task list for closing the gap. The audit is a snapshot from 2026-11-09: when a value here (a cap, a radius, an interval) differs from the web source, the web source wins. Mobile release versions (1.1, 1.2, ...) are independent of the web version. Decisions made on 2026-11-09:
 
 - Port every web feature, including those outside the original v1 scope. The scope was extended in `Docs/Claude/ONLAH_APP_GUIDE.md`.
 - Keep the mobile dark palette. `src/shared/theme/colors.ts` does not change. "Similar" means the same layout, components, copy and behaviour, not the web's cream colours.
@@ -53,7 +53,7 @@ The backend already has `bus-services/{serviceNo}`, `route-tracker` and `/health
 
 ### Phase 4: after review (not scheduled)
 
-15. Accessibility and polish. 16. Hook, store and API tests. 17. Manual QA on device and release.
+15. Accessibility and polish. 16. Fill any test gaps left by earlier batches (logic is tested first in the batch that adds it). 17. Manual QA on device and release.
 
 ## Rules that still apply
 

@@ -16,9 +16,8 @@ test('releases are listed newest first', () => {
   for (let i = 1; i < releases.length; i += 1) {
     const [newerMajor, newerMinor] = parts(releases[i - 1].version);
     const [olderMajor, olderMinor] = parts(releases[i].version);
-    const newer = newerMajor * 1_000 + newerMinor;
-    const older = olderMajor * 1_000 + olderMinor;
-    assert.ok(newer > older, `${releases[i - 1].version} must come before ${releases[i].version}`);
+    const isNewer = newerMajor > olderMajor || (newerMajor === olderMajor && newerMinor > olderMinor);
+    assert.ok(isNewer, `${releases[i - 1].version} must come before ${releases[i].version}`);
   }
 });
 
