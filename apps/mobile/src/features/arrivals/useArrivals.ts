@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useAutoRefresh } from '../../shared/hooks/useAutoRefresh';
 import { getArrivals } from '../../shared/services/onlahApi';
-import { serverClock } from '../../shared/utils/serverClock';
 import { BusArrivalsResponse } from '../../types/domain';
 
 const REFRESH_INTERVAL_MS = 20_000;
@@ -24,7 +23,6 @@ export function useArrivals(stopCode: string): ArrivalsState {
   const fetch = useCallback(async () => {
     try {
       const result = await getArrivals(stopCode);
-      serverClock.sync(result.fetchedAt);
       setData(result);
       setError(null);
     } catch {
@@ -43,7 +41,7 @@ export function useArrivals(stopCode: string): ArrivalsState {
     }
   }, [fetch]);
 
-  useAutoRefresh(fetch, REFRESH_INTERVAL_MS);
+  useAutoRefresh(fetch, REFRESH_INTERVAL_MS, stopCode);
 
   return { data, isLoading, isRefreshing, error, refresh };
 }
