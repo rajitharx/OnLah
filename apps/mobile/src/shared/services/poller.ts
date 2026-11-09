@@ -30,8 +30,11 @@ export function startPoller(load: () => Promise<void>, intervalMs: number, visib
     timer = undefined;
   };
   const onChange = (active: boolean): void => {
-    stopTimer();
-    if (!active) return;
+    if (!active) {
+      stopTimer();
+      return;
+    }
+    if (timer !== undefined) return;
     poll();
     timer = setInterval(poll, intervalMs);
   };

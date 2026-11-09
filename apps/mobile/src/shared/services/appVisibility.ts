@@ -1,11 +1,12 @@
 import { AppState } from 'react-native';
 import type { Visibility } from './poller';
 
-// The app counts as visible only in the foreground.
+// Only the background pauses polling. iOS reports 'inactive' for brief moments (notification shade, permission
+// dialogs), and those must not trigger a refetch.
 export const appVisibility: Visibility = {
-  isActive: () => AppState.currentState === 'active',
+  isActive: () => AppState.currentState !== 'background',
   subscribe(onChange) {
-    const subscription = AppState.addEventListener('change', (state) => onChange(state === 'active'));
+    const subscription = AppState.addEventListener('change', (state) => onChange(state !== 'background'));
     return () => subscription.remove();
   },
 };

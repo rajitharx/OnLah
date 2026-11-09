@@ -89,3 +89,13 @@ test('stop ends the schedule and the subscription, and poll still works by hand'
   poller.poll();
   assert.equal(loads, 2);
 });
+
+test('an active signal while already running does not reload or reset the schedule', async () => {
+  let loads = 0;
+  const visibility = fakeVisibility();
+  const poller = startPoller(async () => { loads += 1; }, 1_000, visibility);
+  await settle();
+  visibility.set(true);
+  assert.equal(loads, 1);
+  poller.stop();
+});

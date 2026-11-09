@@ -3,7 +3,8 @@ import { appVisibility } from '../services/appVisibility';
 import { startPoller } from '../services/poller';
 
 // Runs the callback now and every intervalMs while the app is in the foreground, never overlapping two runs.
-export function useAutoRefresh(callback: () => void | Promise<void>, intervalMs: number): void {
+// A change of resetKey (for example a new stop code) restarts the schedule and loads at once.
+export function useAutoRefresh(callback: () => void | Promise<void>, intervalMs: number, resetKey = ''): void {
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
@@ -20,5 +21,5 @@ export function useAutoRefresh(callback: () => void | Promise<void>, intervalMs:
       appVisibility,
     );
     return poller.stop;
-  }, [intervalMs]);
+  }, [intervalMs, resetKey]);
 }

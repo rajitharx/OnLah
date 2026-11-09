@@ -18,8 +18,8 @@ export interface OnlahApi {
   getRouteTracker(
     busStopCode: string,
     serviceNo: string,
-    signal?: AbortSignal,
     destinationCode?: string,
+    signal?: AbortSignal,
   ): Promise<RouteTracker>;
 }
 
@@ -35,7 +35,7 @@ export function createOnlahApi(client: ApiClient): OnlahApi {
     getTrainAlerts: (signal) => client.get<TrainAlertsResponse>('/api/v1/train-alerts', signal),
     getBusService: (serviceNo, signal) =>
       client.get<BusServiceDetails>(`/api/v1/bus-services/${encodeURIComponent(serviceNo)}`, signal),
-    getRouteTracker: (busStopCode, serviceNo, signal, destinationCode) => {
+    getRouteTracker: (busStopCode, serviceNo, destinationCode, signal) => {
       const destination =
         destinationCode === undefined ? '' : `&destinationCode=${encodeURIComponent(destinationCode)}`;
       return client.get<RouteTracker>(

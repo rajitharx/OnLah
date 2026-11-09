@@ -41,7 +41,7 @@ export function useArrivals(stopCode: string): ArrivalsState {
     }
   }, [fetch]);
 
-  useAutoRefresh(fetch, REFRESH_INTERVAL_MS);
+  useAutoRefresh(fetch, REFRESH_INTERVAL_MS, stopCode);
 
   return { data, isLoading, isRefreshing, error, refresh };
 }

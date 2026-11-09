@@ -98,3 +98,24 @@ test('health reports a non-2xx answer as not ok', async () => {
   const { client } = make(async () => new Response('', { status: 503 }));
   assert.equal((await client.health()).ok, false);
 });
+
+test('get rejects with a timeout when the body stalls after the headers arrive', async () => {
+  const { client } = make((_url, init) => {
+    const body = new ReadableStream({
+      start(controller) {
+        init?.signal?.addEventListener('abort', () => controller.error(new DOMException('aborted', 'AbortError')));
+      },
+    });
+    return Promise.resolve(new Response(body, { status: 200 }));
+  }, 20);
+  await assert.rejects(client.get('/x'), (error: unknown) => error instanceof ApiError && error.status === 0);
+});
+
+test('get reports a success body that is not JSON as an ApiError', async () => {
+  const { client } = make(async () => new Response('<html>portal</html>', { status: 200 }));
+  await assert.rejects(client.get('/x'), (error: unknown) => {
+    assert.ok(error instanceof ApiError);
+    assert.equal(error.message, 'The server sent an unexpected response.');
+    return true;
+  });
+});

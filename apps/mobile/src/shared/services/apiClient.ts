@@ -35,8 +35,13 @@ export function createApiClient({
   clock = serverClock,
   timeoutMs = TIMEOUT_MS,
 }: ApiClientOptions): ApiClient {
-  // Runs one request that ends when the caller aborts or the timeout passes, whichever comes first.
-  async function send(path: string, caller?: AbortSignal): Promise<Response> {
+  // Runs one request that ends when the caller aborts or the timeout passes, whichever comes first. The timer
+  // keeps running while `read` consumes the body, so a stalled body cannot hang the caller.
+  async function request<T>(
+    path: string,
+    caller: AbortSignal | undefined,
+    read: (response: Response) => Promise<T>,
+  ): Promise<T> {
     const controller = new AbortController();
     let timedOut = false;
     const timer = setTimeout(() => {
@@ -47,10 +52,11 @@ export function createApiClient({
     if (caller?.aborted) controller.abort();
     caller?.addEventListener('abort', onCallerAbort);
     try {
-      return await fetchImpl(`${baseUrl}${path}`, {
+      const response = await fetchImpl(`${baseUrl}${path}`, {
         signal: controller.signal,
         headers: { Accept: 'application/json' },
       });
+      return await read(response);
     } catch (error) {
       if (timedOut) throw new ApiError(0, 'The request timed out.');
       throw error;
@@ -61,19 +67,26 @@ export function createApiClient({
   }
 
   return {
-    async get<T>(path: string, signal?: AbortSignal): Promise<T> {
-      const response = await send(path, signal);
-      if (!response.ok) throw await toApiError(response);
-      const body = (await response.json()) as T;
-      const fetchedAt = (body as { fetchedAt?: unknown } | null)?.fetchedAt;
-      if (typeof fetchedAt === 'string') clock.sync(fetchedAt);
-      return body;
+    get<T>(path: string, signal?: AbortSignal): Promise<T> {
+      return request(path, signal, async (response) => {
+        if (!response.ok) throw await toApiError(response);
+        let body: T;
+        try {
+          body = (await response.json()) as T;
+        } catch (error) {
+          if (error instanceof SyntaxError) throw new ApiError(response.status, 'The server sent an unexpected response.');
+          throw error;
+        }
+        const fetchedAt = (body as { fetchedAt?: unknown } | null)?.fetchedAt;
+        if (typeof fetchedAt === 'string') clock.sync(fetchedAt);
+        return body;
+      });
     },
     async health(signal?: AbortSignal): Promise<ProbeResult> {
       const started = performance.now();
       try {
-        const response = await send('/health', signal);
-        return { ok: response.ok, ms: performance.now() - started };
+        const ok = await request('/health', signal, async (response) => response.ok);
+        return { ok, ms: performance.now() - started };
       } catch {
         return { ok: false, ms: performance.now() - started };
       }

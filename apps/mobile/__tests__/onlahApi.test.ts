@@ -51,7 +51,7 @@ test('bus service details encode the service number', async () => {
 test('route tracker sends the stop and service, and the destination only when given', async () => {
   const { urls, api } = recorder();
   await api.getRouteTracker('01012', '12');
-  await api.getRouteTracker('01012', '12', undefined, '02049');
+  await api.getRouteTracker('01012', '12', '02049');
   assert.deepEqual(urls, [
     '/api/v1/route-tracker?busStopCode=01012&serviceNo=12',
     '/api/v1/route-tracker?busStopCode=01012&serviceNo=12&destinationCode=02049',
