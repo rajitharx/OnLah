@@ -51,7 +51,7 @@ The whole stack runs on free tiers. [`DEPLOYMENT.md`](DEPLOYMENT.md) has the set
 | Container | Docker, multi-stage build on the .NET 10 SDK and ASP.NET runtime images |
 | Database hosting | [Neon](https://neon.tech) serverless PostgreSQL, SSL required |
 | Web hosting | [Cloudflare Pages](https://pages.cloudflare.com), static Vite build of `apps/web` |
-| CI | GitHub Actions. `ci.yml` builds and tests the backend and web app on every pull request to `main` |
+| CI | GitHub Actions. `ci.yml` builds and tests the backend, the web app and the mobile app on every pull request to `main` |
 | Uptime | GitHub Actions `keep-alive.yml` pings `/health` every 10 minutes so the free Render service stays warm |
 | Migrations | Run by hand with `scripts/migrate.sh`. The API does not migrate on startup |
 
@@ -157,10 +157,13 @@ Load the stops the same way with `POST /api/v1/admin/bus-stops/sync`.
 # Backend: unit and integration tests (integration needs Docker for Testcontainers)
 dotnet test apps/backend/OnLah.sln
 
-# Web: unit tests and a type check plus production build
+# Web: unit tests, a type check and the production build (the same command CI runs)
 cd apps/web
-npm test
-npm run build
+npm run check
+
+# Mobile: type check, unit tests and the design-rule check (the same command CI runs)
+cd apps/mobile
+npm run check
 ```
 
 ## Out of Scope (v1)

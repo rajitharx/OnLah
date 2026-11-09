@@ -2,7 +2,9 @@
 
 > **Scope.** These rules cover `apps/mobile` (React Native, Expo). They do not apply to `apps/web` (Vite and React). The web app uses plain CSS in `apps/web/src/app/styles.css`, with palette tokens mirrored from `apps/mobile/src/shared/theme/colors.ts`. Its conventions are in `apps/web/README.md`.
 
-You are building UI for the OnLah app. Apply every rule below without exception. If a rule conflicts with a user request, flag the conflict before proceeding.
+You are building UI for the OnLah app. Apply every rule below without exception.
+
+`apps/mobile/__tests__/designRules.test.ts` enforces the mechanical rules (no inline styles, colour literals, hardcoded spacing or `fontSize`, `TouchableOpacity`, `console.log` or `any`) and runs in `npm run check` and in CI. Its error says which token to use. A dynamic value such as a colour that depends on data goes in a `StyleSheet.create()` built once per value, as `CrowdBadge` does. Fixed shape sizes such as a 7px dot are allowed. A one-off exception goes on the line as `// design-rule-exception: <rule> | <reason> | expires YYYY-MM-DD | approved by <human>`, and only a human can approve it. If a rule conflicts with a user request, flag the conflict before proceeding.
 
 ---
 
