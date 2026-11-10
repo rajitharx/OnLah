@@ -16,12 +16,13 @@ function timing(mins: number, overrides: Partial<ArrivalTiming> = {}): ArrivalTi
     isWheelchairAccessible: false,
     type: 0,
     isMonitored: true,
+    isLastBus: false,
     ...overrides,
   };
 }
 
 function arrival(nextBus: ArrivalTiming | null, nextBus2: ArrivalTiming | null = null): BusArrival {
-  return { serviceNo: '12', operator: 'SBST', nextBus, nextBus2, nextBus3: null };
+  return { serviceNo: '12', operator: 'SBST', nextBus, nextBus2, nextBus3: null, routes: [] };
 }
 
 test('combines service, eta, crowd, accessibility and following bus', () => {

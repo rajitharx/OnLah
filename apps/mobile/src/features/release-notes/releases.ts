@@ -15,6 +15,18 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.3',
+    title: 'Groundwork for the web bus board features',
+    summary: 'The rules behind the web bus board now live in the app, ready for the screens that use them.',
+    items: [
+      { kind: 'improvement', text: 'Saved stops are capped at 10 and saved buses at 20, the same as on the web.' },
+      { kind: 'improvement', text: 'Search checks what you type before asking the server, and bolds the part of a stop name that matches.' },
+      { kind: 'improvement', text: 'Bus times keep the last good data on screen when a refresh fails, and ignore a late reply that is older than what you see.' },
+      { kind: 'improvement', text: 'Services that stop in both directions can be split by direction, and service numbers sort by number, so 12 comes before 130.' },
+      { kind: 'improvement', text: 'The route tracker has its "N stops away" wording and the rail of stops ready.' },
+    ],
+  },
+  {
     version: '1.2',
     title: 'Sturdier connection to live data',
     summary: 'Requests now time out, report clear errors, and refreshes pause while the app is in the background.',

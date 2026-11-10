@@ -13,6 +13,16 @@ export interface ArrivalTiming {
   isWheelchairAccessible: boolean;
   type: BusType;
   isMonitored: boolean;
+  isLastBus: boolean;
+  // The stop this bus is heading to. Absent when LTA does not say.
+  destinationCode?: string;
+}
+
+export interface ArrivalRoute {
+  origin: string;
+  destination: string;
+  // Matches ArrivalTiming.destinationCode of the buses running this direction.
+  destinationCode: string;
 }
 
 export interface BusArrival {
@@ -21,6 +31,8 @@ export interface BusArrival {
   nextBus: ArrivalTiming | null;
   nextBus2: ArrivalTiming | null;
   nextBus3: ArrivalTiming | null;
+  // One entry per direction that calls at the stop. Empty when the route data is unavailable.
+  routes: ArrivalRoute[];
 }
 
 export interface BusArrivalsResponse {
