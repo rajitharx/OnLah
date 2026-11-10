@@ -13,3 +13,14 @@ export function classifyProbe({ ok, ms }: ProbeResult): ApiStatus {
   if (!ok) return 'down';
   return ms > SLOW_MS ? 'slow' : 'good';
 }
+
+export const API_STATUS_LABEL: Record<ApiStatus, string> = {
+  checking: 'Checking live data',
+  good: 'Live data is online',
+  slow: 'Live data is slow',
+  down: 'Live data is offline',
+};
+
+export function betaLabel(version: string): string {
+  return `Beta ${version}`;
+}

@@ -13,6 +13,12 @@ export type ArrivalsResult = { ok: true; value: BusArrivalsResponse } | { ok: fa
 // The free-tier backend sleeps when idle, so a first call can take well over a few seconds.
 export const SLOW_LOAD_MS = 3_000;
 
+export const SLOW_LOAD_MESSAGE = 'Waking up the server… the first load can take up to a minute.';
+
+export function isSlowLoad(waitedMs: number): boolean {
+  return waitedMs >= SLOW_LOAD_MS;
+}
+
 export const EMPTY_ARRIVALS: ArrivalsState = { data: null, failed: false, slow: false };
 
 export function applyArrivalsResult(previous: ArrivalsState, result: ArrivalsResult): ArrivalsState {

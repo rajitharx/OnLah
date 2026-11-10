@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, radius, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
-import { DisruptionBanner } from '../disruptions/DisruptionBanner';
 import { FavouriteStop } from '../../shared/utils/favourites';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { useFavourites } from './useFavourites';
@@ -90,8 +89,6 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
                 Search stops by code or name
               </Text>
             </Pressable>
-
-            <DisruptionBanner />
 
             <View style={styles.sectionHeader}>
               <Text allowFontScaling={true} style={styles.sectionTitle}>
