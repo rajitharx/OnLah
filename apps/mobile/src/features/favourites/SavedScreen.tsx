@@ -1,25 +1,27 @@
-import { Feather } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { HomeStackParamList, RootTabParamList } from '../../app/navigation/types';
+import { SavedStackParamList, RootTabParamList } from '../../app/navigation/types';
 import { colors, radius, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
 import { FavouriteStop } from '../../shared/utils/favourites';
+import { EmptyState, FindStopActions } from '../../shared/components';
 import { FavouriteStopCard } from './FavouriteStopCard';
+import { savedStopsCaption } from './savedTab';
 import { useFavourites } from './useFavourites';
 
 type Props = CompositeScreenProps<
-  NativeStackScreenProps<HomeStackParamList, 'Favourites'>,
+  NativeStackScreenProps<SavedStackParamList, 'SavedList'>,
   BottomTabScreenProps<RootTabParamList>
 >;
 
-export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
+export function SavedScreen({ navigation }: Props): React.JSX.Element {
   const { favourites } = useFavourites();
   const count = favourites.length;
+  const caption = savedStopsCaption(count);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const pending = useRef(0);
@@ -74,26 +76,21 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
                 <Text allowFontScaling={true} style={styles.greeting}>
                   {getGreeting()}
                 </Text>
-                <Text allowFontScaling={true} style={styles.title}>
-                  OnLah
+                <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>
+                  Saved
                 </Text>
               </View>
             </View>
 
-            <Pressable
-              style={({ pressed }) => [styles.searchBar, pressed && styles.pressed]}
-              onPress={() => navigation.navigate('SearchTab', { screen: 'Search' })}
-            >
-              <Feather name="search" size={16} color={colors.muted} />
-              <Text allowFontScaling={true} style={styles.searchPlaceholder}>
-                Search stops by code or name
-              </Text>
-            </Pressable>
-
             <View style={styles.sectionHeader}>
-              <Text allowFontScaling={true} style={styles.sectionTitle}>
-                Your Stops
+              <Text allowFontScaling={true} accessibilityRole="header" style={styles.sectionTitle}>
+                Saved stops
               </Text>
+              {caption !== null && (
+                <Text allowFontScaling={true} style={typography.caption}>
+                  {caption}
+                </Text>
+              )}
             </View>
           </View>
         }
@@ -107,12 +104,19 @@ export function FavouritesScreen({ navigation }: Props): React.JSX.Element {
         )}
         ItemSeparatorComponent={null}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Feather name="star" size={32} color={colors.muted} />
-            <Text allowFontScaling={true} style={styles.emptyText}>
-              Search or tap Nearby to add a stop
-            </Text>
-          </View>
+          <EmptyState
+            icon="star"
+            message="No saved stops yet. Open a stop and tap Save stop."
+            action={
+              <FindStopActions
+                onNavigate={(view) =>
+                  view === 'search'
+                    ? navigation.navigate('SearchTab', { screen: 'Search' })
+                    : navigation.navigate('NearbyTab', { screen: 'NearbyList' })
+                }
+              />
+            }
+          />
         }
       />
     </SafeAreaView>
@@ -144,21 +148,6 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-  searchBar: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.field,
-    padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  searchPlaceholder: {
-    ...typography.body,
-    color: colors.muted,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -168,15 +157,5 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.stopName,
     letterSpacing: -0.2,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-    gap: spacing.sm,
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.muted,
   },
 });

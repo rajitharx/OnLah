@@ -7,7 +7,7 @@ export const typography = {
     fontSize: 28,
     color: colors.white,
   } as TextStyle,
-  // Screen title on Home, Nearby and Search.
+  // Screen title on Saved, Nearby and Search.
   title: {
     fontSize: 26,
     fontWeight: '800',

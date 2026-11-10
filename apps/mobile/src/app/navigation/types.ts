@@ -9,8 +9,8 @@ export type ArrivalsParams = {
   longitude?: number;
 };
 
-export type HomeStackParamList = {
-  Favourites: undefined;
+export type SavedStackParamList = {
+  SavedList: undefined;
   Arrivals: ArrivalsParams;
 };
 
@@ -25,7 +25,7 @@ export type SearchStackParamList = {
 };
 
 export type RootTabParamList = {
-  HomeTab: NavigatorScreenParams<HomeStackParamList>;
+  SavedTab: NavigatorScreenParams<SavedStackParamList>;
   NearbyTab: NavigatorScreenParams<NearbyStackParamList>;
   SearchTab: NavigatorScreenParams<SearchStackParamList>;
 };

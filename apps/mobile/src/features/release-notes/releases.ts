@@ -15,6 +15,17 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.7',
+    title: 'A Saved tab that opens first',
+    summary: 'Home is now Saved, and the app opens on the right tab for you.',
+    items: [
+      { kind: 'feature', text: 'The Home tab is now Saved and lists your saved stops.' },
+      { kind: 'feature', text: 'The app opens on Saved when you have saved stops, and on Search when you do not.' },
+      { kind: 'improvement', text: 'Saved shows how many of your 10 stops are used once you are close to the limit.' },
+      { kind: 'improvement', text: 'With nothing saved, Saved explains how to save a stop and offers Search stops and Find nearby.' },
+    ],
+  },
+  {
     version: '1.6',
     title: 'Smarter Search and Nearby',
     summary: 'Search and Nearby now behave like the web bus board, with clearer messages when something goes wrong.',

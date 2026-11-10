@@ -2,31 +2,35 @@ import { Feather } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrivalScreen } from '../../features/arrivals/ArrivalScreen';
-import { FavouritesScreen } from '../../features/favourites/FavouritesScreen';
+import { SavedScreen } from '../../features/favourites/SavedScreen';
+import { defaultTab } from '../../features/favourites/savedTab';
+import { useFavouritesHydrated } from '../../features/favourites/useFavourites';
+import { useFavouritesStore } from '../../shared/stores/favouritesStore';
 import { NearbyScreen } from '../../features/nearby/NearbyScreen';
 import { SearchScreen } from '../../features/search/SearchScreen';
 import { useDisruptions } from '../../features/disruptions/useDisruptions';
 import { colors, spacing, typography } from '../../shared/theme';
 import {
-  HomeStackParamList,
+  SavedStackParamList,
   NearbyStackParamList,
   RootTabParamList,
   SearchStackParamList,
 } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
-const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const SavedStack = createNativeStackNavigator<SavedStackParamList>();
 const NearbyStack = createNativeStackNavigator<NearbyStackParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 
-function HomeNavigator(): React.JSX.Element {
+function SavedNavigator(): React.JSX.Element {
   return (
-    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-      <HomeStack.Screen name="Favourites" component={FavouritesScreen} />
-      <HomeStack.Screen name="Arrivals" component={ArrivalScreen} />
-    </HomeStack.Navigator>
+    <SavedStack.Navigator screenOptions={{ headerShown: false }}>
+      <SavedStack.Screen name="SavedList" component={SavedScreen} />
+      <SavedStack.Screen name="Arrivals" component={ArrivalScreen} />
+    </SavedStack.Navigator>
   );
 }
 
@@ -51,9 +55,15 @@ function SearchNavigator(): React.JSX.Element {
 export function TabNavigator(): React.JSX.Element {
   useDisruptions();
   const insets = useSafeAreaInsets();
+  const hydrated = useFavouritesHydrated();
+  const hasSaved = useFavouritesStore((state) => state.favourites.length > 0);
+
+  // The landing tab depends on what is saved, so wait for the saved list to load from the phone before choosing.
+  if (!hydrated) return <View style={styles.loading} />;
 
   return (
     <Tab.Navigator
+      initialRouteName={defaultTab(hasSaved)}
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
@@ -72,7 +82,7 @@ export function TabNavigator(): React.JSX.Element {
         },
         tabBarIcon: ({ color, size }) => {
           const icons: Record<string, keyof typeof Feather.glyphMap> = {
-            HomeTab: 'home',
+            SavedTab: 'star',
             NearbyTab: 'compass',
             SearchTab: 'search',
           };
@@ -80,9 +90,16 @@ export function TabNavigator(): React.JSX.Element {
         },
       })}
     >
-      <Tab.Screen name="HomeTab" component={HomeNavigator} options={{ title: 'Home' }} />
+      <Tab.Screen name="SavedTab" component={SavedNavigator} options={{ title: 'Saved' }} />
       <Tab.Screen name="NearbyTab" component={NearbyNavigator} options={{ title: 'Nearby' }} />
       <Tab.Screen name="SearchTab" component={SearchNavigator} options={{ title: 'Search' }} />
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});
