@@ -15,6 +15,18 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.4',
+    title: 'Live data status and shared building blocks',
+    summary: 'A header on every tab shows whether live data is online, and the pieces the web bus board screens use are now in the app.',
+    items: [
+      { kind: 'feature', text: 'A header with a status dot shows whether live data is online, slow or offline, next to the Beta version.' },
+      { kind: 'feature', text: 'A notice tells you when the phone is offline, and saved stops still open.' },
+      { kind: 'improvement', text: 'The train disruption banner now shows on every tab, not only on Home.' },
+      { kind: 'improvement', text: 'Loading placeholders say the server is waking up when the first load takes longer than 3 seconds.' },
+      { kind: 'improvement', text: 'New shared pieces: update age chip, re-sync button, stale data notice, empty states, stop cards with search highlight, operator names, bus time legend and a crossed wheelchair icon.' },
+    ],
+  },
+  {
     version: '1.3',
     title: 'Groundwork for the web bus board features',
     summary: 'The rules behind the web bus board now live in the app, ready for the screens that use them.',

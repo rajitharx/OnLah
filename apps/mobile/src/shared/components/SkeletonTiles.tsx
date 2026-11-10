@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { colors, spacing } from '../theme';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { SLOW_LOAD_MESSAGE, SLOW_LOAD_MS } from '../../features/arrivals/arrivalsState';
+import { colors, spacing, typography } from '../theme';
 
 // One grey placeholder row in the shape of a bus row: a badge and two text lines.
 export function SkeletonRow(): React.JSX.Element {
@@ -24,6 +25,14 @@ interface SkeletonTilesProps {
 
 // Placeholder cards that hold the place of a list while it loads, so the screen does not jump.
 export function SkeletonTiles({ count = 3, label }: SkeletonTilesProps): React.JSX.Element {
+  const [slow, setSlow] = useState(false);
+
+  // The free-tier backend sleeps when idle, so after 3 seconds say why the wait is long.
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), SLOW_LOAD_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <View
       accessible={true}
@@ -36,11 +45,20 @@ export function SkeletonTiles({ count = 3, label }: SkeletonTilesProps): React.J
           <SkeletonRow />
         </View>
       ))}
+      {slow && (
+        <Text allowFontScaling={true} accessibilityLiveRegion="polite" style={styles.slow}>
+          {SLOW_LOAD_MESSAGE}
+        </Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  slow: {
+    ...typography.caption,
+    textAlign: 'center',
+  },
   list: {
     gap: spacing.sm,
   },
