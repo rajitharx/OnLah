@@ -55,3 +55,8 @@ export function findStopByCode(stops: BusStop[], code: string): FavouriteStop | 
   const match = stops.find((s) => s.busStopCode === code);
   return match ? { code, name: match.description, road: match.roadName } : null;
 }
+
+// A search by code can return near matches too, so the board needs the exact one.
+export function findExactStop(stops: BusStop[], code: string): BusStop | null {
+  return stops.find((s) => s.busStopCode === code) ?? null;
+}

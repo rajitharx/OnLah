@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BusArrivalRow, SkeletonRow } from '../../shared/components';
-import { useArrivals } from '../arrivals/useArrivals';
+import { useCardArrivals } from './useCardArrivals';
 import { colors, spacing, typography, withAlpha } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
 import { buildArrivalLabel, buildFavouriteCardLabel } from '../../shared/utils/accessibility';
@@ -26,7 +26,7 @@ export function FavouriteStopCard({
   refreshSignal = 0,
   onRefreshed,
 }: FavouriteStopCardProps): React.JSX.Element {
-  const { data, isLoading, error, refresh } = useArrivals(stop.code);
+  const { data, isLoading, error, refresh } = useCardArrivals(stop.code);
   const seenSignal = useRef(refreshSignal);
   const onRefreshedRef = useRef(onRefreshed);
   onRefreshedRef.current = onRefreshed;
