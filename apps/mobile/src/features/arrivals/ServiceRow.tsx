@@ -1,0 +1,130 @@
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { BusArrival } from '../../types/domain';
+import { Icon, OperatorLogo } from '../../shared/components';
+import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
+import { groupByDirection } from './directions';
+import { EtaTile } from './EtaTile';
+
+interface ServiceRowProps {
+  service: BusArrival;
+  now: number;
+}
+
+// One service at the stop: badge, operator, Track and save-bus actions, then each direction with its three tiles.
+// Track and the saved-bus star are stubs until the route tracker and saved buses land.
+export function ServiceRow({ service, now }: ServiceRowProps): React.JSX.Element {
+  return (
+    <View style={styles.row}>
+      <View style={styles.head}>
+        <View style={styles.badge}>
+          <Text allowFontScaling={true} style={styles.badgeText}>{service.serviceNo}</Text>
+        </View>
+        <View style={styles.operator}>
+          <OperatorLogo operator={service.operator} />
+        </View>
+        <Pressable
+          disabled
+          accessibilityRole="button"
+          accessibilityLabel={`Track bus ${service.serviceNo}`}
+          accessibilityHint="Coming soon"
+          accessibilityState={{ disabled: true }}
+          style={styles.track}
+        >
+          <Text allowFontScaling={true} style={styles.trackText}>Track</Text>
+        </Pressable>
+        <Pressable
+          disabled
+          accessibilityRole="button"
+          accessibilityLabel={`Save bus ${service.serviceNo}`}
+          accessibilityHint="Coming soon"
+          accessibilityState={{ disabled: true }}
+          style={styles.star}
+        >
+          <Icon name="star" size={16} color={colors.muted} />
+        </Pressable>
+      </View>
+      {groupByDirection(service).map((group) => (
+        <View style={styles.direction} key={group.routes.map((route) => route.destinationCode).join('|')}>
+          {group.routes.map((route) => (
+            <Text
+              allowFontScaling={true}
+              style={styles.route}
+              key={`${route.origin}>${route.destination}`}
+              accessibilityLabel={`From ${route.origin} to ${route.destination}`}
+            >
+              {route.origin} → {route.destination}
+            </Text>
+          ))}
+          <View style={styles.tiles}>
+            {group.timings.map((timing, index) => (
+              <EtaTile key={index} timing={timing} now={now} />
+            ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: {
+    gap: spacing.sm,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.field,
+  },
+  head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  badge: {
+    minWidth: minTapSize,
+    minHeight: minTapSize,
+    paddingHorizontal: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: spacing.sm,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  badgeText: {
+    ...typography.serviceBadge,
+  },
+  operator: {
+    flex: 1,
+  },
+  track: {
+    minHeight: minTapSize,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+    opacity: 0.5,
+  },
+  trackText: {
+    ...typography.body,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  star: {
+    width: minTapSize,
+    height: minTapSize,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.5,
+  },
+  direction: {
+    gap: spacing.xs,
+    paddingTop: spacing.sm,
+  },
+  route: {
+    ...typography.caption,
+  },
+  tiles: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+});

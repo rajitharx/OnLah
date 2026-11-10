@@ -15,6 +15,20 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.5',
+    title: 'A fuller bus board',
+    summary: 'The arrivals screen now matches the web bus board: coloured time tiles, directions, notices and a Maps link.',
+    items: [
+      { kind: 'feature', text: 'Each bus shows its operator and up to three time tiles, filled by how crowded the bus is, with the deck type and a LAST tag on the final bus.' },
+      { kind: 'feature', text: 'A crossed wheelchair marks buses that are not wheelchair accessible, with a legend that explains the colours.' },
+      { kind: 'feature', text: 'Services that run in both directions show each direction on its own, with the route from start to end.' },
+      { kind: 'feature', text: 'Show in Maps opens the stop in your map app.' },
+      { kind: 'improvement', text: 'Times refresh quietly every 20 seconds, with an update age chip, a re-sync button and a notice when a refresh fails.' },
+      { kind: 'improvement', text: 'A short note appears when a stop has no buses due, and the Save stop button says when your saved stops are full.' },
+      { kind: 'improvement', text: 'Track and save-bus buttons are in place and switch on in a later release.' },
+    ],
+  },
+  {
     version: '1.4',
     title: 'Live data status and shared building blocks',
     summary: 'A header on every tab shows whether live data is online, and the pieces the web bus board screens use are now in the app.',

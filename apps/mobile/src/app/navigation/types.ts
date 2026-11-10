@@ -4,6 +4,9 @@ export type ArrivalsParams = {
   stopCode: string;
   stopName: string | null;
   roadName: string | null;
+  // Known when the stop came from search or nearby. Saved stops look them up for Show in Maps.
+  latitude?: number;
+  longitude?: number;
 };
 
 export type HomeStackParamList = {

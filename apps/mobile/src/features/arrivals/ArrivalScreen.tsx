@@ -1,24 +1,29 @@
-import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BusArrivalRow, SkeletonTiles } from '../../shared/components';
-import { useFavouritesStore } from '../../shared/stores/favouritesStore';
-import { colors, minTapSize, spacing, typography } from '../../shared/theme';
-import { useNow } from '../../shared/hooks/useNow';
-import { buildFavouriteLabel } from '../../shared/utils/accessibility';
-import { formatFreshness, isStale } from '../../shared/utils/eta';
-import { BusArrival } from '../../types/domain';
 import { NearbyStackParamList } from '../../app/navigation/types';
+import {
+  BoardLegend,
+  Freshness,
+  Icon,
+  OfflineNotice,
+  ResyncButton,
+  SkeletonTiles,
+  StaleNotice,
+} from '../../shared/components';
+import { useNow } from '../../shared/hooks/useNow';
+import { useFavouritesStore } from '../../shared/stores/favouritesStore';
+import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
+import { MAX_FAVOURITES } from '../../shared/utils/limits';
+import { mapsUrl } from '../../shared/utils/maps';
+import { sortByServiceNo } from '../../shared/utils/serviceNo';
+import { BusArrival, BusStop } from '../../types/domain';
+import { busAdvisories } from './busAdvisories';
+import { trackDestination } from './directions';
+import { ServiceRow } from './ServiceRow';
 import { useArrivals } from './useArrivals';
+import { useStopDetails } from './useStopDetails';
 
 type Props = NativeStackScreenProps<NearbyStackParamList, 'Arrivals'>;
 
@@ -26,150 +31,146 @@ function ServiceSeparator(): React.JSX.Element {
   return <View style={styles.separator} />;
 }
 
+function knownStop({ stopCode, stopName, roadName, latitude, longitude }: Props['route']['params']): BusStop | null {
+  if (latitude === undefined || longitude === undefined) return null;
+  return {
+    busStopCode: stopCode,
+    description: stopName ?? `Stop ${stopCode}`,
+    roadName: roadName ?? '',
+    latitude,
+    longitude,
+    distanceMeters: 0,
+  };
+}
+
 export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const { stopCode, stopName, roadName } = route.params;
-  const { data, isLoading, isRefreshing, error, refresh } = useArrivals(stopCode);
-  const { isFavourite, add, remove } = useFavouritesStore();
-  const fav = isFavourite(stopCode);
+  const arrivals = useArrivals(stopCode);
+  const { data, failed, refresh } = arrivals;
+  const details = useStopDetails(stopCode, knownStop(route.params));
+  const { favourites, add, remove } = useFavouritesStore();
+  const isFavourite = favourites.some((f) => f.code === stopCode);
+  const saveDisabled = !isFavourite && favourites.length >= MAX_FAVOURITES;
   const now = useNow(data?.fetchedAt);
 
+  const name = stopName ?? details?.description ?? null;
+  const road = roadName ?? details?.roadName ?? null;
+
   function toggleFavourite(): void {
-    fav ? remove(stopCode) : add({ code: stopCode, name: stopName, road: roadName });
+    if (isFavourite) remove(stopCode);
+    else add({ code: stopCode, name, road });
   }
+
+  function openMaps(): void {
+    if (details === null) return;
+    void Linking.openURL(mapsUrl(details.latitude, details.longitude)).catch(() => undefined);
+  }
+
+  const services: BusArrival[] = data ? sortByServiceNo(data.services) : [];
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
-        data={data?.services ?? []}
-        keyExtractor={(arrival) => arrival.serviceNo}
-        style={styles.scroll}
+        data={services}
+        keyExtractor={(service) => `${service.serviceNo}:${trackDestination(service) ?? ''}`}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={ServiceSeparator}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={refresh}
-            tintColor={colors.accent}
-            colors={[colors.accent]}
-            progressBackgroundColor={colors.surface}
-          />
-        }
         ListHeaderComponent={
-          <View>
-            <View style={styles.header}>
-              <Pressable
-                onPress={() => navigation.goBack()}
-                accessibilityRole="button"
-                accessibilityLabel="Back"
-                style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
-                hitSlop={spacing.md}
-              >
-                <Feather name="chevron-left" size={22} color={colors.accent} />
-                <Text allowFontScaling={true} style={styles.backLabel}>
-                  Back
+          <View style={styles.header}>
+            <Pressable
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              style={({ pressed }) => [styles.back, pressed && styles.pressed]}
+              hitSlop={spacing.md}
+            >
+              <Icon name="chevron-left" size={22} color={colors.accent} />
+              <Text allowFontScaling={true} style={styles.backLabel}>Back</Text>
+            </Pressable>
+
+            <OfflineNotice />
+
+            <View style={styles.titleRow}>
+              <View style={styles.title}>
+                <Text allowFontScaling={true} style={styles.code}>{stopCode}</Text>
+                <Text allowFontScaling={true} accessibilityRole="header" style={styles.name}>
+                  {name ?? `Stop ${stopCode}`}
                 </Text>
-              </Pressable>
+                {road !== null && (
+                  <View style={styles.inline}>
+                    <Icon name="map-pin" size={14} />
+                    <Text allowFontScaling={true} style={typography.caption}>{road}</Text>
+                  </View>
+                )}
+                {details !== null && (
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel="Show in Maps"
+                    onPress={openMaps}
+                    hitSlop={spacing.sm}
+                    style={({ pressed }) => [styles.inline, pressed && styles.pressed]}
+                  >
+                    <Icon name="map" size={14} color={colors.accent} />
+                    <Text allowFontScaling={true} style={styles.link}>Show in Maps</Text>
+                  </Pressable>
+                )}
+              </View>
               <Pressable
                 onPress={toggleFavourite}
+                disabled={saveDisabled}
                 accessibilityRole="button"
-                accessibilityLabel={buildFavouriteLabel(fav)}
-                accessibilityState={{ selected: fav }}
-                style={({ pressed }) => [styles.favBtn, pressed && styles.pressed]}
-                hitSlop={spacing.md}
+                accessibilityLabel={isFavourite ? 'Remove stop from saved stops' : 'Save stop'}
+                accessibilityState={{ selected: isFavourite, disabled: saveDisabled }}
+                style={({ pressed }) => [styles.saveBtn, (pressed || saveDisabled) && styles.pressed]}
               >
-                <Feather
-                  name="star"
-                  size={20}
-                  color={fav ? colors.accent : colors.muted}
-                />
-              </Pressable>
-            </View>
-
-            <View style={styles.stopHeader}>
-              <Text allowFontScaling={true} style={styles.stopName}>
-                {stopName ?? `Stop ${stopCode}`}
-              </Text>
-              <View style={styles.stopMeta}>
-                {stopName ? (
-                  <Text allowFontScaling={true} style={typography.caption}>
-                    Stop {stopCode}
-                  </Text>
-                ) : null}
-                {stopName && roadName ? <View style={styles.dot} /> : null}
-                {roadName ? (
-                  <Text allowFontScaling={true} style={typography.caption}>
-                    {roadName}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-
-            <View style={styles.freshnessRow}>
-              {data ? (
-                <View style={styles.freshnessLeft}>
-                  <View
-                    style={[
-                      styles.liveIndicator,
-                      isStale(data.fetchedAt, now) && styles.staleIndicator,
-                    ]}
-                  />
-                  <Text allowFontScaling={true} style={styles.freshnessText}>
-                    {formatFreshness(data.fetchedAt, now)}
-                  </Text>
-                </View>
-              ) : null}
-              <Pressable
-                onPress={refresh}
-                disabled={isRefreshing}
-                accessibilityRole="button"
-                accessibilityLabel="Refresh arrivals"
-                accessibilityState={{ busy: isRefreshing }}
-                style={({ pressed }) => [
-                  styles.refreshBtn,
-                  (pressed || isRefreshing) && styles.pressed,
-                ]}
-              >
-                <Feather name="refresh-cw" size={12} color={colors.accent} />
-                <Text allowFontScaling={true} style={styles.refreshLabel}>
-                  Refresh
+                <Icon name="star" size={14} color={isFavourite ? colors.accent : colors.muted} />
+                <Text allowFontScaling={true} style={styles.saveLabel}>
+                  {isFavourite ? 'Saved stop' : 'Save stop'}
                 </Text>
               </Pressable>
             </View>
 
-            <View style={styles.divider} />
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.arrivalCard}>
-            <BusArrivalRow arrival={item} now={now} />
-          </View>
-        )}
-        ListEmptyComponent={
-          isLoading && !data ? (
-            <SkeletonTiles label="Loading bus arrivals" />
-          ) : !data ? (
-            error ? (
-              <Text allowFontScaling={true} style={styles.errorText}>
-                {error}
-              </Text>
-            ) : null
-          ) : (
-            <View style={styles.emptyState}>
-              <Feather name="moon" size={28} color={colors.muted} />
-              <Text allowFontScaling={true} style={styles.emptyText}>
-                No buses currently in service
-              </Text>
+            <View style={styles.meta}>
+              {data && !failed && <Freshness fetchedAt={data.fetchedAt} />}
+              <Text allowFontScaling={true} style={typography.caption}>LTA DataMall · every 20s</Text>
+              <ResyncButton label="Refresh bus times" onPress={refresh} />
             </View>
-          )
+            {saveDisabled && (
+              <Text allowFontScaling={true} style={typography.caption}>
+                Saved stops are full ({MAX_FAVOURITES})
+              </Text>
+            )}
+
+            {failed && data && <StaleNotice fetchedAt={data.fetchedAt} onRetry={refresh} />}
+            {failed && !data && (
+              <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                Bus times are unavailable right now. Retrying every 20 seconds.
+              </Text>
+            )}
+            {!data && !failed && <SkeletonTiles label="Loading bus times" />}
+
+            {data &&
+              busAdvisories(data).map((advisory) => (
+                <Text
+                  allowFontScaling={true}
+                  accessibilityLiveRegion="polite"
+                  style={styles.advisory}
+                  key={advisory.kind === 'service-no-buses' ? advisory.serviceNo : advisory.kind}
+                >
+                  {advisory.message}
+                </Text>
+              ))}
+
+            {services.length > 0 && (
+              <View style={styles.legend}>
+                <Text allowFontScaling={true} style={styles.label}>Next departures · minutes</Text>
+                <BoardLegend />
+              </View>
+            )}
+          </View>
         }
-        ListFooterComponent={
-          data && error ? (
-            <Text allowFontScaling={true} style={styles.staleErrorText}>
-              {error}
-            </Text>
-          ) : null
-        }
+        renderItem={({ item }) => <ServiceRow service={item} now={now} />}
       />
     </SafeAreaView>
   );
@@ -180,136 +181,93 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  scroll: {
-    flex: 1,
-  },
   content: {
     padding: spacing.md,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: spacing.sm,
     marginBottom: spacing.md,
   },
-  backBtn: {
+  back: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
+    alignSelf: 'flex-start',
   },
   backLabel: {
     ...typography.body,
     color: colors.accent,
     fontWeight: '600',
   },
-  favBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: colors.surface,
-    borderRadius: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   pressed: {
     opacity: 0.7,
   },
-  stopHeader: {
-    marginBottom: spacing.sm,
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
   },
-  stopName: {
+  title: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  code: {
+    ...typography.stopCode,
+  },
+  name: {
     ...typography.heading,
-    marginBottom: spacing.xs,
   },
-  stopMeta: {
+  inline: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.xs,
+  },
+  link: {
+    ...typography.caption,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  saveBtn: {
+    minHeight: minTapSize,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.field,
+  },
+  saveLabel: {
+    ...typography.body,
+    fontWeight: '600',
+  },
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: colors.muted,
-  },
-  freshnessRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  freshnessLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  freshnessText: {
+  error: {
     ...typography.caption,
-    color: colors.accent,
+    color: colors.crowdRed,
   },
-  liveIndicator: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.crowdGreen,
-  },
-  staleIndicator: {
-    backgroundColor: colors.muted,
-  },
-  refreshBtn: {
-    minHeight: minTapSize,
-    minWidth: minTapSize,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
+  advisory: {
+    ...typography.caption,
+    padding: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.crowdRed,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: spacing.sm,
   },
-  refreshLabel: {
+  legend: {
+    gap: spacing.sm,
+  },
+  label: {
     ...typography.caption,
-    color: colors.accent,
     fontWeight: '700',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  arrivalCard: {
-    backgroundColor: colors.surface,
-    borderRadius: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    textTransform: 'uppercase',
   },
   separator: {
     height: spacing.sm,
-  },
-  errorText: {
-    ...typography.caption,
-    color: colors.crowdRed,
-    textAlign: 'center',
-    marginTop: spacing.lg,
-  },
-  staleErrorText: {
-    ...typography.caption,
-    color: colors.crowdRed,
-    marginTop: spacing.xs,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-    gap: spacing.md,
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.muted,
   },
 });
