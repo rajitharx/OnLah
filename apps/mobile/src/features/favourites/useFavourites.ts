@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { searchBusStops } from '../../shared/services/onlahApi';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
 import { FavouriteStop, findStopByCode } from '../../shared/utils/favourites';
@@ -26,4 +26,17 @@ export function useStopDetailsBackfill(stop: FavouriteStop): void {
       })
       .catch(() => {});
   }, [needsLookup, stop.code, add]);
+}
+
+// The saved list loads from the phone a moment after launch. This says when it has.
+export function useFavouritesHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(() => useFavouritesStore.persist.hasHydrated());
+
+  useEffect(() => {
+    const unsubscribe = useFavouritesStore.persist.onFinishHydration(() => setHydrated(true));
+    setHydrated(useFavouritesStore.persist.hasHydrated());
+    return unsubscribe;
+  }, []);
+
+  return hydrated;
 }
