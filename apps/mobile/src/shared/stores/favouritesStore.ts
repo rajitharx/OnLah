@@ -7,8 +7,7 @@ import {
   migrateFavourites,
   upsertFavourite,
 } from '../utils/favourites';
-
-const MAX_FAVOURITES = 10;
+import { MAX_FAVOURITES } from '../utils/limits';
 
 interface FavouritesState {
   favourites: FavouriteStop[];
