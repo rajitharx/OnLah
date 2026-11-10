@@ -1,136 +1,113 @@
-import { Feather } from '@expo/vector-icons';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SkeletonTiles } from '../../shared/components';
-import { colors, minTapSize, spacing, typography, withAlpha } from '../../shared/theme';
-import { formatDistance } from '../../shared/utils/eta';
+import { NearbyStackParamList, RootTabParamList } from '../../app/navigation/types';
+import { ActionButton, EmptyState, SkeletonTiles, StopCard } from '../../shared/components';
+import { useLocation } from '../../shared/hooks/useLocation';
+import { colors, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
-import { NearbyStackParamList } from '../../app/navigation/types';
+import { locationFailureMessage } from './locationMessages';
+import { NEARBY_RADIUS_KM } from './nearbyModel';
 import { useNearbyStops } from './useNearbyStops';
 
-type Props = NativeStackScreenProps<NearbyStackParamList, 'NearbyList'>;
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<NearbyStackParamList, 'NearbyList'>,
+  BottomTabScreenProps<RootTabParamList>
+>;
 
 function StopSeparator(): React.JSX.Element {
   return <View style={styles.separator} />;
 }
 
 export function NearbyScreen({ navigation }: Props): React.JSX.Element {
-  const { stops, isLoading, error, hasPermission, requestPermission } =
-    useNearbyStops();
+  const { origin, locating, failure, locate } = useLocation();
+  const [attempt, setAttempt] = useState(0);
+  const { stops, loading, failed } = useNearbyStops(origin, attempt);
 
-  function handleStopPress(stop: BusStop): void {
+  function openSearch(): void {
+    navigation.navigate('SearchTab', { screen: 'Search' });
+  }
+
+  function handleOpen(stop: BusStop): void {
     navigation.navigate('Arrivals', {
       stopCode: stop.busStopCode,
       stopName: stop.description,
       roadName: stop.roadName,
+      latitude: stop.latitude,
+      longitude: stop.longitude,
     });
   }
+
+  function handleLocate(): void {
+    void locate().then(() => setAttempt((n) => n + 1));
+  }
+
+  const searchAction = <ActionButton label="Search stops" icon="search" onPress={openSearch} />;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <FlatList
         data={stops}
         keyExtractor={(item) => item.busStopCode}
+        renderItem={({ item }) => (
+          <StopCard stop={item} distanceMeters={item.distanceMeters} onOpen={handleOpen} />
+        )}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={StopSeparator}
         ListHeaderComponent={
-          <View>
-            <View style={styles.header}>
-              <View>
-                <View style={styles.locationRow}>
-                  <Feather name="map-pin" size={12} color={colors.accent} />
-                  <Text allowFontScaling={true} style={styles.locationLabel}>
-                    Current location
-                  </Text>
-                </View>
-                <Text allowFontScaling={true} style={styles.title}>
-                  Nearby
+          <View style={styles.header}>
+            <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Nearby stops</Text>
+            <View style={styles.actions}>
+              <ActionButton
+                label={locating ? 'Locating…' : 'Use my location'}
+                icon="map-pin"
+                onPress={handleLocate}
+              />
+              {origin !== null && (
+                <Text allowFontScaling={true} style={typography.caption}>
+                  Stops within {NEARBY_RADIUS_KM} km of you
                 </Text>
-              </View>
-              <View
-                style={styles.locIcon}
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-              >
-                <Feather name="navigation" size={18} color={colors.muted} />
-              </View>
+              )}
             </View>
-
-            {hasPermission === false ? (
-              <View style={styles.permissionCard}>
-                <Feather name="map-pin" size={28} color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.permissionText}>
-                  Location access needed to find nearby stops
-                </Text>
-                <Pressable
-                  onPress={requestPermission}
-                  style={({ pressed }) => [styles.permissionBtn, pressed && styles.pressed]}
-                >
-                  <Text allowFontScaling={true} style={styles.permissionBtnText}>
-                    Allow Location
-                  </Text>
-                </Pressable>
-              </View>
-            ) : null}
-
-            {stops.length > 0 && (
-              <Text allowFontScaling={true} style={styles.sectionLabel}>
-                Closest to you
+            {origin === null && (
+              <Text allowFontScaling={true} style={typography.caption}>
+                Your location is used only to find stops near you. It is not saved on this phone.
               </Text>
+            )}
+
+            {failure !== null && (
+              <View style={styles.retry}>
+                <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                  {locationFailureMessage(failure)}
+                </Text>
+                {searchAction}
+              </View>
+            )}
+            {failed && (
+              <View style={styles.retry}>
+                <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                  Nearby stops are unavailable right now. Try again.
+                </Text>
+                <ActionButton label="Try again" icon="refresh-cw" onPress={() => setAttempt((n) => n + 1)} />
+              </View>
             )}
           </View>
         }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => handleStopPress(item)}
-            style={({ pressed }) => [styles.stopCard, pressed && styles.pressed]}
-          >
-            <View style={styles.stopTop}>
-              <View style={styles.stopInfo}>
-                <Text allowFontScaling={true} style={styles.stopName}>
-                  {item.description}
-                </Text>
-                <Text allowFontScaling={true} style={typography.caption}>
-                  Stop {item.busStopCode}
-                </Text>
-              </View>
-              <View style={styles.distanceBadge}>
-                <Feather name="navigation" size={10} color={colors.accent} />
-                <Text allowFontScaling={true} style={styles.distanceText}>
-                  {formatDistance(item.distanceMeters)}
-                </Text>
-              </View>
-            </View>
-          </Pressable>
-        )}
         ListEmptyComponent={
-          hasPermission !== false ? (
-            isLoading ? (
-              <SkeletonTiles label="Finding nearby stops" />
-            ) : error ? (
-              <View style={styles.centred}>
-                <Feather name="wifi-off" size={28} color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.errorText}>
-                  {error}
-                </Text>
-              </View>
-            ) : hasPermission ? (
-              <View style={styles.centred}>
-                <Feather name="map-pin" size={28} color={colors.muted} />
-                <Text allowFontScaling={true} style={styles.emptyText}>
-                  No stops found within 500m
-                </Text>
-              </View>
-            ) : null
+          origin === null ? (
+            <EmptyState icon="map-pin" message="Nearby stops appear once you share your location." />
+          ) : loading ? (
+            <SkeletonTiles label="Finding nearby stops" />
+          ) : !failed ? (
+            <EmptyState
+              icon="map-pin"
+              message={`No stops within ${NEARBY_RADIUS_KM} km. Try Search instead.`}
+              action={searchAction}
+            />
           ) : null
         }
       />
@@ -148,118 +125,26 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  locationLabel: {
-    ...typography.caption,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   title: {
     ...typography.title,
   },
-  locIcon: {
-    width: spacing.xl + spacing.sm,
-    height: spacing.xl + spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.xs,
-  },
-  sectionLabel: {
-    ...typography.body,
-    fontWeight: '700',
-    color: colors.white,
-    marginBottom: spacing.sm,
-  },
-  stopCard: {
-    backgroundColor: colors.surface,
-    borderRadius: spacing.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  stopTop: {
+  actions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  retry: {
     gap: spacing.sm,
+    alignItems: 'flex-start',
   },
-  stopInfo: {
-    flex: 1,
-    flexShrink: 1,
-  },
-  stopName: {
-    ...typography.stopName,
-    marginBottom: spacing.xs,
-  },
-  distanceBadge: {
-    flexShrink: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: withAlpha(colors.accent, 0.1),
-    borderWidth: 1,
-    borderColor: withAlpha(colors.accent, 0.2),
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.xl,
-  },
-  distanceText: {
+  error: {
     ...typography.caption,
-    fontWeight: '700',
-    color: colors.accent,
+    color: colors.crowdRed,
   },
   separator: {
     height: spacing.sm,
-  },
-  permissionCard: {
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.xxl,
-  },
-  permissionText: {
-    ...typography.body,
-    color: colors.muted,
-    textAlign: 'center',
-  },
-  permissionBtn: {
-    minHeight: minTapSize,
-    justifyContent: 'center',
-    backgroundColor: colors.accent,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: spacing.md,
-  },
-  permissionBtnText: {
-    ...typography.body,
-    color: colors.background,
-    fontWeight: '700',
-  },
-  centred: {
-    alignItems: 'center',
-    paddingVertical: spacing.xxl,
-    gap: spacing.md,
-  },
-  errorText: {
-    ...typography.caption,
-    color: colors.crowdRed,
-    textAlign: 'center',
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.muted,
   },
 });

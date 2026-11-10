@@ -15,6 +15,19 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.6',
+    title: 'Smarter Search and Nearby',
+    summary: 'Search and Nearby now behave like the web bus board, with clearer messages when something goes wrong.',
+    items: [
+      { kind: 'feature', text: 'Search waits for you to stop typing, drops outdated requests, bolds the part of each stop name that matches, and shows at most 20 results.' },
+      { kind: 'feature', text: 'Search tells you when the text is too short or a stop code is too long, and offers Try again when the server is unavailable.' },
+      { kind: 'improvement', text: 'Your search text is kept when you switch tabs and come back.' },
+      { kind: 'feature', text: 'Nearby has a Use my location button and a note that your location is not saved, then lists stops within 1 km, closest first.' },
+      { kind: 'improvement', text: 'If location is blocked, unavailable or slow, Nearby says which, and offers Search stops instead.' },
+      { kind: 'improvement', text: 'Empty results in Search and Nearby now explain what to do next.' },
+    ],
+  },
+  {
     version: '1.5',
     title: 'A fuller bus board',
     summary: 'The arrivals screen now matches the web bus board: coloured time tiles, directions, notices and a Maps link.',

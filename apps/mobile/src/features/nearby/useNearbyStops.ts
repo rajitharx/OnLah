@@ -1,34 +1,35 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from '../../shared/hooks/useLocation';
 import { getNearbyStops } from '../../shared/services/onlahApi';
-import { BusStop } from '../../types/domain';
+import type { Origin } from '../../shared/hooks/useLocation';
+import type { BusStop } from '../../types/domain';
+import { NEARBY_RADIUS_M, nearbyStopsSorted } from './nearbyModel';
 
-interface NearbyStopsState {
+export interface NearbyState {
   stops: BusStop[];
-  isLoading: boolean;
-  error: string | null;
-  hasPermission: boolean | null;
-  requestPermission: () => Promise<void>;
+  loading: boolean;
+  failed: boolean;
 }
 
-export function useNearbyStops(): NearbyStopsState {
-  const { location, hasPermission, requestPermission } = useLocation();
-  const [stops, setStops] = useState<BusStop[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const lat = location?.coords.latitude;
-  const lng = location?.coords.longitude;
+// Nothing is fetched until the person shares a location. A new `attempt` fetches again for the same origin.
+export function useNearbyStops(origin: Origin | null, attempt = 0): NearbyState {
+  const [state, setState] = useState<NearbyState>({ stops: [], loading: false, failed: false });
 
   useEffect(() => {
-    if (lat == null || lng == null) return;
-    setIsLoading(true);
-    setError(null);
-    getNearbyStops(lat, lng, 500)
-      .then(setStops)
-      .catch(() => setError('Could not load nearby stops. Check your connection.'))
-      .finally(() => setIsLoading(false));
-  }, [lat, lng]);
+    if (origin === null) {
+      setState({ stops: [], loading: false, failed: false });
+      return;
+    }
+    const controller = new AbortController();
+    setState((previous) => ({ ...previous, loading: true, failed: false }));
+    getNearbyStops(origin.latitude, origin.longitude, NEARBY_RADIUS_M, controller.signal)
+      .then((stops) => {
+        if (!controller.signal.aborted) setState({ stops: nearbyStopsSorted(stops), loading: false, failed: false });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setState({ stops: [], loading: false, failed: true });
+      });
+    return () => controller.abort();
+  }, [origin?.latitude, origin?.longitude, attempt]);
 
-  return { stops, isLoading, error, hasPermission, requestPermission };
+  return state;
 }

@@ -14,3 +14,8 @@ export function haversineMeters(
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   return EARTH_RADIUS_M * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
+// Nearest first. The list is short, so a copy keeps the caller's order intact.
+export function sortByDistance<T extends { distanceMeters: number }>(stops: T[]): T[] {
+  return [...stops].sort((a, b) => a.distanceMeters - b.distanceMeters);
+}
