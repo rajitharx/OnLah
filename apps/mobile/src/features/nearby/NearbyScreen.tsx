@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NearbyStackParamList, RootTabParamList } from '../../app/navigation/types';
-import { ActionButton, EmptyState, OfflineNotice, SkeletonTiles, StopCard } from '../../shared/components';
+import { ActionButton, EmptyState, SkeletonTiles, StopCard } from '../../shared/components';
 import { useLocation } from '../../shared/hooks/useLocation';
 import { colors, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
@@ -61,7 +61,6 @@ export function NearbyScreen({ navigation }: Props): React.JSX.Element {
         ListHeaderComponent={
           <View style={styles.header}>
             <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Nearby stops</Text>
-            <OfflineNotice />
             <View style={styles.actions}>
               <ActionButton
                 label={locating ? 'Locating…' : 'Use my location'}

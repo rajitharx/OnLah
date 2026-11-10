@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchStackParamList } from '../../app/navigation/types';
-import { ActionButton, EmptyState, Icon, OfflineNotice, SkeletonRow, StopCard } from '../../shared/components';
+import { ActionButton, EmptyState, Icon, SkeletonRow, StopCard } from '../../shared/components';
 import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
 import { noMatchMessage, searchAnnouncement, searchFailureMessage } from './searchStatus';
@@ -54,7 +54,6 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
         ListHeaderComponent={
           <View style={styles.header}>
             <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Search stops</Text>
-            <OfflineNotice />
             <Text allowFontScaling={true} style={typography.caption}>Stop code or road name</Text>
             <View style={styles.inputRow}>
               <Icon name="search" size={16} />
