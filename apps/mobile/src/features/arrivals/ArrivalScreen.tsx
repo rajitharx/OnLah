@@ -7,7 +7,6 @@ import {
   BoardLegend,
   Freshness,
   Icon,
-  OfflineNotice,
   ResyncButton,
   SkeletonTiles,
   StaleNotice,
@@ -88,8 +87,6 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
               <Icon name="chevron-left" size={22} color={colors.accent} />
               <Text allowFontScaling={true} style={styles.backLabel}>Back</Text>
             </Pressable>
-
-            <OfflineNotice />
 
             <View style={styles.titleRow}>
               <View style={styles.title}>
