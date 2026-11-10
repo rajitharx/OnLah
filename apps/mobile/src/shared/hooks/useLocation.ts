@@ -1,39 +1,55 @@
 import * as Location from 'expo-location';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { locateOnce, type LocationApi } from '../services/locate';
+import type { LocationFailure } from '../../features/nearby/locationMessages';
 
-interface LocationState {
-  location: Location.LocationObject | null;
-  hasPermission: boolean | null;
-  requestPermission: () => Promise<void>;
+const expoLocation: LocationApi = {
+  requestPermission: async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    return status === Location.PermissionStatus.GRANTED ? 'granted' : 'denied';
+  },
+  getPosition: async () => {
+    const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+    return { latitude: coords.latitude, longitude: coords.longitude };
+  },
+};
+
+export interface Origin {
+  latitude: number;
+  longitude: number;
 }
 
-export function useLocation(): LocationState {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+interface LocationState {
+  origin: Origin | null;
+  locating: boolean;
+  failure: LocationFailure | null;
+  // Asks for permission if needed, then finds the phone. Nothing is located until this is called.
+  locate: () => Promise<void>;
+}
 
-  const requestPermission = useCallback(async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    const granted = status === Location.PermissionStatus.GRANTED;
-    setHasPermission(granted);
-    if (granted) {
-      const loc = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      setLocation(loc);
-    }
-  }, []);
+// A result that arrives after the screen has gone is dropped, so it never sets state on an unmounted screen.
+export function useLocation(): LocationState {
+  const [origin, setOrigin] = useState<Origin | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [failure, setFailure] = useState<LocationFailure | null>(null);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    Location.getForegroundPermissionsAsync().then(({ status }) => {
-      const granted = status === Location.PermissionStatus.GRANTED;
-      setHasPermission(granted);
-      if (granted) {
-        Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        }).then(setLocation);
-      }
-    });
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
-  return { location, hasPermission, requestPermission };
+  const locate = useCallback(async () => {
+    setLocating(true);
+    setFailure(null);
+    const result = await locateOnce(expoLocation);
+    if (!mounted.current) return;
+    if (result.kind === 'ok') setOrigin({ latitude: result.latitude, longitude: result.longitude });
+    else setFailure(result.failure);
+    setLocating(false);
+  }, []);
+
+  return { origin, locating, failure, locate };
 }

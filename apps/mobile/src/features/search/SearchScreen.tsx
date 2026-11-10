@@ -1,20 +1,14 @@
-import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef, useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SearchStackParamList } from '../../app/navigation/types';
-import { SkeletonTiles } from '../../shared/components';
+import { ActionButton, EmptyState, Icon, OfflineNotice, SkeletonRow, StopCard } from '../../shared/components';
 import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
 import { BusStop } from '../../types/domain';
-import { useSearchBusStops } from './useSearchBusStops';
+import { noMatchMessage, searchAnnouncement, searchFailureMessage } from './searchStatus';
+import { useSearchQueryStore } from './searchQueryStore';
+import { useStopSearch } from './useStopSearch';
 
 type Props = NativeStackScreenProps<SearchStackParamList, 'Search'>;
 
@@ -23,122 +17,105 @@ function ResultSeparator(): React.JSX.Element {
 }
 
 export function SearchScreen({ navigation }: Props): React.JSX.Element {
-  const [query, setQuery] = useState('');
+  const { query, setQuery } = useSearchQueryStore();
+  const [attempt, setAttempt] = useState(0);
   const inputRef = useRef<TextInput>(null);
-  const { results, isLoading, error, hasSearched, search, clear } = useSearchBusStops();
-
-  function handleChangeText(text: string): void {
-    setQuery(text);
-    search(text);
-  }
+  const search = useStopSearch(query, attempt);
+  const { check, results, loading, failure } = search;
+  const status = searchAnnouncement(search, results.length);
+  const noMatch = check.kind === 'ok' && !loading && failure === null && results.length === 0;
+  const term = check.kind === 'ok' ? check.term : '';
 
   function handleClear(): void {
     setQuery('');
-    clear();
     inputRef.current?.focus();
   }
 
-  function handleStopPress(stop: BusStop): void {
+  function handleOpen(stop: BusStop): void {
     navigation.navigate('Arrivals', {
       stopCode: stop.busStopCode,
       stopName: stop.description,
       roadName: stop.roadName,
+      latitude: stop.latitude,
+      longitude: stop.longitude,
     });
   }
 
-  function renderStop({ item }: { item: BusStop }): React.JSX.Element {
-    return (
-      <Pressable
-        style={({ pressed }) => [styles.resultRow, pressed && styles.pressed]}
-        onPress={() => handleStopPress(item)}
-      >
-        <View style={styles.codeChip}>
-          <Text allowFontScaling={true} style={styles.codeText}>
-            {item.busStopCode}
-          </Text>
-        </View>
-        <View style={styles.stopInfo}>
-          <Text allowFontScaling={true} style={styles.stopName} numberOfLines={1}>
-            {item.description}
-          </Text>
-          <Text allowFontScaling={true} style={typography.caption} numberOfLines={1}>
-            {item.roadName}
-          </Text>
-        </View>
-        <Feather name="chevron-right" size={16} color={colors.muted} />
-      </Pressable>
-    );
-  }
-
-  const showEmpty = hasSearched && !isLoading && results.length === 0 && !error;
-
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <Text allowFontScaling={true} style={styles.title}>
-          Search
-        </Text>
-      </View>
-
-      <View style={styles.inputRow}>
-        <Feather name="search" size={16} color={colors.muted} style={styles.inputIcon} />
-        <TextInput
-          ref={inputRef}
-          style={styles.input}
-          placeholder="Bus stop code or name…"
-          placeholderTextColor={colors.muted}
-          value={query}
-          onChangeText={handleChangeText}
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="search"
-          onSubmitEditing={() => search(query)}
-          clearButtonMode="never"
-        />
-        {query.length > 0 && (
-          <Pressable
-            onPress={handleClear}
-            style={styles.clearBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Clear search"
-          >
-            <Feather name="x" size={16} color={colors.muted} />
-          </Pressable>
-        )}
-      </View>
-
-      {error !== null && !isLoading && (
-        <Text allowFontScaling={true} style={styles.errorText}>
-          {error}
-        </Text>
-      )}
-
-      {/* The list stays mounted while a search runs, so earlier results do not vanish on each keystroke. */}
       <FlatList
         data={results}
         keyExtractor={(item) => item.busStopCode}
-        renderItem={renderStop}
+        renderItem={({ item }) => <StopCard stop={item} onOpen={handleOpen} highlight={term} />}
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
-        ItemSeparatorComponent={ResultSeparator}
         keyboardDismissMode="on-drag"
+        ItemSeparatorComponent={ResultSeparator}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Search stops</Text>
+            <OfflineNotice />
+            <Text allowFontScaling={true} style={typography.caption}>Stop code or road name</Text>
+            <View style={styles.inputRow}>
+              <Icon name="search" size={16} />
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                placeholder="e.g. 01012 or Victoria"
+                placeholderTextColor={colors.muted}
+                accessibilityLabel="Stop code or road name"
+                value={query}
+                onChangeText={setQuery}
+                autoCorrect={false}
+                autoCapitalize="none"
+                spellCheck={false}
+                returnKeyType="search"
+                clearButtonMode="never"
+              />
+              {query.length > 0 && (
+                <Pressable
+                  onPress={handleClear}
+                  style={styles.clearBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear search"
+                >
+                  <Icon name="x" size={16} />
+                </Pressable>
+              )}
+            </View>
+
+            {status !== '' && !noMatch && (
+              <Text allowFontScaling={true} accessibilityLiveRegion="polite" style={typography.caption}>
+                {status}
+              </Text>
+            )}
+            {check.kind === 'code-too-long' && (
+              <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                Stop codes are 5 digits.
+              </Text>
+            )}
+            {check.kind === 'too-short' && (
+              <Text allowFontScaling={true} style={typography.caption}>Type at least 2 characters.</Text>
+            )}
+            {failure !== null && (
+              <View style={styles.retry}>
+                <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                  {searchFailureMessage(failure)}
+                </Text>
+                {failure === 'unavailable' && (
+                  <ActionButton label="Try again" icon="refresh-cw" onPress={() => setAttempt((n) => n + 1)} />
+                )}
+              </View>
+            )}
+          </View>
+        }
         ListEmptyComponent={
-          isLoading ? (
-            <SkeletonTiles label="Searching for stops" />
-          ) : showEmpty ? (
-            <View style={styles.centred}>
-              <Feather name="inbox" size={32} color={colors.muted} />
-              <Text allowFontScaling={true} style={styles.emptyText}>
-                No stops found
-              </Text>
-            </View>
-          ) : !hasSearched ? (
-            <View style={styles.centred}>
-              <Feather name="map-pin" size={32} color={colors.muted} />
-              <Text allowFontScaling={true} style={styles.emptyText}>
-                Enter a stop code or name
-              </Text>
-            </View>
+          check.kind === 'empty' ? (
+            <EmptyState icon="search" message="Type a stop code or road to search." />
+          ) : noMatch ? (
+            <EmptyState icon="inbox" message={noMatchMessage(check.term)} />
+          ) : loading ? (
+            <SkeletonRow />
           ) : null
         }
       />
@@ -151,10 +128,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  list: {
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
   header: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   title: {
     ...typography.title,
@@ -163,14 +143,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    marginHorizontal: spacing.md,
     borderRadius: radius.field,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
-    marginBottom: spacing.md,
+  },
+  input: {
+    flex: 1,
+    ...typography.body,
+    padding: 0,
   },
   clearBtn: {
     minWidth: minTapSize,
@@ -181,68 +164,15 @@ const styles = StyleSheet.create({
     marginVertical: -spacing.sm,
     marginRight: -spacing.sm,
   },
-  inputIcon: {
-    flexShrink: 0,
-  },
-  input: {
-    flex: 1,
-    ...typography.body,
-    color: colors.white,
-    padding: 0,
-  },
-  list: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xxl,
-  },
-  resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  codeChip: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    minWidth: 56,
-    alignItems: 'center',
-  },
-  codeText: {
-    ...typography.stopCode,
-  },
-  stopInfo: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  stopName: {
-    ...typography.body,
-    color: colors.white,
-    fontWeight: '600',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  centred: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
+  retry: {
     gap: spacing.sm,
+    alignItems: 'flex-start',
   },
-  emptyText: {
-    ...typography.body,
-    color: colors.muted,
-  },
-  errorText: {
+  error: {
     ...typography.caption,
     color: colors.crowdRed,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
+  },
+  separator: {
+    height: spacing.sm,
   },
 });
