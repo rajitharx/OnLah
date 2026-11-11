@@ -9,11 +9,21 @@ import { EtaTile } from './EtaTile';
 interface ServiceRowProps {
   service: BusArrival;
   now: number;
+  isSaved?: boolean;
+  // True when the bus is not saved and either the list is full or the stop's position is not known yet.
+  saveDisabled?: boolean;
+  onToggleSave?: () => void;
 }
 
 // One service at the stop: badge, operator, Track and save-bus actions, then each direction with its three tiles.
-// Track and the saved-bus star are stubs until the route tracker and saved buses land.
-export function ServiceRow({ service, now }: ServiceRowProps): React.JSX.Element {
+// Track is a stub until the route tracker lands. The star saves or removes this bus at this stop.
+export function ServiceRow({
+  service,
+  now,
+  isSaved = false,
+  saveDisabled = false,
+  onToggleSave,
+}: ServiceRowProps): React.JSX.Element {
   return (
     <View style={styles.row}>
       <View style={styles.head}>
@@ -34,14 +44,14 @@ export function ServiceRow({ service, now }: ServiceRowProps): React.JSX.Element
           <Text allowFontScaling={true} style={styles.trackText}>Track</Text>
         </Pressable>
         <Pressable
-          disabled
+          onPress={onToggleSave}
+          disabled={saveDisabled || onToggleSave === undefined}
           accessibilityRole="button"
-          accessibilityLabel={`Save bus ${service.serviceNo}`}
-          accessibilityHint="Coming soon"
-          accessibilityState={{ disabled: true }}
-          style={styles.star}
+          accessibilityLabel={isSaved ? `Remove bus ${service.serviceNo} from saved buses` : `Save bus ${service.serviceNo}`}
+          accessibilityState={{ selected: isSaved, disabled: saveDisabled }}
+          style={({ pressed }) => [styles.star, (pressed || saveDisabled) && styles.dimmed]}
         >
-          <Icon name="star" size={16} color={colors.muted} />
+          <Icon name="star" size={16} color={isSaved ? colors.accent : colors.muted} />
         </Pressable>
       </View>
       {groupByDirection(service).map((group) => (
@@ -114,6 +124,8 @@ const styles = StyleSheet.create({
     height: minTapSize,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  dimmed: {
     opacity: 0.5,
   },
   direction: {

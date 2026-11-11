@@ -15,6 +15,17 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.8',
+    title: 'Save a bus at a stop',
+    summary: 'Tap the star next to a bus to keep it on the Saved tab with its live times.',
+    items: [
+      { kind: 'feature', text: 'The star next to each bus on a stop board now saves that bus at that stop, up to 20 buses.' },
+      { kind: 'feature', text: 'Saved shows your saved buses above your saved stops, grouped by stop, with live times that refresh every 20 seconds.' },
+      { kind: 'improvement', text: 'Each saved stop has its own re-sync button, and a stop that fails to load keeps its last times with a notice.' },
+      { kind: 'improvement', text: 'Saved shows how many of your 20 buses are used once you are close to the limit.' },
+    ],
+  },
+  {
     version: '1.7',
     title: 'A Saved tab that opens first',
     summary: 'Home is now Saved, and the app opens on the right tab for you.',

@@ -13,8 +13,10 @@ import {
 } from '../../shared/components';
 import { useNow } from '../../shared/hooks/useNow';
 import { useFavouritesStore } from '../../shared/stores/favouritesStore';
+import { useSavedBusesStore } from '../../shared/stores/savedBusesStore';
+import { hasSavedBus, isSavedBusesFull, type SavedBus } from '../../shared/utils/savedBuses';
 import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
-import { MAX_FAVOURITES } from '../../shared/utils/limits';
+import { MAX_FAVOURITES, MAX_SAVED_BUSES } from '../../shared/utils/limits';
 import { mapsUrl } from '../../shared/utils/maps';
 import { sortByServiceNo } from '../../shared/utils/serviceNo';
 import { BusArrival, BusStop } from '../../types/domain';
@@ -51,6 +53,9 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   const isFavourite = favourites.some((f) => f.code === stopCode);
   const saveDisabled = !isFavourite && favourites.length >= MAX_FAVOURITES;
   const now = useNow(data?.fetchedAt);
+  const savedBuses = useSavedBusesStore((state) => state.buses);
+  const toggleSavedBus = useSavedBusesStore((state) => state.toggle);
+  const busesFull = isSavedBusesFull(savedBuses);
 
   const name = stopName ?? details?.description ?? null;
   const road = roadName ?? details?.roadName ?? null;
@@ -63,6 +68,19 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
   function openMaps(): void {
     if (details === null) return;
     void Linking.openURL(mapsUrl(details.latitude, details.longitude)).catch(() => undefined);
+  }
+
+  // A saved bus keeps the stop's position, so the star waits until the stop's details are known.
+  function savedBusFor(serviceNo: string): SavedBus | null {
+    if (details === null) return null;
+    return {
+      stopCode,
+      serviceNo,
+      stopName: name ?? `Stop ${stopCode}`,
+      roadName: road ?? '',
+      latitude: details.latitude,
+      longitude: details.longitude,
+    };
   }
 
   const services: BusArrival[] = data ? sortByServiceNo(data.services) : [];
@@ -139,6 +157,12 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
               </Text>
             )}
 
+            {busesFull && (
+              <Text allowFontScaling={true} style={typography.caption}>
+                Saved buses are full ({MAX_SAVED_BUSES})
+              </Text>
+            )}
+
             {failed && data && <StaleNotice fetchedAt={data.fetchedAt} onRetry={refresh} />}
             {failed && !data && (
               <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
@@ -167,7 +191,21 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
             )}
           </View>
         }
-        renderItem={({ item }) => <ServiceRow service={item} now={now} />}
+        renderItem={({ item }) => {
+          const isSaved = hasSavedBus(savedBuses, stopCode, item.serviceNo);
+          const bus = savedBusFor(item.serviceNo);
+          return (
+            <ServiceRow
+              service={item}
+              now={now}
+              isSaved={isSaved}
+              saveDisabled={!isSaved && (busesFull || bus === null)}
+              onToggleSave={() => {
+                if (bus !== null) toggleSavedBus(bus);
+              }}
+            />
+          );
+        }}
       />
     </SafeAreaView>
   );
