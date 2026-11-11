@@ -1,9 +1,10 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ReleaseNotesScreen } from '../features/release-notes/ReleaseNotesScreen';
 import { releases } from '../features/release-notes/releases';
 import { useApiStatus } from '../shared/hooks/useApiStatus';
 import { ApiStatus, API_STATUS_LABEL, betaLabel } from '../shared/services/apiStatus';
-import { colors, spacing, typography } from '../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../shared/theme';
 
 const DOT_COLOURS: Record<ApiStatus, string> = {
   checking: colors.muted,
@@ -23,6 +24,7 @@ const DOT_STYLES = {
 export function AppHeader(): React.JSX.Element {
   const status = useApiStatus();
   const version = releases[0]?.version ?? '';
+  const [notesOpen, setNotesOpen] = useState(false);
 
   return (
     <View style={styles.header}>
@@ -35,7 +37,15 @@ export function AppHeader(): React.JSX.Element {
           style={[styles.dot, DOT_STYLES[status]]}
         />
       </View>
-      <Text allowFontScaling={true} style={styles.version}>{betaLabel(version)}</Text>
+      <Pressable
+        onPress={() => setNotesOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={`${betaLabel(version)}, open release notes`}
+        style={({ pressed }) => [styles.versionButton, pressed && styles.pressed]}
+      >
+        <Text allowFontScaling={true} style={styles.version}>{betaLabel(version)}</Text>
+      </Pressable>
+      <ReleaseNotesScreen visible={notesOpen} onClose={() => setNotesOpen(false)} />
     </View>
   );
 }
@@ -66,5 +76,12 @@ const styles = StyleSheet.create({
   },
   version: {
     ...typography.caption,
+  },
+  versionButton: {
+    minHeight: minTapSize,
+    justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.7,
   },
 });
