@@ -9,19 +9,29 @@ export type ArrivalsParams = {
   longitude?: number;
 };
 
+// One service at one stop. Without a destination the backend picks the direction the stop is served in.
+export type TrackParams = {
+  stopCode: string;
+  serviceNo: string;
+  destinationCode?: string;
+};
+
 export type SavedStackParamList = {
   SavedList: undefined;
   Arrivals: ArrivalsParams;
+  Track: TrackParams;
 };
 
 export type NearbyStackParamList = {
   NearbyList: undefined;
   Arrivals: ArrivalsParams;
+  Track: TrackParams;
 };
 
 export type SearchStackParamList = {
   Search: undefined;
   Arrivals: ArrivalsParams;
+  Track: TrackParams;
 };
 
 export type RootTabParamList = {

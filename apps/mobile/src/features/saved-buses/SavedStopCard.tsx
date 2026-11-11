@@ -14,13 +14,14 @@ interface SavedStopCardProps {
   state: ArrivalsState | undefined;
   onOpenStop: (stop: BusStop) => void;
   onRemoveBus: (stopCode: string, serviceNo: string) => void;
+  onTrack: (stopCode: string, serviceNo: string, destinationCode: string | undefined) => void;
   onResync: (stopCode: string) => void;
 }
 
 const EMPTY_TIMINGS = [0, 1, 2];
 
 // One saved stop with the saved services at it. Each service is the same row as on the board, and its star removes it.
-export function SavedStopCard({ group, state, onOpenStop, onRemoveBus, onResync }: SavedStopCardProps): React.JSX.Element {
+export function SavedStopCard({ group, state, onOpenStop, onRemoveBus, onTrack, onResync }: SavedStopCardProps): React.JSX.Element {
   const current = state ?? EMPTY_ARRIVALS;
   const now = useNow(current.data?.fetchedAt);
   const rows = pickSavedServices(current.data, group.serviceNos);
@@ -68,6 +69,7 @@ export function SavedStopCard({ group, state, onOpenStop, onRemoveBus, onResync 
               service={service}
               now={now}
               isSaved
+              onTrack={(destinationCode) => onTrack(group.stopCode, serviceNo, destinationCode)}
               onToggleSave={() => onRemoveBus(group.stopCode, serviceNo)}
             />
           ) : (

@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrivalScreen } from '../../features/arrivals/ArrivalScreen';
+import { TrackerScreen } from '../../features/route-tracker/TrackerScreen';
 import { SavedScreen } from '../../features/favourites/SavedScreen';
 import { defaultTab } from '../../features/favourites/savedTab';
 import { useFavouritesHydrated } from '../../features/favourites/useFavourites';
@@ -30,6 +31,7 @@ function SavedNavigator(): React.JSX.Element {
     <SavedStack.Navigator screenOptions={{ headerShown: false }}>
       <SavedStack.Screen name="SavedList" component={SavedScreen} />
       <SavedStack.Screen name="Arrivals" component={ArrivalScreen} />
+      <SavedStack.Screen name="Track" component={TrackerScreen} />
     </SavedStack.Navigator>
   );
 }
@@ -39,6 +41,7 @@ function NearbyNavigator(): React.JSX.Element {
     <NearbyStack.Navigator screenOptions={{ headerShown: false }}>
       <NearbyStack.Screen name="NearbyList" component={NearbyScreen} />
       <NearbyStack.Screen name="Arrivals" component={ArrivalScreen} />
+      <NearbyStack.Screen name="Track" component={TrackerScreen} />
     </NearbyStack.Navigator>
   );
 }
@@ -48,6 +51,7 @@ function SearchNavigator(): React.JSX.Element {
     <SearchStack.Navigator screenOptions={{ headerShown: false }}>
       <SearchStack.Screen name="Search" component={SearchScreen} />
       <SearchStack.Screen name="Arrivals" component={ArrivalScreen} />
+      <SearchStack.Screen name="Track" component={TrackerScreen} />
     </SearchStack.Navigator>
   );
 }

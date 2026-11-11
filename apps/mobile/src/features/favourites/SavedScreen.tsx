@@ -137,6 +137,9 @@ export function SavedScreen({ navigation }: Props): React.JSX.Element {
                   state={states[group.stopCode]}
                   onOpenStop={handleOpenStop}
                   onRemoveBus={removeBus}
+                  onTrack={(stopCode, serviceNo, destinationCode) =>
+                    navigation.navigate('Track', { stopCode, serviceNo, destinationCode })
+                  }
                   onResync={resync}
                 />
               ))
