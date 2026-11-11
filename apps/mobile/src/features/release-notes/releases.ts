@@ -15,6 +15,16 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.9',
+    title: 'Service details',
+    summary: 'Tap a bus number to see who runs it, its route, hours and how often it comes.',
+    items: [
+      { kind: 'feature', text: 'Tapping a bus number opens a sheet with the operator, the kind of buses due now and each direction of the service.' },
+      { kind: 'feature', text: 'Each direction shows its route, number of stops, first and last bus times, and how often buses come at peak and off-peak.' },
+      { kind: 'improvement', text: 'Swipe the sheet down, tap outside it, or use the back button to close it. Details load only while it is open.' },
+    ],
+  },
+  {
     version: '1.8',
     title: 'Save a bus at a stop',
     summary: 'Tap the star next to a bus to keep it on the Saved tab with its live times.',

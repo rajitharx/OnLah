@@ -1,8 +1,9 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { BusArrival } from '../../types/domain';
 import { Icon, OperatorLogo } from '../../shared/components';
 import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
+import { ServiceSheet } from '../services/ServiceSheet';
 import { groupByDirection } from './directions';
 import { EtaTile } from './EtaTile';
 
@@ -24,12 +25,28 @@ export function ServiceRow({
   saveDisabled = false,
   onToggleSave,
 }: ServiceRowProps): React.JSX.Element {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const badgeRef = useRef<View>(null);
+
+  // Screen readers return to the service number that opened the sheet.
+  const closeSheet = useCallback((): void => {
+    setSheetOpen(false);
+    if (badgeRef.current !== null) AccessibilityInfo.sendAccessibilityEvent(badgeRef.current, 'focus');
+  }, []);
+
   return (
     <View style={styles.row}>
       <View style={styles.head}>
-        <View style={styles.badge}>
+        <Pressable
+          ref={badgeRef}
+          onPress={() => setSheetOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`Bus ${service.serviceNo} details`}
+          style={({ pressed }) => [styles.badge, pressed && styles.dimmed]}
+        >
           <Text allowFontScaling={true} style={styles.badgeText}>{service.serviceNo}</Text>
-        </View>
+        </Pressable>
+        <ServiceSheet visible={sheetOpen} serviceNo={service.serviceNo} service={service} onClose={closeSheet} />
         <View style={styles.operator}>
           <OperatorLogo operator={service.operator} />
         </View>
