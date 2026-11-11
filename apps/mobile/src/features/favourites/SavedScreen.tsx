@@ -9,6 +9,11 @@ import { colors, radius, spacing, typography } from '../../shared/theme';
 import { getGreeting } from '../../shared/utils/greeting';
 import { FavouriteStop } from '../../shared/utils/favourites';
 import { EmptyState, FindStopActions } from '../../shared/components';
+import { useSavedBusesStore } from '../../shared/stores/savedBusesStore';
+import type { BusStop } from '../../types/domain';
+import { SavedStopCard } from '../saved-buses/SavedStopCard';
+import { groupByStop, savedBusesCaption } from '../saved-buses/savedBusView';
+import { useSavedArrivals } from '../saved-buses/useSavedArrivals';
 import { FavouriteStopCard } from './FavouriteStopCard';
 import { savedStopsCaption } from './savedTab';
 import { useFavourites } from './useFavourites';
@@ -25,6 +30,12 @@ export function SavedScreen({ navigation }: Props): React.JSX.Element {
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const pending = useRef(0);
+  const buses = useSavedBusesStore((state) => state.buses);
+  const removeBus = useSavedBusesStore((state) => state.remove);
+  const groups = groupByStop(buses);
+  const { states, resync } = useSavedArrivals(groups.map((group) => group.stopCode));
+  const busesCaption = savedBusesCaption(buses.length);
+  const allFailed = groups.length > 0 && groups.every((group) => states[group.stopCode]?.failed === true);
 
   // Pull-to-refresh refetches every card, and stops spinning once the last one answers.
   const handleRefresh = useCallback(() => {
@@ -51,6 +62,21 @@ export function SavedScreen({ navigation }: Props): React.JSX.Element {
       stopName: stop.name,
       roadName: stop.road,
     });
+  }
+
+  function handleOpenStop(stop: BusStop): void {
+    navigation.navigate('Arrivals', {
+      stopCode: stop.busStopCode,
+      stopName: stop.description,
+      roadName: stop.roadName,
+      latitude: stop.latitude,
+      longitude: stop.longitude,
+    });
+  }
+
+  function handleNavigate(view: 'search' | 'nearby'): void {
+    if (view === 'search') navigation.navigate('SearchTab', { screen: 'Search' });
+    else navigation.navigate('NearbyTab', { screen: 'NearbyList' });
   }
 
   return (
@@ -81,6 +107,40 @@ export function SavedScreen({ navigation }: Props): React.JSX.Element {
                 </Text>
               </View>
             </View>
+
+            <View style={styles.sectionHeader}>
+              <Text allowFontScaling={true} accessibilityRole="header" style={styles.sectionTitle}>
+                Saved buses
+              </Text>
+              {busesCaption !== null && (
+                <Text allowFontScaling={true} style={typography.caption}>
+                  {busesCaption}
+                </Text>
+              )}
+            </View>
+            {allFailed && (
+              <Text allowFontScaling={true} accessibilityRole="alert" style={styles.error}>
+                Couldn't load bus times for your saved stops.
+              </Text>
+            )}
+            {groups.length === 0 ? (
+              <EmptyState
+                icon="star"
+                message="No saved buses yet. Open a stop and tap the star next to a bus."
+                action={<FindStopActions onNavigate={handleNavigate} />}
+              />
+            ) : (
+              groups.map((group) => (
+                <SavedStopCard
+                  key={group.stopCode}
+                  group={group}
+                  state={states[group.stopCode]}
+                  onOpenStop={handleOpenStop}
+                  onRemoveBus={removeBus}
+                  onResync={resync}
+                />
+              ))
+            )}
 
             <View style={styles.sectionHeader}>
               <Text allowFontScaling={true} accessibilityRole="header" style={styles.sectionTitle}>
@@ -147,6 +207,11 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  error: {
+    ...typography.caption,
+    color: colors.crowdRed,
+    marginBottom: spacing.md,
   },
   sectionHeader: {
     flexDirection: 'row',
