@@ -15,6 +15,14 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.11',
+    title: 'Release notes in the app',
+    summary: 'Tap the version in the header to read what changed in each release.',
+    items: [
+      { kind: 'feature', text: 'The version label in the header opens the release notes, newest first.' },
+    ],
+  },
+  {
     version: '1.10',
     title: 'Track a bus along its route',
     summary: 'Tap Track on a bus to see how many stops away it is and where it is on the route.',
