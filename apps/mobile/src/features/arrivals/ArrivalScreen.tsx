@@ -200,6 +200,9 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
               now={now}
               isSaved={isSaved}
               saveDisabled={!isSaved && (busesFull || bus === null)}
+              onTrack={(destinationCode) =>
+                navigation.navigate('Track', { stopCode, serviceNo: item.serviceNo, destinationCode })
+              }
               onToggleSave={() => {
                 if (bus !== null) toggleSavedBus(bus);
               }}

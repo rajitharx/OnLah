@@ -15,6 +15,18 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.10',
+    title: 'Track a bus along its route',
+    summary: 'Tap Track on a bus to see how many stops away it is and where it is on the route.',
+    items: [
+      { kind: 'feature', text: 'Track opens a screen with the next bus counted in stops away, or Arriving when it is about to pull in.' },
+      { kind: 'feature', text: 'The next two buses are listed below, each with its crowd level, deck type and a Scheduled tag when it is not tracked live.' },
+      { kind: 'feature', text: 'A route of stops shows where you are and where the bus is, and long stretches fold into +N stops that you can open.' },
+      { kind: 'improvement', text: 'The route refreshes every 20 seconds, warns when the information is more than a minute old, and explains when a service is not running.' },
+      { kind: 'improvement', text: 'Track works from the Saved, Nearby and Search tabs, and from saved buses.' },
+    ],
+  },
+  {
     version: '1.9',
     title: 'Service details',
     summary: 'Tap a bus number to see who runs it, its route, hours and how often it comes.',

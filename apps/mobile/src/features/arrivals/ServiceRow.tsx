@@ -4,7 +4,7 @@ import type { BusArrival } from '../../types/domain';
 import { Icon, OperatorLogo } from '../../shared/components';
 import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
 import { ServiceSheet } from '../services/ServiceSheet';
-import { groupByDirection } from './directions';
+import { groupByDirection, trackDestination } from './directions';
 import { EtaTile } from './EtaTile';
 
 interface ServiceRowProps {
@@ -14,16 +14,19 @@ interface ServiceRowProps {
   // True when the bus is not saved and either the list is full or the stop's position is not known yet.
   saveDisabled?: boolean;
   onToggleSave?: () => void;
+  // Opens the route tracker for this service, following the given direction when the row has one.
+  onTrack?: (destinationCode: string | undefined) => void;
 }
 
 // One service at the stop: badge, operator, Track and save-bus actions, then each direction with its three tiles.
-// Track is a stub until the route tracker lands. The star saves or removes this bus at this stop.
+// Track opens the route tracker. The star saves or removes this bus at this stop.
 export function ServiceRow({
   service,
   now,
   isSaved = false,
   saveDisabled = false,
   onToggleSave,
+  onTrack,
 }: ServiceRowProps): React.JSX.Element {
   const [sheetOpen, setSheetOpen] = useState(false);
   const badgeRef = useRef<View>(null);
@@ -51,12 +54,11 @@ export function ServiceRow({
           <OperatorLogo operator={service.operator} />
         </View>
         <Pressable
-          disabled
+          onPress={() => onTrack?.(trackDestination(service) ?? undefined)}
+          disabled={onTrack === undefined}
           accessibilityRole="button"
           accessibilityLabel={`Track bus ${service.serviceNo}`}
-          accessibilityHint="Coming soon"
-          accessibilityState={{ disabled: true }}
-          style={styles.track}
+          style={({ pressed }) => [styles.track, pressed && styles.dimmed]}
         >
           <Text allowFontScaling={true} style={styles.trackText}>Track</Text>
         </Pressable>
@@ -129,7 +131,6 @@ const styles = StyleSheet.create({
     minHeight: minTapSize,
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
-    opacity: 0.5,
   },
   trackText: {
     ...typography.body,
