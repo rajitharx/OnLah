@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
@@ -27,12 +27,15 @@ export function DisruptionBanner(): React.JSX.Element | null {
 
   const firstAlert = alerts[0];
   const showBanner = isDisrupted && !isDismissed;
-  const spoken = `${firstAlert?.line ?? 'Train'} disruption`;
+  const title = `${firstAlert?.line ?? 'Train'} disruption`;
 
   // A banner that appears later is not read out by itself. Announce it once, when it first shows (works on iOS and Android).
+  // Only the banner appearing triggers it, so a reordered alert list does not repeat it.
+  const titleRef = useRef(title);
+  titleRef.current = title;
   useEffect(() => {
-    if (showBanner) AccessibilityInfo.announceForAccessibility(spoken);
-  }, [showBanner, spoken]);
+    if (showBanner) AccessibilityInfo.announceForAccessibility(titleRef.current);
+  }, [showBanner]);
 
   if (!showBanner) return notice;
 
@@ -43,7 +46,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
         <Feather name="alert-triangle" size={16} color={colors.crowdRed} />
         <View style={styles.textBlock}>
           <Text allowFontScaling={true} style={styles.title}>
-            {firstAlert?.line ?? 'Train'} disruption
+            {title}
           </Text>
           {firstAlert?.message ? (
             <Text

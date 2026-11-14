@@ -5,17 +5,18 @@ import { Icon } from './Icons';
 
 interface BackButtonProps {
   onPress: () => void;
-  // Spoken name. Defaults to Back, and a modal can say what it closes.
-  label?: string;
+  // Extra context read after the name, such as what the button closes. The name stays the visible text.
+  hint?: string;
 }
 
 // The one Back control, so every screen gets the same minimum tap size.
-export function BackButton({ onPress, label = 'Back' }: BackButtonProps): React.JSX.Element {
+export function BackButton({ onPress, hint }: BackButtonProps): React.JSX.Element {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel="Back"
+      accessibilityHint={hint}
       style={({ pressed }) => [styles.back, pressed && styles.pressed]}
       hitSlop={spacing.md}
     >

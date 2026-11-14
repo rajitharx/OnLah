@@ -4,9 +4,9 @@ import { FlatList, Linking, Pressable, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NearbyStackParamList } from '../../app/navigation/types';
 import {
+  BackButton,
   BoardLegend,
   Freshness,
-  BackButton,
   Icon,
   ResyncButton,
   SkeletonTiles,
