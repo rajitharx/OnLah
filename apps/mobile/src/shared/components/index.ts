@@ -13,3 +13,4 @@ export { OperatorLogo } from './OperatorLogo';
 export { ResyncButton } from './ResyncButton';
 export { StaleNotice } from './StaleNotice';
 export { StopCard } from './StopCard';
+export { BackButton } from './BackButton';

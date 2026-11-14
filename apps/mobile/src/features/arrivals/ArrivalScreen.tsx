@@ -6,6 +6,7 @@ import { NearbyStackParamList } from '../../app/navigation/types';
 import {
   BoardLegend,
   Freshness,
+  BackButton,
   Icon,
   ResyncButton,
   SkeletonTiles,
@@ -95,16 +96,7 @@ export function ArrivalScreen({ route, navigation }: Props): React.JSX.Element {
         ItemSeparatorComponent={ServiceSeparator}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Pressable
-              onPress={() => navigation.goBack()}
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-              hitSlop={spacing.md}
-            >
-              <Icon name="chevron-left" size={22} color={colors.accent} />
-              <Text allowFontScaling={true} style={styles.backLabel}>Back</Text>
-            </Pressable>
+            <BackButton onPress={() => navigation.goBack()} />
 
             <View style={styles.titleRow}>
               <View style={styles.title}>
@@ -225,18 +217,6 @@ const styles = StyleSheet.create({
   header: {
     gap: spacing.sm,
     marginBottom: spacing.md,
-  },
-  back: {
-    minHeight: minTapSize,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-  },
-  backLabel: {
-    ...typography.body,
-    color: colors.accent,
-    fontWeight: '600',
   },
   pressed: {
     opacity: 0.7,

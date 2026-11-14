@@ -1,13 +1,12 @@
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
 import { formatFreshness } from '../../shared/utils/eta';
 
-// The live region stays mounted, so a disruption that appears later is announced instead of silently inserted.
-export function DisruptionBanner(): React.JSX.Element {
+export function DisruptionBanner(): React.JSX.Element | null {
   const { status, alerts, fetchedAt, hasError, dismissedAt, dismiss } = useDisruptionStore();
   const now = useNow(fetchedAt ?? undefined);
 
@@ -28,10 +27,17 @@ export function DisruptionBanner(): React.JSX.Element {
 
   const firstAlert = alerts[0];
   const showBanner = isDisrupted && !isDismissed;
+  const spoken = `${firstAlert?.line ?? 'Train'} disruption`;
+
+  // A banner that appears later is not read out by itself. Announce it once, when it first shows (works on iOS and Android).
+  useEffect(() => {
+    if (showBanner) AccessibilityInfo.announceForAccessibility(spoken);
+  }, [showBanner, spoken]);
+
+  if (!showBanner) return notice;
 
   return (
-    <View accessibilityLiveRegion="polite">
-    {showBanner ? (
+    <>
     <View style={styles.banner}>
       <View style={styles.content}>
         <Feather name="alert-triangle" size={16} color={colors.crowdRed} />
@@ -65,9 +71,8 @@ export function DisruptionBanner(): React.JSX.Element {
         <Feather name="x" size={16} color={colors.muted} />
       </Pressable>
     </View>
-    ) : null}
     {notice}
-    </View>
+    </>
   );
 }
 

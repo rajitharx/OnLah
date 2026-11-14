@@ -21,7 +21,6 @@ export const releases: Release[] = [
     items: [
       { kind: 'improvement', text: 'The Back buttons are now a full 44 points tall, so they are easier to hit.' },
       { kind: 'improvement', text: 'Train disruption alerts are announced when they appear, not only when the screen is read again.' },
-      { kind: 'improvement', text: 'The search box is announced as a search field.' },
     ],
   },
   {
