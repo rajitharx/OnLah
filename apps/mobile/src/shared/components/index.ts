@@ -3,6 +3,7 @@ export { CrowdBadge } from './CrowdBadge';
 export { ETADisplay } from './ETADisplay';
 export { SkeletonRow, SkeletonTiles } from './SkeletonTiles';
 export { ActionButton } from './ActionButton';
+export { BackButton } from './BackButton';
 export { BoardLegend } from './BoardLegend';
 export { EmptyState } from './EmptyState';
 export { FindStopActions } from './FindStopActions';

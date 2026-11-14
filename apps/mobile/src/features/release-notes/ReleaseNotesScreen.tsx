@@ -1,7 +1,7 @@
 import React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Icon } from '../../shared/components';
+import { BackButton } from '../../shared/components';
 import { betaLabel } from '../../shared/services/apiStatus';
 import { colors, radius, spacing, typography } from '../../shared/theme';
 import { releases, type ItemKind } from './releases';
@@ -19,16 +19,7 @@ export function ReleaseNotesScreen({ visible, onClose }: ReleaseNotesScreenProps
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Pressable
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Close release notes"
-            style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-            hitSlop={spacing.md}
-          >
-            <Icon name="chevron-left" size={22} color={colors.accent} />
-            <Text allowFontScaling={true} style={styles.backLabel}>Back</Text>
-          </Pressable>
+          <BackButton onPress={onClose} label="Close" />
 
           <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Release notes</Text>
           <Text allowFontScaling={true} style={typography.body}>
@@ -64,20 +55,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     paddingBottom: spacing.xxl,
-  },
-  back: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-  },
-  backLabel: {
-    ...typography.body,
-    color: colors.accent,
-    fontWeight: '600',
-  },
-  pressed: {
-    opacity: 0.7,
   },
   title: {
     ...typography.title,

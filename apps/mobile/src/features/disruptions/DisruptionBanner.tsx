@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
+import { disruptionAnnouncement, disruptionTitle } from './announcement';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
@@ -25,9 +26,25 @@ export function DisruptionBanner(): React.JSX.Element | null {
     </View>
   ) : null;
 
-  if (!isDisrupted || isDismissed) return notice;
-
   const firstAlert = alerts[0];
+  const showBanner = isDisrupted && !isDismissed;
+  const title = disruptionTitle(firstAlert?.line);
+
+  // A banner that appears later is not read out by itself. Announce it once, when it first shows (works on iOS and Android).
+  // A fresh poll brings a dismissed banner back with the same words, which must not be read out again.
+  const lastSpoken = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isDisrupted) {
+      lastSpoken.current = null;
+      return;
+    }
+    const text = disruptionAnnouncement(showBanner && firstAlert !== undefined, firstAlert?.line, firstAlert?.message, lastSpoken.current);
+    if (text === null) return;
+    lastSpoken.current = text;
+    AccessibilityInfo.announceForAccessibility(text);
+  }, [isDisrupted, showBanner, firstAlert?.line, firstAlert?.message]);
+
+  if (!showBanner) return notice;
 
   return (
     <>
@@ -36,7 +53,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
         <Feather name="alert-triangle" size={16} color={colors.crowdRed} />
         <View style={styles.textBlock}>
           <Text allowFontScaling={true} style={styles.title}>
-            {firstAlert?.line ?? 'Train'} disruption
+            {title}
           </Text>
           {firstAlert?.message ? (
             <Text
