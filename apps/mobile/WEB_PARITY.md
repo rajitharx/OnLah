@@ -53,7 +53,9 @@ The backend already has `bus-services/{serviceNo}`, `route-tracker` and `/health
 
 ### Phase 4: after review (not scheduled)
 
-15. Accessibility and polish. 16. Fill any test gaps left by earlier batches (logic is tested first in the batch that adds it). 17. Manual QA on device and release.
+15. Accessibility and polish. Done in #76 (2026-11-14): shared `BackButton` at 44pt, disruption announced with `AccessibilityInfo`. Every other control already had a role and label. Not yet tried with a screen reader.
+16. Fill any test gaps left by earlier batches. Done in #76: `haversine`, `disruptionStore` and the announcement rule. The persisted stores (favourites, saved buses) are not tested, because they use AsyncStorage and only delegate to tested utils; a React rendering test setup does not exist.
+17. Manual QA on device and release. Open.
 
 ## Rules that still apply
 

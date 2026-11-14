@@ -30,5 +30,5 @@ Small, clear bugs found while reviewing PRs #33 to #36. Written 31 Oct 2026. `[ 
 ## Follow-ups from #37 and #38
 
 - [x] 10. **Fill in merge times for releases 1.67 (#37) and 1.73 (#38)** in `releases.ts`. Nothing detects a stale `shipped: null`. *Done in #39.*
-- [ ] 11. **The MRT disruption card announcement.** Its status region mounts together with its content. Consider an always-mounted region. Needs a screen reader to verify.
+- [ ] 11. **The MRT disruption card announcement.** Its status region mounts together with its content. Consider an always-mounted region. Needs a screen reader to verify. *Mobile: the banner now announces a disruption with `AccessibilityInfo` (#76), not yet checked with VoiceOver or TalkBack. The web card is unchanged.*
 - [ ] 12. **Visual check of the alert cards.** The Hide button moved to the top of the card, and the notice and disruption cards sit as a group. Nobody has looked in a browser.
