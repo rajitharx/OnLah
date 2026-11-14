@@ -3,7 +3,13 @@ import { beforeEach, test } from 'node:test';
 import { useDisruptionStore } from '../src/shared/stores/disruptionStore';
 import { TrainAlertDetail } from '../src/types/domain';
 
-const alert = { line: 'NSL', message: 'Delay' } as unknown as TrainAlertDetail;
+const alert: TrainAlertDetail = {
+  line: 'NSL',
+  direction: 'Towards Jurong East',
+  stations: ['Bishan', 'Ang Mo Kio'],
+  message: 'Delay',
+  createdAt: '2026-11-14T00:30:00.000Z',
+};
 
 beforeEach(() => {
   useDisruptionStore.setState({ status: 0, alerts: [], fetchedAt: null, dismissedAt: null, hasError: false });

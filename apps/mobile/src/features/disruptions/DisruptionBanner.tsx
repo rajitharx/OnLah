@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
-import { disruptionAnnouncement } from './announcement';
+import { disruptionAnnouncement, disruptionTitle } from './announcement';
 import { useDisruptionStore } from '../../shared/stores/disruptionStore';
 import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
@@ -28,7 +28,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
 
   const firstAlert = alerts[0];
   const showBanner = isDisrupted && !isDismissed;
-  const title = `${firstAlert?.line ?? 'Train'} disruption`;
+  const title = disruptionTitle(firstAlert?.line);
 
   // A banner that appears later is not read out by itself. Announce it once, when it first shows (works on iOS and Android).
   // A fresh poll brings a dismissed banner back with the same words, which must not be read out again.
@@ -38,7 +38,7 @@ export function DisruptionBanner(): React.JSX.Element | null {
       lastSpoken.current = null;
       return;
     }
-    const text = disruptionAnnouncement(showBanner, firstAlert?.line, firstAlert?.message, lastSpoken.current);
+    const text = disruptionAnnouncement(showBanner && firstAlert !== undefined, firstAlert?.line, firstAlert?.message, lastSpoken.current);
     if (text === null) return;
     lastSpoken.current = text;
     AccessibilityInfo.announceForAccessibility(text);
