@@ -3,7 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../shared/components';
 import { betaLabel } from '../../shared/services/apiStatus';
-import { colors, radius, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, radius, spacing, typography } from '../../shared/theme';
 import { releases, type ItemKind } from './releases';
 
 const KIND_LABELS: Record<ItemKind, string> = { feature: 'New', improvement: 'Better', fix: 'Fixed' };
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   back: {
+    minHeight: minTapSize,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

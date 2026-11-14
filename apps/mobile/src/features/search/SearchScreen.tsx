@@ -63,6 +63,7 @@ export function SearchScreen({ navigation }: Props): React.JSX.Element {
                 placeholder="e.g. 01012 or Victoria"
                 placeholderTextColor={colors.muted}
                 accessibilityLabel="Stop code or road name"
+                accessibilityRole="search"
                 value={query}
                 onChangeText={setQuery}
                 autoCorrect={false}

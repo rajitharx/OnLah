@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   back: {
+    minHeight: minTapSize,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

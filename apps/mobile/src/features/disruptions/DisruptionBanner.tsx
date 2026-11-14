@@ -6,7 +6,8 @@ import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { useNow } from '../../shared/hooks/useNow';
 import { formatFreshness } from '../../shared/utils/eta';
 
-export function DisruptionBanner(): React.JSX.Element | null {
+// The live region stays mounted, so a disruption that appears later is announced instead of silently inserted.
+export function DisruptionBanner(): React.JSX.Element {
   const { status, alerts, fetchedAt, hasError, dismissedAt, dismiss } = useDisruptionStore();
   const now = useNow(fetchedAt ?? undefined);
 
@@ -25,12 +26,12 @@ export function DisruptionBanner(): React.JSX.Element | null {
     </View>
   ) : null;
 
-  if (!isDisrupted || isDismissed) return notice;
-
   const firstAlert = alerts[0];
+  const showBanner = isDisrupted && !isDismissed;
 
   return (
-    <>
+    <View accessibilityLiveRegion="polite">
+    {showBanner ? (
     <View style={styles.banner}>
       <View style={styles.content}>
         <Feather name="alert-triangle" size={16} color={colors.crowdRed} />
@@ -64,8 +65,9 @@ export function DisruptionBanner(): React.JSX.Element | null {
         <Feather name="x" size={16} color={colors.muted} />
       </Pressable>
     </View>
+    ) : null}
     {notice}
-    </>
+    </View>
   );
 }
 

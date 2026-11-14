@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NearbyStackParamList } from '../../app/navigation/types';
 import { ActionButton, EmptyState, Icon, SkeletonTiles, StaleNotice } from '../../shared/components';
 import { useNow } from '../../shared/hooks/useNow';
-import { colors, spacing, typography } from '../../shared/theme';
+import { colors, minTapSize, spacing, typography } from '../../shared/theme';
 import { EmptyCountdown, Countdown } from './Countdown';
 import { NextBusStrip } from './NextBusStrip';
 import { Rail } from './Rail';
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   back: {
+    minHeight: minTapSize,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

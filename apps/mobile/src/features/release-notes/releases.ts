@@ -15,6 +15,16 @@ export interface Release {
 // Newest first. Add one entry per merged batch of the web-parity work (see apps/mobile/WEB_PARITY.md).
 export const releases: Release[] = [
   {
+    version: '1.12',
+    title: 'Easier to use with a screen reader',
+    summary: 'Larger touch targets and clearer announcements.',
+    items: [
+      { kind: 'improvement', text: 'The Back buttons are now a full 44 points tall, so they are easier to hit.' },
+      { kind: 'improvement', text: 'Train disruption alerts are announced when they appear, not only when the screen is read again.' },
+      { kind: 'improvement', text: 'The search box is announced as a search field.' },
+    ],
+  },
+  {
     version: '1.11',
     title: 'Release notes in the app',
     summary: 'Tap the version in the header to read what changed in each release.',
