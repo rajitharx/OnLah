@@ -19,7 +19,7 @@ export function ReleaseNotesScreen({ visible, onClose }: ReleaseNotesScreenProps
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
-          <BackButton onPress={onClose} hint="Closes the release notes" />
+          <BackButton onPress={onClose} label="Close" />
 
           <Text allowFontScaling={true} accessibilityRole="header" style={styles.title}>Release notes</Text>
           <Text allowFontScaling={true} style={typography.body}>

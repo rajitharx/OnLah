@@ -5,23 +5,21 @@ import { Icon } from './Icons';
 
 interface BackButtonProps {
   onPress: () => void;
-  // Extra context read after the name, such as what the button closes. The name stays the visible text.
-  hint?: string;
+  // The visible text and the spoken name, which are kept the same.
+  label?: string;
 }
 
 // The one Back control, so every screen gets the same minimum tap size.
-export function BackButton({ onPress, hint }: BackButtonProps): React.JSX.Element {
+export function BackButton({ onPress, label = 'Back' }: BackButtonProps): React.JSX.Element {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Back"
-      accessibilityHint={hint}
+      accessibilityLabel={label}
       style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-      hitSlop={spacing.md}
     >
       <Icon name="chevron-left" size={22} color={colors.accent} />
-      <Text allowFontScaling={true} style={styles.label}>Back</Text>
+      <Text allowFontScaling={true} style={styles.label}>{label}</Text>
     </Pressable>
   );
 }
@@ -29,6 +27,7 @@ export function BackButton({ onPress, hint }: BackButtonProps): React.JSX.Elemen
 const styles = StyleSheet.create({
   back: {
     minHeight: minTapSize,
+    minWidth: minTapSize,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,

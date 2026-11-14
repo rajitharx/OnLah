@@ -19,8 +19,8 @@ export const releases: Release[] = [
     title: 'Easier to use with a screen reader',
     summary: 'Larger touch targets and clearer announcements.',
     items: [
-      { kind: 'improvement', text: 'The Back buttons are now a full 44 points tall, so they are easier to hit.' },
-      { kind: 'improvement', text: 'Train disruption alerts are announced when they appear, not only when the screen is read again.' },
+      { kind: 'improvement', text: 'The Back and Close buttons are now at least 44 points tall and wide, so they are easier to hit.' },
+      { kind: 'improvement', text: 'A train disruption is announced, with its message, when it appears or changes.' },
     ],
   },
   {
