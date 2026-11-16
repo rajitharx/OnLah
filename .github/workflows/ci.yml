@@ -1,12 +1,26 @@
 name: CI
 
+# Deliberately no `paths:` filter. The apps read each other's files (the web tests read Docs/, CHANGELOG.md and
+# .githooks/), so a change outside an app folder can still break that app. Every job runs on every change.
 on:
   pull_request:
     branches: [main]
+  # Also test main after a merge, since two PRs that passed alone can still break each other.
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same PR cancels the older run. Runs on main are never cancelled.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: apps/backend
@@ -21,6 +35,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: apps/web
@@ -38,6 +53,7 @@ jobs:
 
   mobile:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: apps/mobile
