@@ -28,7 +28,8 @@ The `CLAUDE.md` table rows are updated. Still review only: no third-party UI lib
 
 - [ ] **Mobile release pipeline.** `apps/mobile/app.json` is version 1.0.0 while the in-app release notes are at 1.12. Decide how the build version follows the notes, then set up EAS builds and TestFlight.
 - [x] **Web version hook.** Done: `.githooks/pre-commit` bumps only when a commit stages something under `apps/web`, with a test in `apps/web/scripts/preCommitHook.test.mjs`.
-- [ ] **CI path filtering.** A docs-only PR ran none of the `backend`, `mobile` or `web` jobs. Confirm that is intended and cannot hide a real change.
+- [x] **CI path filtering.** Checked on 16 Nov 2026: there is no path filter, and the `backend`, `web` and `mobile` jobs ran in full on the docs-only PRs. A filter would be a risk, because the web tests read `Docs/`, `CHANGELOG.md` and `.githooks/`. Done instead: CI also runs on pushes to `main`, a newer push cancels the older run on the same PR, jobs have a 15 minute timeout, and the token is read-only.
+- [ ] **Required checks.** Branch protection is not available on this plan (the API returns 403), so a PR can still be merged with a red check. Needs GitHub Pro or a public repository, or a habit of looking before merging.
 - [ ] **`keep-alive.yml`.** Check it still does its job. The "waking up the server" notice suggests cold starts still happen.
 
 ## 5. Product ideas outside the v1 scope
