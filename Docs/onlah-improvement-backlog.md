@@ -27,7 +27,7 @@ The `CLAUDE.md` table rows are updated. Still review only: no third-party UI lib
 ## 4. Release and operations
 
 - [ ] **Mobile release pipeline.** `apps/mobile/app.json` is version 1.0.0 while the in-app release notes are at 1.12. Decide how the build version follows the notes, then set up EAS builds and TestFlight.
-- [ ] **Web version hook.** `.githooks/pre-commit` bumps the web version on every commit, including mobile-only and docs-only ones. Bump it only when `apps/web` changes.
+- [x] **Web version hook.** Done: `.githooks/pre-commit` bumps only when a commit stages something under `apps/web`, with a test in `apps/web/scripts/preCommitHook.test.mjs`.
 - [ ] **CI path filtering.** A docs-only PR ran none of the `backend`, `mobile` or `web` jobs. Confirm that is intended and cannot hide a real change.
 - [ ] **`keep-alive.yml`.** Check it still does its job. The "waking up the server" notice suggests cold starts still happen.
 

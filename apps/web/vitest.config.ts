@@ -5,6 +5,6 @@ export default defineConfig({
     environment: 'node',
     // Vitest blanks CSS imports, even ?raw, unless included; a test reads the stylesheet source.
     css: { include: [/styles\.css/] },
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.mjs'],
   },
 });

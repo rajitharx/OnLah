@@ -61,7 +61,7 @@ Run `npm run check` in `apps/mobile` or `apps/web` before pushing. CI runs the s
 | Mobile typechecks and its tests pass | `npm run check` in `apps/mobile`, run by the `mobile` job in `.github/workflows/ci.yml`. It runs the typecheck, the `node:test` logic tests in `__tests__`, and the Jest tests in `__render__` (component renders and persisted stores, which need React Native or AsyncStorage) |
 | Web builds and its tests pass | `npm run check` in `apps/web`, run by the `web` job in CI |
 | Web release versions are unique, ordered by merge time, and match the changelog | `apps/web/src/features/release-notes/releases.test.ts` |
-| The web version rises on every commit | `.githooks/pre-commit`. This is local only and is skipped in worktrees that never ran `npm install`, so CI does not check it |
+| The web version rises on every commit that changes `apps/web` (and only those) | `.githooks/pre-commit`, with `apps/web/scripts/preCommitHook.test.mjs` running the real hook in a throwaway repo. The hook itself is local only and is skipped in worktrees that never ran `npm install`, so CI does not check that it ran |
 | Palette in `colors.ts` unchanged | `apps/mobile/__tests__/hardRules.test.ts` compares the `colors` object to the approved values, so changed, added or removed colours fail. Other exports in the file are not checked. Changing the palette needs the owner and an edit to that test |
 | No third-party UI library, a new screen needs a feature folder | Nothing. Review only |
 | No LTA AccountKey in mobile code, all LTA calls via the backend | `apps/mobile/__tests__/hardRules.test.ts` fails on an AccountKey, the LTA host or the odata path in `src`, `App.tsx`, `app.json`, `app.config.*`, the bundler config or a `.env` file in `apps/mobile` |

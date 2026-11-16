@@ -1,5 +1,12 @@
 #!/bin/sh
-# Every commit raises the web app's minor version by one, and the bump goes into the same commit.
+# A commit that changes the web app raises its minor version by one, and the bump goes into the same commit.
+# A commit that touches nothing under apps/web (mobile, backend, docs) leaves the version alone.
+# A commit that already changes the version line itself (a hand-made major bump) is left as written.
 set -e
-node apps/web/scripts/bump-version.mjs minor
-git add apps/web/package.json
+if git diff --cached --name-only -- apps/web | grep -q .; then
+  if git diff --cached -U0 -- apps/web/package.json | grep -q '^+  "version":'; then
+    exit 0
+  fi
+  node apps/web/scripts/bump-version.mjs minor
+  git add apps/web/package.json
+fi
