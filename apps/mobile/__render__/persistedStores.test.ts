@@ -49,7 +49,9 @@ describe('favourites', () => {
     for (let i = 0; i < MAX_FAVOURITES + 3; i += 1) {
       useFavouritesStore.getState().add({ code: String(10000 + i), name: null, road: null });
     }
-    expect(useFavouritesStore.getState().favourites.length).toBeLessThanOrEqual(MAX_FAVOURITES);
+    const codes = useFavouritesStore.getState().favourites.map((f) => f.code);
+    // Full means full: the first ones stay and the extra ones are refused.
+    expect(codes).toEqual(Array.from({ length: MAX_FAVOURITES }, (_, i) => String(10000 + i)));
   });
 
   test('writes to storage, and a restart reads it back', async () => {

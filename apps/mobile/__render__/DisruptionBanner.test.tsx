@@ -19,6 +19,8 @@ const store = () => useDisruptionStore.getState();
 // The store change has to run inside an async act, so the banner and its effect settle before the next line.
 const update = (change: () => void) => act(async () => { change(); });
 
+afterAll(() => announce.mockRestore());
+
 beforeEach(() => {
   announce.mockClear();
   useDisruptionStore.setState({ status: 0, alerts: [], fetchedAt: null, dismissedAt: null, hasError: false });
