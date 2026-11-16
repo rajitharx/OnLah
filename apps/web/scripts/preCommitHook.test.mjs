@@ -2,32 +2,33 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 // Runs the real .githooks/pre-commit in a throwaway repo. The rule: a commit that changes the web app
 // raises its minor version by one, in the same commit. A commit that touches nothing under apps/web does not.
 
-const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const webScripts = ['bump-version.mjs', 'version-core.mjs'];
 
 // Git variables set by an outer commit would point the throwaway repo at the real one.
 const cleanEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
 
-let dir: string;
+let dir;
 
-function git(...args: string[]): string {
+function git(...args) {
   return execFileSync('git', args, { cwd: dir, env: cleanEnv, encoding: 'utf8' });
 }
 
-function write(file: string, text: string): void {
+function write(file, text) {
   mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
   writeFileSync(path.join(dir, file), text);
 }
 
-const version = (): string => JSON.parse(readFileSync(path.join(dir, 'apps/web/package.json'), 'utf8')).version;
-const committedFiles = (): string[] => git('show', '--name-only', '--format=', 'HEAD').split('\n').filter(Boolean);
+const version = () => JSON.parse(readFileSync(path.join(dir, 'apps/web/package.json'), 'utf8')).version;
+const committedFiles = () => git('show', '--name-only', '--format=', 'HEAD').split('\n').filter(Boolean);
 
-function commit(message: string, ...files: string[]): void {
+function commit(message, ...files) {
   git('add', ...files);
   git('commit', '-q', '-m', message);
 }
