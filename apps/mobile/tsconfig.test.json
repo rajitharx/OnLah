@@ -5,6 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node10",
     "customConditions": null,
+    "types": ["node"],
     "outDir": ".test-build"
   },
   "include": ["__tests__/**/*.ts"]

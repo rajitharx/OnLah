@@ -58,7 +58,7 @@ Run `npm run check` in `apps/mobile` or `apps/web` before pushing. CI runs the s
 | Rule | Enforced by |
 |---|---|
 | Mobile: no inline style objects, no colour literals, no hardcoded spacing or `fontSize`, no `TouchableOpacity`, no `console.log`, no `any` | `apps/mobile/__tests__/designRules.test.ts`. The error names the token to use. An exception goes on the line as `// design-rule-exception: <rule> \| <reason> \| expires YYYY-MM-DD \| approved by <human>` and stops working at its expiry |
-| Mobile typechecks and its tests pass | `npm run check` in `apps/mobile`, run by the `mobile` job in `.github/workflows/ci.yml` |
+| Mobile typechecks and its tests pass | `npm run check` in `apps/mobile`, run by the `mobile` job in `.github/workflows/ci.yml`. It runs the typecheck, the `node:test` logic tests in `__tests__`, and the Jest tests in `__render__` (component renders and persisted stores, which need React Native or AsyncStorage) |
 | Web builds and its tests pass | `npm run check` in `apps/web`, run by the `web` job in CI |
 | Web release versions are unique, ordered by merge time, and match the changelog | `apps/web/src/features/release-notes/releases.test.ts` |
 | The web version rises on every commit | `.githooks/pre-commit`. This is local only and is skipped in worktrees that never ran `npm install`, so CI does not check it |
