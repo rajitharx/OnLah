@@ -13,39 +13,44 @@ function sourceFiles(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return sourceFiles(full);
-    return /\.(ts|tsx)$/.test(entry.name) ? [full] : [];
+    return /\.(ts|tsx|js|jsx)$/.test(entry.name) ? [full] : [];
   });
 }
 
-// What is scanned: app code, the entry file and the Expo config. Tests are left out, since they name the forbidden things.
+// What is scanned: app code, the entry file, the Expo and bundler config, and any .env file in the app folder.
+// Tests are left out, since they name the forbidden things. node_modules and build output are not part of the app.
 function appFiles(): string[] {
-  return [
-    ...sourceFiles(path.join(mobileRoot, 'src')),
-    path.join(mobileRoot, 'App.tsx'),
-    path.join(mobileRoot, 'app.json'),
-  ].filter((file) => fs.existsSync(file));
+  const topLevel = fs
+    .readdirSync(mobileRoot, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /^(App\.tsx|app\.config\..+|app\.json|babel\.config\.js|metro\.config\.js|\.env.*)$/.test(entry.name))
+    .map((entry) => path.join(mobileRoot, entry.name));
+  return [...sourceFiles(path.join(mobileRoot, 'src')), ...topLevel];
 }
 
 const ltaPatterns: Array<[string, RegExp]> = [
-  ['an AccountKey', /account[-_ ]?key/i],
+  ['an AccountKey', /account[-_]?key/i],
   ['the LTA DataMall host', /datamall\.lta\.gov\.sg/i],
   ['the LTA odata path', /ltaodataservice/i],
 ];
 
-export function ltaLeaks(code: string): string[] {
+function ltaLeaks(code: string): string[] {
   return ltaPatterns.filter(([, pattern]) => pattern.test(code)).map(([name]) => name);
 }
 
-// A name like stopCode, busStopCode or nearestStopCodes declared as a number, or turned into one.
-const numberDeclaration = /\b\w*[sS]topCodes?\w*\??\s*:\s*number\b/;
-const numberConversion = /\b(?:Number|parseInt|parseFloat)\(\s*[\w.?!]*[sS]topCodes?\b/;
-const unaryPlus = /(?:^|[=(,:\s])\+\s*[\w.?!]*[sS]topCodes?\b/;
+// A name like stopCode, busStopCode, nearestStopCodes or stop_code, in any case, declared as a number or turned into one.
+// The scan goes line by line and by name. It does not follow a stop code that has been renamed.
+const stopCodeName = String.raw`\w*stop_?codes?\w*`;
+const numberDeclaration = new RegExp(String.raw`\b${stopCodeName}\??\s*:\s*number\b`, 'i');
+const numberConversion = new RegExp(String.raw`\b(?:Number|parseInt|parseFloat)\([^)]*\b${stopCodeName}`, 'i');
+const unaryPlus = new RegExp(String.raw`(?:^|[=(,:\s])\+\s*[\w.?!]*${stopCodeName}`, 'i');
+const asNumber = new RegExp(String.raw`\b${stopCodeName}\s+as\s+(?:unknown\s+as\s+)?number\b`, 'i');
 
-export function stopCodeNumberUses(code: string): string[] {
+function stopCodeNumberUses(code: string): string[] {
   return code
+    .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, ' '))
     .split('\n')
-    .filter((line) => !line.trim().startsWith('//'))
-    .filter((line) => numberDeclaration.test(line) || numberConversion.test(line) || unaryPlus.test(line));
+    .map((line) => line.replace(/\/\/.*$/, ''))
+    .filter((line) => [numberDeclaration, numberConversion, unaryPlus, asNumber].some((re) => re.test(line)));
 }
 
 test('the app contains no LTA AccountKey and makes no direct LTA call', () => {
@@ -62,6 +67,7 @@ test('the LTA scan flags a key, the host and the odata path', () => {
     'the LTA odata path',
   ]);
   assert.deepEqual(ltaLeaks("fetch(`${baseUrl}/api/v1/bus-stops/nearby`)"), []);
+  assert.deepEqual(ltaLeaks('// the account key lives on the server'), []);
 });
 
 test('no stop code is declared or converted as a number', () => {
@@ -80,6 +86,11 @@ test('the stop code scan flags number types and conversions, but not strings', (
   assert.equal(stopCodeNumberUses('stopCode: string;').length, 0);
   assert.equal(stopCodeNumberUses('// stopCode: number is wrong').length, 0);
   assert.equal(stopCodeNumberUses('const total = count + stopsAway;').length, 0);
+  assert.equal(stopCodeNumberUses('bus_stop_code: number').length, 1);
+  assert.equal(stopCodeNumberUses('const n = Number(stop.busStopCode.trim());').length, 1);
+  assert.equal(stopCodeNumberUses('const n = stopCode as unknown as number;').length, 1);
+  assert.equal(stopCodeNumberUses('const x = 1; // stopCode: number is wrong').length, 0);
+  assert.equal(stopCodeNumberUses('/* stopCode: number */ const x = 1;').length, 0);
 });
 
 test('the colour palette is unchanged', () => {

@@ -54,7 +54,7 @@ public sealed class LtaBusClientTests
 
         var uri = handler.Requests[0].RequestUri!;
         Assert.Equal("/ltaodataservice/v3/BusArrival", uri.AbsolutePath);
-        Assert.Equal("?BusStopCode=83139", uri.Query);
+        Assert.Equal("83139", System.Web.HttpUtility.ParseQueryString(uri.Query)["BusStopCode"]);
     }
 
     [Fact]
