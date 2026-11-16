@@ -9,12 +9,14 @@ on:
   push:
     branches: [main]
 
+# Read-only token. If a job ever needs more (commenting on a PR, uploading results), grant that scope on that job.
 permissions:
   contents: read
 
-# A newer push to the same PR cancels the older run. Runs on main are never cancelled.
+# A newer push to the same PR cancels the older run. Runs on main are never cancelled, and each commit on main
+# gets its own group so that a quick second merge cannot drop the first merge's run from the queue.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
