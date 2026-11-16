@@ -43,6 +43,20 @@ public sealed class LtaBusClientTests
         Assert.Equal("test-account-key", handler.Requests[0].Headers.GetValues("AccountKey").Single());
     }
 
+    // Hard rule: Bus Arrival calls use the v3 endpoint. v2 is retired and has a different shape.
+    [Fact]
+    public async Task GetArrivalsAsync_AnyRequest_CallsTheV3BusArrivalEndpointWithTheStopCode()
+    {
+        var handler = new FakeHttpMessageHandler(_ => Respond(HttpStatusCode.OK, ValidBody));
+        var client = CreateClient(handler);
+
+        await client.GetArrivalsAsync("83139");
+
+        var uri = handler.Requests[0].RequestUri!;
+        Assert.Equal("/ltaodataservice/v3/BusArrival", uri.AbsolutePath);
+        Assert.Equal("83139", System.Web.HttpUtility.ParseQueryString(uri.Query)["BusStopCode"]);
+    }
+
     [Fact]
     public async Task GetArrivalsAsync_NonSuccessStatus_ReturnsUnavailable()
     {

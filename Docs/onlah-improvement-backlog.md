@@ -11,12 +11,12 @@ Written 16 Nov 2026, after the mobile web-parity work (tasks 1 to 16) was merged
 
 The rules table in `CLAUDE.md` lists these as enforced by "Nothing". Each is a small PR.
 
-- [ ] **Bus Arrival uses the LTA v3 endpoint.** Add a test on the path in `LtaBusClient.cs`.
-- [ ] **No LTA AccountKey in mobile.** A test or CI grep that fails if the key name or the LTA host appears under `apps/mobile`.
-- [ ] **Bus stop codes are `String`.** A type-level guard, plus a test that fails if a stop code becomes a number.
-- [ ] **Palette unchanged.** A snapshot test of `apps/mobile/src/shared/theme/colors.ts`.
+- [x] **Bus Arrival uses the LTA v3 endpoint.** Done: a test on the request path in `LtaBusClientTests.cs`.
+- [x] **No LTA AccountKey in mobile.** Done in `apps/mobile/__tests__/hardRules.test.ts`.
+- [x] **Bus stop codes are `String`.** Done for mobile in `hardRules.test.ts`, by name (`*StopCode*`). Not done: the backend, and a field with a different name.
+- [x] **Palette unchanged.** Done in `hardRules.test.ts`.
 
-When one lands, update its row in the `CLAUDE.md` table.
+The `CLAUDE.md` table rows are updated. Still review only: no third-party UI library, and a new screen needs a feature folder.
 
 ## 3. Test depth
 

@@ -62,8 +62,9 @@ Run `npm run check` in `apps/mobile` or `apps/web` before pushing. CI runs the s
 | Web builds and its tests pass | `npm run check` in `apps/web`, run by the `web` job in CI |
 | Web release versions are unique, ordered by merge time, and match the changelog | `apps/web/src/features/release-notes/releases.test.ts` |
 | The web version rises on every commit | `.githooks/pre-commit`. This is local only and is skipped in worktrees that never ran `npm install`, so CI does not check it |
-| Palette in `colors.ts` unchanged, no third-party UI library, a new screen needs a feature folder | Nothing. Review only |
-| No LTA AccountKey in mobile code, all LTA calls via the backend | Nothing. Review only |
-| Bus stop codes are `String`, never `Number` | Nothing. Review only |
-| Bus Arrival calls use the LTA v3 endpoint | Nothing. The path in `LtaBusClient.cs` has no test |
+| Palette in `colors.ts` unchanged | `apps/mobile/__tests__/hardRules.test.ts` compares the `colors` object to the approved values, so changed, added or removed colours fail. Other exports in the file are not checked. Changing the palette needs the owner and an edit to that test |
+| No third-party UI library, a new screen needs a feature folder | Nothing. Review only |
+| No LTA AccountKey in mobile code, all LTA calls via the backend | `apps/mobile/__tests__/hardRules.test.ts` fails on an AccountKey, the LTA host or the odata path in `src`, `App.tsx`, `app.json`, `app.config.*`, the bundler config or a `.env` file in `apps/mobile` |
+| Bus stop codes are `String`, never `Number` | Mobile: `hardRules.test.ts` fails on a stop code typed or converted as a number. The scan goes by name (`*StopCode*`), so a differently named field is not caught. The backend is not checked |
+| Bus Arrival calls use the LTA v3 endpoint | `LtaBusClientTests.GetArrivalsAsync_AnyRequest_CallsTheV3BusArrivalEndpointWithTheStopCode`, run by `dotnet test` in CI |
 | Web CSS has no dead or duplicate rules | Nothing. Two checks were tried (unused class names, duplicate declarations) and neither catches the mistakes that were made, so this stays a review item |
