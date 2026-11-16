@@ -20,8 +20,8 @@ The `CLAUDE.md` table rows are updated. Still review only: no third-party UI lib
 
 ## 3. Test depth
 
-- [ ] **React rendering tests for mobile.** Only pure logic is tested today. The disruption announcement effect, `BackButton` and the screens have no render tests. Needs a React Native Testing Library setup.
-- [ ] **Persisted stores.** `favouritesStore` and `savedBusesStore` are untested because they use AsyncStorage. An in-memory mock would cover them.
+- [x] **React rendering tests for mobile.** Done: Jest with `jest-expo` and React Native Testing Library, in `apps/mobile/__render__`, run by `npm run test:render` and by `npm run check`. Covers `BackButton` and the `DisruptionBanner` announcement. The screens (Arrivals, Search, Nearby, Saved, tracker, sheet) still have no render tests, so add them one at a time as they change.
+- [x] **Persisted stores.** Done in `__render__/persistedStores.test.ts`, using the AsyncStorage mock.
 - [ ] **Contract check against the backend.** One end-to-end test that the mobile API client matches the real response shapes.
 
 ## 4. Release and operations
