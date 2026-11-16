@@ -1,0 +1,45 @@
+# OnLah improvement backlog
+
+Written 16 Nov 2026, after the mobile web-parity work (tasks 1 to 16) was merged. `[ ]` means still open. This sits beside `onlah-bug-backlog.md`, which holds small known bugs. This file holds larger improvements. Nothing here is started.
+
+## 1. Finish the parity work (needs a device or a browser)
+
+- [ ] **Task 17: manual QA and release.** Run VoiceOver and TalkBack over the disruption announcement, the Back and Close buttons and the search field, then a release pass. See `apps/mobile/WEB_PARITY.md`.
+- [ ] **Bug backlog 6, 7, 8, 9, 12.** Nearby with real GPS, the no-service state at night, placeholder contrast and the header dot, `/notes` at 375px, and a visual check of the alert cards. Details are in `onlah-bug-backlog.md`.
+
+## 2. Turn "review only" rules into checks
+
+The rules table in `CLAUDE.md` lists these as enforced by "Nothing". Each is a small PR.
+
+- [ ] **Bus Arrival uses the LTA v3 endpoint.** Add a test on the path in `LtaBusClient.cs`.
+- [ ] **No LTA AccountKey in mobile.** A test or CI grep that fails if the key name or the LTA host appears under `apps/mobile`.
+- [ ] **Bus stop codes are `String`.** A type-level guard, plus a test that fails if a stop code becomes a number.
+- [ ] **Palette unchanged.** A snapshot test of `apps/mobile/src/shared/theme/colors.ts`.
+
+When one lands, update its row in the `CLAUDE.md` table.
+
+## 3. Test depth
+
+- [ ] **React rendering tests for mobile.** Only pure logic is tested today. The disruption announcement effect, `BackButton` and the screens have no render tests. Needs a React Native Testing Library setup.
+- [ ] **Persisted stores.** `favouritesStore` and `savedBusesStore` are untested because they use AsyncStorage. An in-memory mock would cover them.
+- [ ] **Contract check against the backend.** One end-to-end test that the mobile API client matches the real response shapes.
+
+## 4. Release and operations
+
+- [ ] **Mobile release pipeline.** `apps/mobile/app.json` is version 1.0.0 while the in-app release notes are at 1.12. Decide how the build version follows the notes, then set up EAS builds and TestFlight.
+- [ ] **Web version hook.** `.githooks/pre-commit` bumps the web version on every commit, including mobile-only and docs-only ones. Bump it only when `apps/web` changes.
+- [ ] **CI path filtering.** A docs-only PR ran none of the `backend`, `mobile` or `web` jobs. Confirm that is intended and cannot hide a real change.
+- [ ] **`keep-alive.yml`.** Check it still does its job. The "waking up the server" notice suggests cold starts still happen.
+
+## 5. Product ideas outside the v1 scope
+
+`Docs/Claude/ONLAH_APP_GUIDE.md` says "do not build" for these. Each needs an explicit scope decision first, as was done for web parity on 2026-11-09.
+
+- Live bus position on a map.
+- ETA reliability badges.
+- Android store release (deferred to v2).
+- Server-synced favourites, which need accounts.
+
+## Suggested order
+
+Section 2 first (small, no device), then the rendering-test setup from section 3, then section 4. Sections 1 and 5 depend on you.
