@@ -52,19 +52,16 @@ internal sealed class GetRouteTrackerValidator : AbstractValidator<GetRouteTrack
     {
         RuleFor(x => x.BusStopCode)
             .NotEmpty()
-            .Matches(@"^[0-9]{5}\z").WithMessage("BusStopCode must be a 5-digit numeric string.");
+            .MatchStopCodeFormat("BusStopCode");
 
         RuleFor(x => x.ServiceNo)
-            .NotEmpty()
-            .MaximumLength(10)
-            .Matches(@"^[A-Za-z0-9]+\z").WithMessage("Service number must be letters and digits only.");
+            .BeServiceNumber();
 
         RuleFor(x => x.Direction)
             .InclusiveBetween(1, 2).When(x => x.Direction is not null)
             .WithMessage("Direction must be 1 or 2.");
 
         RuleFor(x => x.DestinationCode)
-            .Matches(@"^[0-9]{5}\z").When(x => x.DestinationCode is not null)
-            .WithMessage("DestinationCode must be a 5-digit numeric string.");
+            .MatchStopCodeFormat("DestinationCode").When(x => x.DestinationCode is not null);
     }
 }

@@ -60,6 +60,6 @@ internal sealed class GetBusArrivalsValidator : AbstractValidator<GetBusArrivals
         RuleFor(x => x.StopCode)
             .NotEmpty()
             .Length(5)
-            .Matches(@"^[0-9]{5}\z").WithMessage("StopCode must be a 5-digit numeric string.");
+            .MatchStopCodeFormat("StopCode");
     }
 }
