@@ -1,0 +1,21 @@
+{
+  "request": "/api/v1/train-alerts",
+  "response": {
+    "data": {
+      "status": 1,
+      "alerts": [
+        {
+          "line": "NSL",
+          "direction": "Jurong East",
+          "stations": [
+            "NS1",
+            "NS2"
+          ],
+          "message": "No train service",
+          "createdAt": "2026-01-01T07:00:00+00:00"
+        }
+      ]
+    },
+    "fetchedAt": "2026-01-01T00:00:00+00:00"
+  }
+}

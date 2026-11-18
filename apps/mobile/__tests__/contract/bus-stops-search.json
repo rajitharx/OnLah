@@ -1,0 +1,13 @@
+{
+  "request": "/api/v1/bus-stops/search?query=Terminus",
+  "response": [
+    {
+      "busStopCode": "90003",
+      "roadName": "Contract Road",
+      "description": "Terminus",
+      "latitude": 1.305,
+      "longitude": 103.8,
+      "distanceMeters": 0
+    }
+  ]
+}
