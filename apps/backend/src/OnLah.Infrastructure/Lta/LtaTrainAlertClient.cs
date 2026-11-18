@@ -32,19 +32,9 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
         {
             return await FetchAsync(cancellationToken);
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (IsExpectedFailure(ex, cancellationToken))
         {
-            LogRequestFailed(ex);
-            return Unavailable();
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            LogTimeout(ex);
-            return Unavailable();
-        }
-        catch (JsonException ex)
-        {
-            LogMalformedResponse(ex);
+            LogFailure(ex);
             return Unavailable();
         }
     }
@@ -60,6 +50,27 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
 
         var raw = await response.Content.ReadFromJsonAsync<LtaTrainAlertResponse>(cancellationToken: cancellationToken);
         return raw?.Value is null ? Unavailable() : Map(raw.Value);
+    }
+
+    // A caller's own cancellation is not a failure, so it keeps propagating.
+    private static bool IsExpectedFailure(Exception ex, CancellationToken cancellationToken) =>
+        ex is HttpRequestException or JsonException
+        || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested);
+
+    private void LogFailure(Exception ex)
+    {
+        switch (ex)
+        {
+            case HttpRequestException:
+                LogRequestFailed(ex);
+                break;
+            case TaskCanceledException:
+                LogTimeout(ex);
+                break;
+            default:
+                LogMalformedResponse(ex);
+                break;
+        }
     }
 
     private static DomainError Unavailable() => DomainError.Unavailable("TrainAlerts");
