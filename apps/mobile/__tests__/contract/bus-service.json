@@ -1,0 +1,48 @@
+{
+  "request": "/api/v1/bus-services/TRK1",
+  "response": {
+    "serviceNo": "TRK1",
+    "operators": [
+      "SBST"
+    ],
+    "directions": [
+      {
+        "direction": 1,
+        "category": "TRUNK",
+        "isLoop": false,
+        "loopDescription": null,
+        "origin": {
+          "busStopCode": "90001",
+          "description": "Start",
+          "roadName": "Contract Road"
+        },
+        "destination": {
+          "busStopCode": "90003",
+          "description": "Terminus",
+          "roadName": "Contract Road"
+        },
+        "stopCount": 3,
+        "frequency": {
+          "amPeak": "9-11",
+          "amOffPeak": "09-13",
+          "pmPeak": "10-12",
+          "pmOffPeak": "12-16"
+        },
+        "hours": {
+          "weekday": {
+            "first": "00:00",
+            "last": "23:59"
+          },
+          "saturday": {
+            "first": "00:00",
+            "last": "23:59"
+          },
+          "sunday": {
+            "first": "00:00",
+            "last": "23:59"
+          }
+        }
+      }
+    ]
+  }
+}

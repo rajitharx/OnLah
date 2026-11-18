@@ -22,7 +22,7 @@ The `CLAUDE.md` table rows are updated. Still review only: no third-party UI lib
 
 - [x] **React rendering tests for mobile.** Done: Jest with `jest-expo` and React Native Testing Library, in `apps/mobile/__render__`, run by `npm run test:render` and by `npm run check`. Covers `BackButton` and the `DisruptionBanner` announcement. The screens (Arrivals, Search, Nearby, Saved, tracker, sheet) still have no render tests, so add them one at a time as they change.
 - [x] **Persisted stores.** Done in `__render__/persistedStores.test.ts`, using the AsyncStorage mock.
-- [ ] **Contract check against the backend.** One end-to-end test that the mobile API client matches the real response shapes.
+- [x] **Contract check against the backend.** Done: `MobileContractTests.cs` records each endpoint's real response as a fixture in `apps/mobile/__tests__/contract`, and `contract.test.ts` type-checks the fixtures against the mobile types and checks the client's request paths. Success responses only.
 
 ## 4. Release and operations
 

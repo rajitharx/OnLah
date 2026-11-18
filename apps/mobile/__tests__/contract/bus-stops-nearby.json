@@ -1,0 +1,37 @@
+{
+  "request": "/api/v1/bus-stops/nearby?lat=1.305&lng=103.8&radiusMeters=500",
+  "response": [
+    {
+      "busStopCode": "90003",
+      "roadName": "Contract Road",
+      "description": "Terminus",
+      "latitude": 1.305,
+      "longitude": 103.8,
+      "distanceMeters": 0
+    },
+    {
+      "busStopCode": "83140",
+      "roadName": "Contract Road",
+      "description": "Midway",
+      "latitude": 1.306,
+      "longitude": 103.8,
+      "distanceMeters": 111.2
+    },
+    {
+      "busStopCode": "90002",
+      "roadName": "Contract Road",
+      "description": "Middle",
+      "latitude": 1.303,
+      "longitude": 103.8,
+      "distanceMeters": 222.4
+    },
+    {
+      "busStopCode": "90001",
+      "roadName": "Contract Road",
+      "description": "Start",
+      "latitude": 1.301,
+      "longitude": 103.8,
+      "distanceMeters": 444.8
+    }
+  ]
+}

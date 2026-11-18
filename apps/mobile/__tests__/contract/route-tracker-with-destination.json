@@ -1,0 +1,64 @@
+{
+  "request": "/api/v1/route-tracker?busStopCode=90003&serviceNo=TRK1&destinationCode=90003",
+  "response": {
+    "serviceNo": "TRK1",
+    "direction": 1,
+    "status": "live",
+    "fetchedAt": "2026-01-01T00:00:00+00:00",
+    "destination": {
+      "sequence": 3,
+      "busStopCode": "90003",
+      "description": "Terminus",
+      "roadName": "Contract Road",
+      "distanceKm": 1.5
+    },
+    "userStopIndex": 2,
+    "stops": [
+      {
+        "sequence": 1,
+        "busStopCode": "90001",
+        "description": "Start",
+        "roadName": "Contract Road",
+        "distanceKm": 0.5
+      },
+      {
+        "sequence": 2,
+        "busStopCode": "90002",
+        "description": "Middle",
+        "roadName": "Contract Road",
+        "distanceKm": 1
+      },
+      {
+        "sequence": 3,
+        "busStopCode": "90003",
+        "description": "Terminus",
+        "roadName": "Contract Road",
+        "distanceKm": 1.5
+      }
+    ],
+    "buses": [
+      {
+        "estimatedArrival": "2026-01-01T00:00:00+00:00",
+        "etaMinutes": 6,
+        "etaLabel": "6 min",
+        "load": "SEA",
+        "feature": "WAB",
+        "type": "SD",
+        "monitored": true,
+        "stopsAway": 2,
+        "nearestStopCode": "90001"
+      },
+      {
+        "estimatedArrival": "2026-01-01T00:00:00+00:00",
+        "etaMinutes": 6,
+        "etaLabel": "6 min",
+        "load": "SDA",
+        "feature": null,
+        "type": "DD",
+        "monitored": false,
+        "stopsAway": null,
+        "nearestStopCode": null
+      }
+    ]
+  }
+}

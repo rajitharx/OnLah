@@ -1,0 +1,39 @@
+{
+  "request": "/api/v1/bus-arrivals?stopCode=83140",
+  "response": {
+    "stopCode": "83140",
+    "fetchedAt": "2026-01-01T00:00:00+00:00",
+    "services": [
+      {
+        "serviceNo": "15",
+        "operator": "GAS",
+        "nextBus": {
+          "estimatedArrival": "2026-01-01T08:00:00+08:00",
+          "load": 2,
+          "isWheelchairAccessible": true,
+          "type": 1,
+          "isMonitored": true,
+          "isLastBus": false,
+          "destinationCode": "90003"
+        },
+        "nextBus2": {
+          "estimatedArrival": "2026-01-01T08:00:00+08:00",
+          "load": 0,
+          "isWheelchairAccessible": true,
+          "type": 1,
+          "isMonitored": false,
+          "isLastBus": false,
+          "destinationCode": "90003"
+        },
+        "nextBus3": null,
+        "routes": [
+          {
+            "origin": "Start",
+            "destination": "Terminus",
+            "destinationCode": "90003"
+          }
+        ]
+      }
+    ]
+  }
+}
