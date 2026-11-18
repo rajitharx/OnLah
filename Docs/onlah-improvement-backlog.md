@@ -13,7 +13,7 @@ The rules table in `CLAUDE.md` lists these as enforced by "Nothing". Each is a s
 
 - [x] **Bus Arrival uses the LTA v3 endpoint.** Done: a test on the request path in `LtaBusClientTests.cs`.
 - [x] **No LTA AccountKey in mobile.** Done in `apps/mobile/__tests__/hardRules.test.ts`.
-- [x] **Bus stop codes are `String`.** Done for mobile in `hardRules.test.ts`, by name (`*StopCode*`). Not done: the backend, and a field with a different name.
+- [x] **Bus stop codes are `String`.** Done for mobile in `hardRules.test.ts` and for the backend in `StopCodeTypeRuleTests.cs`, both by name (`*StopCode*`). Not done: a field with a different name.
 - [x] **Palette unchanged.** Done in `hardRules.test.ts`.
 
 The `CLAUDE.md` table rows are updated. Still review only: no third-party UI library, and a new screen needs a feature folder.
