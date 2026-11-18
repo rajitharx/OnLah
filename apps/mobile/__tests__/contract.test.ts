@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { test } from 'node:test';
 import { createOnlahApi } from '../src/shared/services/onlahApi';
 import type {
@@ -69,10 +71,28 @@ test('the client builds the request each contract fixture was recorded with', as
   );
 });
 
+test('every contract fixture on disk is checked in this file', () => {
+  const checked = [
+    'bus-arrivals',
+    'bus-service',
+    'bus-stops-nearby',
+    'bus-stops-search',
+    'route-tracker',
+    'route-tracker-with-destination',
+    'train-alerts',
+  ];
+  const onDisk = fs
+    .readdirSync(path.join(__dirname, 'contract'))
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => file.replace(/\.json$/, ''))
+    .sort();
+  assert.deepEqual(onDisk, checked, 'Import the new fixture above, type-check it and add it to this list.');
+});
+
 test('the fixtures exercise the optional and nullable fields the app handles', () => {
   const [first] = arrivalsResponse.services;
   assert.ok(first.nextBus?.destinationCode, 'a bus with a destination code');
-  assert.equal(first.nextBus3, null, 'a missing third bus is null');
+  assert.equal(first.nextBus3?.destinationCode, null, 'a bus without a destination code gets null, not an absent field');
   assert.ok(first.routes.length > 0, 'a service with routes');
   const [live, other] = trackerResponse.buses;
   assert.equal(live.feature, 'WAB');

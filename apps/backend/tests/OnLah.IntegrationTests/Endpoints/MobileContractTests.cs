@@ -110,7 +110,7 @@ public sealed class MobileContractTests(ApiFactory factory) : IClassFixture<ApiF
     {
         var timing = new ArrivalTiming(new DateTimeOffset(2026, 1, 1, 8, 0, 0, TimeSpan.FromHours(8)),
             CrowdLevel.LimitedStanding, true, BusType.DoubleDeck, true, false, "90003");
-        IReadOnlyList<BusArrival> services = [new("15", "GAS", timing, timing with { Load = CrowdLevel.SeatsAvailable, IsMonitored = false }, null)];
+        IReadOnlyList<BusArrival> services = [new("15", "GAS", timing, timing with { Load = CrowdLevel.SeatsAvailable, IsMonitored = false }, timing with { DestinationCode = null })];
         factory.LtaBusClient.GetArrivalsAsync("83140", Arg.Any<CancellationToken>()).Returns(Result.Success(services));
 
         factory.LtaTrainAlertClient.GetAlertsAsync(Arg.Any<CancellationToken>()).Returns(Result.Success(new TrainAlertsResult(
@@ -129,21 +129,14 @@ public sealed class MobileContractTests(ApiFactory factory) : IClassFixture<ApiF
         });
     }
 
-    // Values that depend on the clock are replaced, so only their type is compared.
+    // Values that depend on the clock are replaced, but only after checking they have the kind the app expects.
     private static JsonNode Normalised(JsonNode node)
     {
         if (node is JsonObject obj)
         {
             foreach (var key in obj.Select(p => p.Key).ToList())
             {
-                obj[key] = key switch
-                {
-                    "fetchedAt" => FixedTime,
-                    "etaMinutes" when obj[key] is JsonValue => 6,
-                    "etaLabel" when obj[key] is JsonValue => "6 min",
-                    "estimatedArrival" when obj.ContainsKey("etaMinutes") => FixedTime,
-                    _ => obj[key] is null ? null : Normalised(obj[key]!.DeepClone()),
-                };
+                obj[key] = Pinned(obj, key) ?? (obj[key] is null ? null : Normalised(obj[key]!.DeepClone()));
             }
         }
         else if (node is JsonArray array)
@@ -155,6 +148,22 @@ public sealed class MobileContractTests(ApiFactory factory) : IClassFixture<ApiF
         }
 
         return node;
+    }
+
+    private static JsonNode? Pinned(JsonObject obj, string key) => key switch
+    {
+        "fetchedAt" => PinIf(obj[key], JsonValueKind.String, FixedTime),
+        "estimatedArrival" when obj.ContainsKey("etaMinutes") => PinIf(obj[key], JsonValueKind.String, FixedTime),
+        "etaMinutes" => PinIf(obj[key], JsonValueKind.Number, 6),
+        "etaLabel" => PinIf(obj[key], JsonValueKind.String, "6 min"),
+        _ => null,
+    };
+
+    private static JsonNode PinIf(JsonNode? actual, JsonValueKind kind, JsonNode replacement)
+    {
+        var found = actual is JsonValue value ? value.GetValueKind() : JsonValueKind.Null;
+        Assert.True(found == kind, $"Expected a {kind} but the API sent {found}: {actual?.ToJsonString()}");
+        return replacement;
     }
 
     private static string FixtureFolder()

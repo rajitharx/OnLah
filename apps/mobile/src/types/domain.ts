@@ -14,8 +14,8 @@ export interface ArrivalTiming {
   type: BusType;
   isMonitored: boolean;
   isLastBus: boolean;
-  // The stop this bus is heading to. Absent when LTA does not say.
-  destinationCode?: string;
+  // The stop this bus is heading to. The API sends null when LTA does not say.
+  destinationCode?: string | null;
 }
 
 export interface ArrivalRoute {

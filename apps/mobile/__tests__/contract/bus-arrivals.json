@@ -25,7 +25,15 @@
           "isLastBus": false,
           "destinationCode": "90003"
         },
-        "nextBus3": null,
+        "nextBus3": {
+          "estimatedArrival": "2026-01-01T08:00:00+08:00",
+          "load": 2,
+          "isWheelchairAccessible": true,
+          "type": 1,
+          "isMonitored": true,
+          "isLastBus": false,
+          "destinationCode": null
+        },
         "routes": [
           {
             "origin": "Start",
