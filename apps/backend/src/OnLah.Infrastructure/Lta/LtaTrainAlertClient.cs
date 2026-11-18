@@ -30,35 +30,50 @@ internal sealed partial class LtaTrainAlertClient : ILtaTrainAlertClient
         LogFetchingAlerts();
         try
         {
-            var response = await _httpClient.GetAsync("ltaodataservice/TrainServiceAlerts", cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                LogLtaStatusError(response.StatusCode);
-                return DomainError.Unavailable("TrainAlerts");
-            }
-
-            var raw = await response.Content.ReadFromJsonAsync<LtaTrainAlertResponse>(cancellationToken: cancellationToken);
-            if (raw?.Value is null)
-                return DomainError.Unavailable("TrainAlerts");
-
-            return Map(raw.Value);
+            return await FetchAsync(cancellationToken);
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex) when (IsExpectedFailure(ex, cancellationToken))
         {
-            LogRequestFailed(ex);
-            return DomainError.Unavailable("TrainAlerts");
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            LogTimeout(ex);
-            return DomainError.Unavailable("TrainAlerts");
-        }
-        catch (JsonException ex)
-        {
-            LogMalformedResponse(ex);
-            return DomainError.Unavailable("TrainAlerts");
+            LogFailure(ex);
+            return Unavailable();
         }
     }
+
+    private async Task<Result<TrainAlertsResult>> FetchAsync(CancellationToken cancellationToken)
+    {
+        var response = await _httpClient.GetAsync("ltaodataservice/TrainServiceAlerts", cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            LogLtaStatusError(response.StatusCode);
+            return Unavailable();
+        }
+
+        var raw = await response.Content.ReadFromJsonAsync<LtaTrainAlertResponse>(cancellationToken: cancellationToken);
+        return raw?.Value is null ? Unavailable() : Map(raw.Value);
+    }
+
+    // A caller's own cancellation is not a failure, so it keeps propagating.
+    private static bool IsExpectedFailure(Exception ex, CancellationToken cancellationToken) =>
+        ex is HttpRequestException or JsonException
+        || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested);
+
+    private void LogFailure(Exception ex)
+    {
+        switch (ex)
+        {
+            case HttpRequestException:
+                LogRequestFailed(ex);
+                break;
+            case TaskCanceledException:
+                LogTimeout(ex);
+                break;
+            default:
+                LogMalformedResponse(ex);
+                break;
+        }
+    }
+
+    private static DomainError Unavailable() => DomainError.Unavailable("TrainAlerts");
 
     private static TrainAlertsResult Map(LtaTrainAlertFeed feed)
     {
