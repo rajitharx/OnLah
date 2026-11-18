@@ -70,8 +70,6 @@ internal sealed class GetBusServiceValidator : AbstractValidator<GetBusServiceRe
     public GetBusServiceValidator()
     {
         RuleFor(x => x.ServiceNo)
-            .NotEmpty()
-            .MaximumLength(10)
-            .Matches(@"^[A-Za-z0-9]+\z").WithMessage("Service number must be letters and digits only.");
+            .BeServiceNumber();
     }
 }
