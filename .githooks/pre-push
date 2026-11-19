@@ -1,0 +1,27 @@
+#!/bin/sh
+# Before a push, run the same check CI runs for each app this branch changes against origin/main.
+# Mobile and web run `npm run check`; the backend runs `dotnet test`. Skip with `git push --no-verify`.
+set -e
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+base=$(git merge-base origin/main HEAD 2>/dev/null || echo "")
+[ -z "$base" ] && exit 0
+changed=$(git diff --name-only "$base" HEAD)
+
+touches() { echo "$changed" | grep -q "^$1/"; }
+
+for app in mobile web; do
+  if touches "apps/$app"; then
+    echo "pre-push: npm run check in apps/$app"
+    (cd "apps/$app" && npm run check)
+  fi
+done
+
+if touches apps/backend; then
+  if command -v dotnet >/dev/null 2>&1; then
+    echo "pre-push: dotnet test in apps/backend"
+    (cd apps/backend && dotnet test)
+  else
+    echo "pre-push: dotnet not found, skipping the backend tests (CI still runs them)"
+  fi
+fi
