@@ -30,7 +30,7 @@ Written 19 Nov 2026, after PR #86. It covers the web bus board, the mobile web-p
 6. **Parts of the app were never seen by a person.** Open items: real GPS Nearby, night-time no-service state, `/notes` at 375px, alert card layout, VoiceOver and TalkBack (task 17). Tests cannot answer these.
 7. **Checks are advisory.** Branch protection is not available on this plan, so a red CI run does not block a merge.
 8. **Mobile release is undefined.** `app.json` says 1.0.0 while in-app release notes say 1.12. There is no EAS or TestFlight pipeline.
-9. **Docs drifted.** The bug backlog notes a QA list that says #45 is fixed while the UI list says open. Two Docs folders exist (`Docs/` and `docs/`).
+9. **Docs drifted.** The bug backlog notes a QA list that says #45 is fixed while the UI list says open. The folder is tracked by git as `Docs/` but is named `docs` on this machine (a macOS case-insensitive mismatch), which can confuse tooling on a case-sensitive system such as Linux CI.
 10. **Cold starts remain.** The "waking up the server" notice is a symptom, and `keep-alive.yml` has not been checked.
 
 ## What we can do
@@ -44,7 +44,7 @@ Written 19 Nov 2026, after PR #86. It covers the web bus board, the mobile web-p
 | 5 | Decide the mobile version scheme, then set up EAS and TestFlight | Unblocks a release (went wrong 8) | Medium |
 | 6 | Look at CI before every merge until required checks are possible (GitHub Pro or a public repo) | Closes the advisory-check gap (went wrong 7) | Habit |
 | 7 | Add render tests for each mobile screen when that screen next changes | Screens have no render tests yet | Small each |
-| 8 | Merge `docs/` into `Docs/` and reconcile the QA and UI lists | Stops doc drift (went wrong 9) | Small |
+| 8 | Rename the local `docs` folder to match `Docs/` in git, and reconcile the QA and UI lists | Stops doc drift (went wrong 9) | Small |
 | 9 | Check `keep-alive.yml` against the live server's cold-start behaviour | Went wrong 10 | Small |
 | 10 | For any future design reversal, ask first whether a test or the app guide should record it | Avoids repeating the dark mode and colour round trips | Habit |
 
