@@ -1,0 +1,10 @@
+{
+  "verify": {
+    "typecheck": {
+      "run": "for a in mobile web; do if [ -n \"$(git status --porcelain -- apps/$a)\" ]; then (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; fi; done",
+      "files": ["apps/mobile/**", "apps/web/**"]
+    }
+  },
+  "protectedPaths": [],
+  "blockedCommands": []
+}

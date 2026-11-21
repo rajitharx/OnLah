@@ -70,3 +70,23 @@ Run `npm run check` in `apps/mobile` or `apps/web` before pushing. CI runs the s
 | Mobile types match the backend's real responses, and the mobile client calls the paths the backend serves | `MobileContractTests` (backend, `dotnet test`) requests each endpoint the mobile client uses through the real API and compares it with a fixture in `apps/mobile/__tests__/contract`. `contract.test.ts` (mobile, `npm run check`) type-checks those fixtures against `src/types/domain.ts` and checks that `onlahApi.ts` builds the same requests. After an intended API change, run the backend test with `UPDATE_CONTRACT_FIXTURES=1` and commit the fixtures. Only the success shape is covered, not error responses or `/health`. A field the backend adds is not flagged, and enum-like values are checked only for the values the fixtures contain |
 | Bus Arrival calls use the LTA v3 endpoint | `LtaBusClientTests.GetArrivalsAsync_AnyRequest_CallsTheV3BusArrivalEndpointWithTheStopCode`, run by `dotnet test` in CI |
 | Web CSS has no dead or duplicate rules | Nothing. Two checks were tried (unused class names, duplicate declarations) and neither catches the mistakes that were made, so this stays a review item |
+
+<!-- harness:start -->
+## Harness
+
+Verify commands (from `.harness/config.json`):
+- Format: not configured
+- Lint: not configured
+- Typecheck: `for a in mobile web; do if [ -n "$(git status --porcelain -- apps/$a)" ]; then (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; fi; done` (only for `apps/mobile/**`, `apps/web/**`)
+- Test: not configured
+
+`{files}` in a command stands for the files changed since HEAD and `{dirs}` for their directories, so the harness checks only related files (format runs on each edited file). A command with a file filter only sees, and only runs for, matching files. A command without a placeholder checks the whole project.
+
+Working rules:
+- Run the `verify` skill before saying a task is done. The Stop gate re-runs lint, typecheck and test on changed files anyway.
+- Keep changes scoped to the request; surface anything else as a note.
+- Plan non-trivial work with the `plan` skill; ship with the `ship` skill.
+- Update `.harness/progress.md` with the `handoff` skill at the end of a session.
+
+This block is managed by `harness-init`; edit outside the markers.
+<!-- harness:end -->
