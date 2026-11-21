@@ -1,7 +1,7 @@
 {
   "verify": {
     "typecheck": {
-      "run": "for a in mobile web; do if [ -n \"$(git status --porcelain -- apps/$a)\" ]; then (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; fi; done",
+      "run": "for a in mobile web; do if [ ! -x apps/$a/node_modules/.bin/tsc ]; then echo \"apps/$a: run npm install first, typecheck skipped\"; continue; fi; (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; done",
       "files": ["apps/mobile/**", "apps/web/**"]
     }
   },

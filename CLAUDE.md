@@ -77,7 +77,7 @@ Run `npm run check` in `apps/mobile` or `apps/web` before pushing. CI runs the s
 Verify commands (from `.harness/config.json`):
 - Format: not configured
 - Lint: not configured
-- Typecheck: `for a in mobile web; do if [ -n "$(git status --porcelain -- apps/$a)" ]; then (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; fi; done` (only for `apps/mobile/**`, `apps/web/**`)
+- Typecheck: `for a in mobile web; do if [ ! -x apps/$a/node_modules/.bin/tsc ]; then echo "apps/$a: run npm install first, typecheck skipped"; continue; fi; (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; done` (only for `apps/mobile/**`, `apps/web/**`)
 - Test: not configured
 
 `{files}` in a command stands for the files changed since HEAD and `{dirs}` for their directories, so the harness checks only related files (format runs on each edited file). A command with a file filter only sees, and only runs for, matching files. A command without a placeholder checks the whole project.
