@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "jj-harness": {
+      "source": { "source": "github", "repo": "rajitharx/jj-harness" }
+    }
+  },
+  "enabledPlugins": {
+    "harness@jj-harness": true
+  }
+}
