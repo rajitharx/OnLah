@@ -1,9 +1,51 @@
 {
   "verify": {
+    "format": {
+      "run": "dotnet format OnLah.sln --no-restore --include {files}",
+      "files": [
+        "**/*.cs"
+      ],
+      "cwd": "apps/backend"
+    },
     "typecheck": {
       "run": "for a in mobile web; do if [ ! -x apps/$a/node_modules/.bin/tsc ]; then echo \"apps/$a: run npm install first, typecheck skipped\"; continue; fi; (cd apps/$a && npx --no -- tsc --noEmit) || exit 1; done",
-      "files": ["apps/mobile/**", "apps/web/**"]
-    }
+      "files": [
+        "apps/mobile/**",
+        "apps/web/**"
+      ]
+    },
+    "test": [
+      {
+        "run": "dotnet build OnLah.sln && dotnet test tests/OnLah.UnitTests --no-build",
+        "files": [
+          "**/*.cs",
+          "**/*.razor",
+          "**/*.cshtml",
+          "**/*.csproj",
+          "**/*.props",
+          "**/*.targets"
+        ],
+        "cwd": "apps/backend"
+      },
+      {
+        "run": "npm test && npm run test:render",
+        "cwd": "apps/mobile"
+      },
+      {
+        "run": "npx --no -- vitest related --run --passWithNoTests {files}",
+        "files": [
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.mjs",
+          "**/*.cjs",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.mts",
+          "**/*.cts"
+        ],
+        "cwd": "apps/web"
+      }
+    ]
   },
   "protectedPaths": [],
   "blockedCommands": []
