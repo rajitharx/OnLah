@@ -10,3 +10,6 @@ apps/.claude/
 docs/Claude/files.zip
 docs/Claude/files/
 docs/OnLah UI.dc.html
+
+# jj-harness dogfood notes (local)
+.harness/dogfood-onlah.md
